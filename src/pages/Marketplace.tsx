@@ -1,0 +1,1078 @@
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Plus, Eye, Cloud, Database, ArrowLeft, ShoppingCart, Check, Star, Shield, Zap, Users, Clock, ChevronRight, Trash2, CreditCard, MapPin, Mail, Phone, Building2, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useCart } from "@/contexts/CartContext";
+import { useSearchParams, useNavigate } from "react-router-dom";
+
+// Get logo from Brandfetch CDN
+const logoUrlMap: { [key: string]: string } = {
+  "amazon.com": "https://cdn.brandfetch.io/idVoqFQ-78/w/128/h/128/fallback/lettermark/icon.webp?c=1ax1761646996625bfumLaCV7mg2sQy1fv",
+  "microsoft.com": "https://cdn.brandfetch.io/idgS27aNck/w/128/h/128/fallback/lettermark/icon.webp?c=1ax1761647174454bfumLaCV7m80_xKfbK",
+  "idsWBrtc_i": "https://cdn.brandfetch.io/idsWBrtc_i/w/128/h/128/fallback/lettermark/icon.webp?c=1ax1761647217879bfumLaCV7ma21emRFS",
+  "google.com": "https://cdn.brandfetch.io/idqwPsNkb7/w/128/h/128/fallback/lettermark/icon.webp?c=1ax1761647109683bfumLaCV7mjq0eST-9",
+  "salesforce.com": "https://img.logo.dev/salesforce.com?token=public-7fpkVsYqkbYHwUU9gZ5vK",
+  "slack.com": "https://img.logo.dev/slack.com?token=public-7fpkVsYqkbYHwUU9gZ5vK",
+  "zoom.us": "https://cdn.brandfetch.io/id3aO4Szj3/w/128/h/128/fallback/lettermark/icon.webp?c=1ax1761651597948bfumLaCV7mjixOxN6m",
+  "atlassian.com": "https://cdn.brandfetch.io/idlQIwGMOK/w/128/h/128/fallback/lettermark/icon.webp?c=1ax1761651686529bfumLaCV7mcxZ8N2lX",
+  "adobe.com": "https://cdn.brandfetch.io/idkrQGARPW/w/128/h/128/fallback/lettermark/icon.webp?c=1ax1761651829573bfumLaCV7mgOrlgZHy",
+  "github.com": "https://cdn.brandfetch.io/idZAyF9rlg/w/128/h/128/fallback/lettermark/icon.webp?c=1ax1761651878703bfumLaCV7mU56CxsUJ",
+  "datadoghq.com": "https://cdn.brandfetch.io/idg33VVWFZ/w/128/h/128/fallback/lettermark/icon.webp?c=1ax1761651921010bfumLaCV7mcDkLNN6A",
+  "snowflake.com": "https://img.logo.dev/snowflake.com?token=public-7fpkVsYqkbYHwUU9gZ5vK",
+};
+
+const getLogoUrl = (domain: string) => {
+  return logoUrlMap[domain] || `https://logo.clearbit.com/${domain}`;
+};
+
+// Enhanced cloud providers with products (excluding Oracle and IBM)
+const cloudProviders = [
+  { 
+    id: 1,
+    name: "Amazon AWS", 
+    type: "Consumption", 
+    category: "Cloud Infrastructure", 
+    domain: "amazon.com",
+    description: "Scalable cloud computing platform",
+    products: [
+      {
+        id: "aws-ec2",
+        name: "Amazon EC2",
+        description: "Scalable compute capacity in the cloud",
+        features: ["Virtual servers", "Auto scaling", "Multiple instance types", "Pay-as-you-go pricing"],
+        plans: [
+          { name: "t3.micro", price: 0.0104, period: "per hour", specs: "1 vCPU, 1 GB RAM" },
+          { name: "t3.small", price: 0.0208, period: "per hour", specs: "2 vCPU, 2 GB RAM" },
+          { name: "t3.medium", price: 0.0416, period: "per hour", specs: "2 vCPU, 4 GB RAM" },
+          { name: "m5.large", price: 0.096, period: "per hour", specs: "2 vCPU, 8 GB RAM" }
+        ]
+      },
+      {
+        id: "aws-s3",
+        name: "Amazon S3",
+        description: "Object storage built to store and retrieve any amount of data",
+        features: ["99.999999999% durability", "Unlimited storage", "Multiple storage classes", "Global availability"],
+        plans: [
+          { name: "Standard", price: 0.023, period: "per GB/month", specs: "Frequently accessed data" },
+          { name: "IA", price: 0.0125, period: "per GB/month", specs: "Infrequently accessed data" },
+          { name: "Glacier", price: 0.004, period: "per GB/month", specs: "Long-term archival" }
+        ]
+      },
+      {
+        id: "aws-rds",
+        name: "Amazon RDS",
+        description: "Managed relational database service",
+        features: ["Multiple database engines", "Automated backups", "High availability", "Scaling"],
+        plans: [
+          { name: "db.t3.micro", price: 0.017, period: "per hour", specs: "1 vCPU, 1 GB RAM" },
+          { name: "db.t3.small", price: 0.034, period: "per hour", specs: "2 vCPU, 2 GB RAM" },
+          { name: "db.r5.large", price: 0.24, period: "per hour", specs: "2 vCPU, 16 GB RAM" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 2,
+    name: "Microsoft Azure", 
+    type: "Consumption", 
+    category: "Cloud Infrastructure", 
+    domain: "microsoft.com",
+    description: "Enterprise cloud services",
+    products: [
+      {
+        id: "azure-vm",
+        name: "Azure Virtual Machines",
+        description: "Scalable on-demand computing resources",
+        features: ["Windows & Linux VMs", "Auto scaling", "Hybrid cloud", "Enterprise security"],
+        plans: [
+          { name: "B1s", price: 0.0052, period: "per hour", specs: "1 vCPU, 1 GB RAM" },
+          { name: "B2s", price: 0.0104, period: "per hour", specs: "2 vCPU, 4 GB RAM" },
+          { name: "D2s v3", price: 0.096, period: "per hour", specs: "2 vCPU, 8 GB RAM" },
+          { name: "D4s v3", price: 0.192, period: "per hour", specs: "4 vCPU, 16 GB RAM" }
+        ]
+      },
+      {
+        id: "azure-sql",
+        name: "Azure SQL Database",
+        description: "Fully managed relational database",
+        features: ["Built-in intelligence", "Automatic tuning", "High availability", "Security"],
+        plans: [
+          { name: "Basic", price: 4.99, period: "per month", specs: "5 DTU, 2 GB storage" },
+          { name: "Standard S0", price: 15, period: "per month", specs: "10 DTU, 250 GB storage" },
+          { name: "Premium P1", price: 125, period: "per month", specs: "125 DTU, 500 GB storage" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 3,
+    name: "Google Cloud", 
+    type: "Consumption", 
+    category: "Cloud Infrastructure", 
+    domain: "google.com",
+    description: "AI-powered cloud solutions",
+    products: [
+      {
+        id: "gcp-compute",
+        name: "Compute Engine",
+        description: "Scalable virtual machines",
+        features: ["Preemptible instances", "Custom machine types", "Live migration", "Global load balancing"],
+        plans: [
+          { name: "e2-micro", price: 0.006, period: "per hour", specs: "0.25-2 vCPU, 1 GB RAM" },
+          { name: "e2-small", price: 0.012, period: "per hour", specs: "0.5-2 vCPU, 2 GB RAM" },
+          { name: "e2-medium", price: 0.024, period: "per hour", specs: "1-2 vCPU, 4 GB RAM" },
+          { name: "n1-standard-1", price: 0.0475, period: "per hour", specs: "1 vCPU, 3.75 GB RAM" }
+        ]
+      },
+      {
+        id: "gcp-storage",
+        name: "Cloud Storage",
+        description: "Object storage for any amount of data",
+        features: ["Multi-regional", "Nearline storage", "Coldline storage", "Archive storage"],
+        plans: [
+          { name: "Standard", price: 0.020, period: "per GB/month", specs: "Frequently accessed data" },
+          { name: "Nearline", price: 0.010, period: "per GB/month", specs: "Accessed once per month" },
+          { name: "Coldline", price: 0.004, period: "per GB/month", specs: "Accessed once per year" }
+        ]
+      }
+    ]
+  }
+];
+
+const saasProviders = [
+  { 
+    id: 1,
+    name: "Microsoft 365", 
+    type: "License", 
+    category: "Productivity", 
+    domain: "idsWBrtc_i",
+    description: "Office productivity suite",
+    products: [
+      {
+        id: "office365-business",
+        name: "Microsoft 365 Business Standard",
+        description: "Complete productivity suite for businesses",
+        features: ["Office apps", "Exchange email", "Teams", "SharePoint", "OneDrive"],
+        plans: [
+          { name: "Business Basic", price: 6, period: "per user/month", specs: "Web and mobile apps only" },
+          { name: "Business Standard", price: 12.50, period: "per user/month", specs: "Desktop apps + web apps" },
+          { name: "Business Premium", price: 22, period: "per user/month", specs: "All features + security" }
+        ]
+      },
+      {
+        id: "office365-enterprise",
+        name: "Microsoft 365 Enterprise",
+        description: "Enterprise-grade productivity and security",
+        features: ["Advanced security", "Compliance tools", "Analytics", "Power Platform"],
+        plans: [
+          { name: "E3", price: 36, period: "per user/month", specs: "Core productivity + security" },
+          { name: "E5", price: 57, period: "per user/month", specs: "Advanced security + analytics" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 2,
+    name: "Salesforce", 
+    type: "License", 
+    category: "CRM", 
+    domain: "salesforce.com",
+    description: "Customer relationship management platform",
+    products: [
+      {
+        id: "salesforce-essentials",
+        name: "Salesforce Essentials",
+        description: "CRM for small businesses",
+        features: ["Contact management", "Lead tracking", "Email integration", "Mobile app"],
+        plans: [
+          { name: "Essentials", price: 25, period: "per user/month", specs: "Up to 10 users" },
+          { name: "Professional", price: 75, period: "per user/month", specs: "Unlimited users" },
+          { name: "Enterprise", price: 150, period: "per user/month", specs: "Advanced features" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 3,
+    name: "Slack", 
+    type: "License", 
+    category: "Communication", 
+    domain: "slack.com",
+    description: "Team collaboration platform",
+    products: [
+      {
+        id: "slack-pro",
+        name: "Slack Pro",
+        description: "Advanced collaboration features",
+        features: ["Unlimited message history", "Screen sharing", "Workflow builder", "Integrations"],
+        plans: [
+          { name: "Free", price: 0, period: "per user/month", specs: "Basic features" },
+          { name: "Pro", price: 7.25, period: "per user/month", specs: "Advanced features" },
+          { name: "Business+", price: 12.50, period: "per user/month", specs: "Enterprise features" }
+        ]
+      }
+    ]
+  }
+];
+
+const Marketplace = () => {
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+  const [selectedProvider, setSelectedProvider] = useState<typeof cloudProviders[0] | typeof saasProviders[0] | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [showCart, setShowCart] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [checkoutData, setCheckoutData] = useState({
+    companyName: "TechCorp Inc",
+    email: "billing@techcorp.com",
+    phone: "+1 (555) 123-4567",
+    address: "123 Main Street",
+    city: "San Francisco",
+    country: "United States"
+  });
+  
+  // Use CartContext instead of local state
+  const { cart, addToCart, removeFromCart, updateQuantity, getTotalItems, getTotalPrice, clearCart } = useCart();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  
+  // Check if cart should be shown from URL params
+  useEffect(() => {
+    if (searchParams.get('cart') === 'true') {
+      setShowCart(true);
+    }
+  }, [searchParams]);
+
+  const handleAddProvider = (name: string) => {
+    toast.success(`${name} added to your subscriptions!`);
+  };
+
+  const handleViewDetails = (provider: typeof cloudProviders[0] | typeof saasProviders[0]) => {
+    setSelectedProvider(provider);
+  };
+
+  const handleViewProduct = (product: any) => {
+    setSelectedProduct(product);
+  };
+
+  const handleAddToCart = (product: any, plan: any) => {
+    if (!selectedProvider) {
+      toast.error("Provider information is missing");
+      return;
+    }
+    addToCart(product, plan, selectedProvider);
+  };
+
+  const calculateTotal = () => {
+    return getTotalPrice();
+  };
+
+  const handleCheckout = () => {
+    if (cart.length === 0) {
+      toast.error("Your cart is empty");
+      return;
+    }
+    setShowCheckout(true);
+  };
+
+  const handleProcessPayment = async () => {
+    if (!checkoutData.companyName || !checkoutData.email || !checkoutData.phone) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+    
+    setIsProcessing(true);
+    
+    try {
+      // Simulate payment processing with more realistic steps
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Generate order number
+      const orderNumber = `ORD-${Date.now()}`;
+      
+      // Clear cart after successful payment
+      clearCart();
+      
+      setIsProcessing(false);
+      setShowCheckout(false);
+      setShowCart(false);
+      
+      toast.success(`Order ${orderNumber} placed successfully! Your subscriptions will be activated shortly.`);
+      
+      // Reset form for next order
+      setCheckoutData({
+        companyName: "",
+        email: "",
+        phone: "",
+        address: "",
+        city: "",
+        country: ""
+      });
+      
+    } catch (error) {
+      setIsProcessing(false);
+      toast.error("Payment processing failed. Please try again.");
+    }
+  };
+
+  const handleBackToProvider = () => {
+    setSelectedProduct(null);
+  };
+
+  const handleBackToMarketplace = () => {
+    setSelectedProvider(null);
+    setSelectedProduct(null);
+  };
+
+  // Product Detail View
+  if (selectedProduct) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" onClick={handleBackToProvider}>
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Back to {selectedProvider?.name}
+          </Button>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-3">
+          {/* Product Overview */}
+          <div className="lg:col-span-2 space-y-6">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <img
+                      src={getLogoUrl(selectedProvider?.domain || "")}
+                      alt={selectedProvider?.name}
+                      className="w-12 h-12 object-contain"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                        if (fallback) fallback.style.display = 'flex';
+                      }}
+                    />
+                    <div className="hidden w-12 h-12 items-center justify-center">
+                      <Cloud className="h-8 w-8 text-primary" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <h1 className="text-2xl font-bold">{selectedProduct.name}</h1>
+                    <p className="text-muted-foreground mt-2">{selectedProduct.description}</p>
+                    <div className="flex items-center gap-4 mt-4">
+                      <Badge variant="secondary" className="bg-primary/10 text-primary">
+                        {selectedProvider?.type}
+                      </Badge>
+                      <Badge variant="outline">{selectedProvider?.category}</Badge>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Features */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Star className="h-5 w-5 text-primary" />
+                  Key Features
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-3 md:grid-cols-2">
+                  {selectedProduct.features.map((feature: string, index: number) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-600" />
+                      <span className="text-sm">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Pricing Plans */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ShoppingCart className="h-5 w-5 text-primary" />
+                  Pricing Plans
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Plan</TableHead>
+                      <TableHead>Specifications</TableHead>
+                      <TableHead className="text-right">Price</TableHead>
+                      <TableHead className="text-center">Action</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {selectedProduct.plans.map((plan: any, index: number) => (
+                      <TableRow key={index}>
+                        <TableCell className="font-medium">{plan.name}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">{plan.specs}</TableCell>
+                        <TableCell className="text-right font-semibold">
+                          ${plan.price}{plan.period.includes('hour') ? '/hr' : plan.period.includes('month') ? '/mo' : plan.period.includes('GB') ? '/GB' : ''}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Button
+                            size="sm"
+                            onClick={() => handleAddToCart(selectedProduct, plan)}
+                            className="bg-primary hover:bg-primary/90"
+                          >
+                            <ShoppingCart className="h-4 w-4 mr-1" />
+                            Add to Cart
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Provider Info */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Provider Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <img
+                      src={getLogoUrl(selectedProvider?.domain || "")}
+                      alt={selectedProvider?.name}
+                      className="w-8 h-8 object-contain"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                        if (fallback) fallback.style.display = 'flex';
+                      }}
+                    />
+                    <div className="hidden w-8 h-8 items-center justify-center">
+                      <Cloud className="h-6 w-6 text-primary" />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">{selectedProvider?.name}</h3>
+                    <p className="text-sm text-muted-foreground">{selectedProvider?.category}</p>
+                  </div>
+                </div>
+                <Separator />
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Shield className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Enterprise Security</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-blue-600" />
+                    <span className="text-sm">High Performance</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4 text-purple-600" />
+                    <span className="text-sm">24/7 Support</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Cart Summary */}
+            {cart.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Cart Summary</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {cart.map((item) => (
+                      <div key={item.id} className="flex items-center justify-between text-sm">
+                        <div className="flex-1">
+                          <p className="font-medium">{item.product.name}</p>
+                          <p className="text-muted-foreground">{item.plan.name}</p>
+                          <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold">
+                            ${(item.plan.price * item.quantity).toFixed(2)}{item.plan.period.includes('hour') ? '/hr' : item.plan.period.includes('month') ? '/mo' : ''}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeFromCart(item.id)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 h-6 w-6 p-0"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <Separator className="my-4" />
+                  <div className="flex items-center justify-between font-semibold">
+                    <span>Total Items:</span>
+                    <span>{getTotalItems()}</span>
+                  </div>
+                  <Separator className="my-4" />
+                  <Button 
+                    className="w-full"
+                    onClick={() => navigate("/checkout")}
+                    variant="gradient"
+                  >
+                    <ShoppingCart className="h-4 w-4 mr-2" />
+                    Proceed Order
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Provider Detail View
+  if (selectedProvider) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" onClick={handleBackToMarketplace}>
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Back to Marketplace
+          </Button>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center">
+            <img
+              src={getLogoUrl(selectedProvider.domain)}
+              alt={selectedProvider.name}
+              className="w-12 h-12 object-contain"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                if (fallback) fallback.style.display = 'flex';
+              }}
+            />
+            <div className="hidden w-12 h-12 items-center justify-center">
+              <Cloud className="h-8 w-8 text-primary" />
+            </div>
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold">{selectedProvider.name}</h1>
+            <p className="text-muted-foreground mt-1">{selectedProvider.description}</p>
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant="secondary" className="bg-primary/10 text-primary">
+                {selectedProvider.type}
+              </Badge>
+              <Badge variant="outline">{selectedProvider.category}</Badge>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {selectedProvider.products.map((product) => (
+            <Card 
+              key={product.id}
+              className="hover:shadow-lg transition-all duration-300 cursor-pointer group"
+              onClick={() => handleViewProduct(product)}
+            >
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-lg">{product.name}</h3>
+                    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                  </div>
+                  <p className="text-sm text-muted-foreground line-clamp-2">{product.description}</p>
+                  <div className="space-y-2">
+                    {product.features.slice(0, 3).map((feature, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <Check className="h-3 w-3 text-green-600" />
+                        <span className="text-xs text-muted-foreground">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="pt-2">
+                    <Badge variant="outline" className="text-xs">
+                      Starting at ${product.plans[0].price}{product.plans[0].period.includes('hour') ? '/hr' : product.plans[0].period.includes('month') ? '/mo' : ''}
+                    </Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Cart View
+  if (showCart && !selectedProduct && !selectedProvider) {
+    return (
+      <>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-semibold">Shopping Cart</h1>
+              <p className="text-sm text-muted-foreground mt-1">{cart.length} items in your cart</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button variant="outline" onClick={() => setShowCart(false)}>
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Continue Shopping
+              </Button>
+              {cart.length > 0 && (
+                <Button onClick={handleCheckout} className="bg-primary hover:bg-primary/90">
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Proceed to Checkout
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {cart.length === 0 ? (
+            <Card>
+              <CardContent className="p-12 text-center">
+                <ShoppingCart className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Your cart is empty</h3>
+                <p className="text-muted-foreground mb-4">Start adding products to your cart to continue</p>
+                <Button onClick={() => setShowCart(false)} className="bg-primary hover:bg-primary/90">
+                  Browse Marketplace
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-6 lg:grid-cols-3">
+              <div className="lg:col-span-2 space-y-4">
+                {cart.map((item) => (
+                  <Card key={item.id}>
+                    <CardContent className="p-6">
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <Cloud className="h-6 w-6 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <h3 className="font-semibold">{item.product.name}</h3>
+                              <p className="text-sm text-muted-foreground">{item.plan.name}</p>
+                              <p className="text-xs text-muted-foreground mt-1">{item.plan.specs}</p>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeFromCart(item.id)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <div className="flex items-center gap-4 mt-4">
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                disabled={item.quantity <= 1}
+                              >
+                                -
+                              </Button>
+                              <span className="w-12 text-center font-medium">{item.quantity}</span>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              >
+                                +
+                              </Button>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-semibold">
+                                ${(item.plan.price * item.quantity).toFixed(2)}{item.plan.period.includes('hour') ? '/hr' : item.plan.period.includes('month') ? '/mo' : ''}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              <div>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Order Summary</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">Subtotal</span>
+                        <span>${calculateTotal().toFixed(2)}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">Tax</span>
+                        <span>${(calculateTotal() * 0.08).toFixed(2)}</span>
+                      </div>
+                      <Separator />
+                      <div className="flex items-center justify-between font-semibold text-lg">
+                        <span>Total</span>
+                        <span>${(calculateTotal() * 1.08).toFixed(2)}</span>
+                      </div>
+                    </div>
+                    <Separator />
+                    <Button 
+                      className="w-full" 
+                      onClick={handleCheckout}
+                      variant="gradient"
+                    >
+                      <CreditCard className="h-4 w-4 mr-2" />
+                      Checkout
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Checkout Dialog */}
+        <Dialog open={showCheckout} onOpenChange={setShowCheckout}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <CreditCard className="h-5 w-5 text-primary" />
+                Checkout
+              </DialogTitle>
+              <DialogDescription>
+                Please review your order and provide billing information
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-6 py-4">
+              {/* Order Summary */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm">Order Summary</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {cart.map((item) => (
+                    <div key={item.id} className="flex items-center justify-between text-sm">
+                      <div>
+                        <p className="font-medium">{item.product.name} - {item.plan.name}</p>
+                        <p className="text-muted-foreground">Qty: {item.quantity}</p>
+                      </div>
+                      <span className="font-semibold">
+                        ${(item.plan.price * item.quantity).toFixed(2)}
+                      </span>
+                    </div>
+                  ))}
+                  <Separator />
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold">Total</span>
+                    <span className="font-bold text-lg">${(calculateTotal() * 1.08).toFixed(2)}</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Billing Information */}
+              <div className="space-y-4">
+                <h3 className="font-semibold flex items-center gap-2">
+                  <Building2 className="h-4 w-4" />
+                  Billing Information
+                </h3>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="companyName">Company Name *</Label>
+                    <Input
+                      id="companyName"
+                      value={checkoutData.companyName}
+                      onChange={(e) => setCheckoutData({...checkoutData, companyName: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email *</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={checkoutData.email}
+                      onChange={(e) => setCheckoutData({...checkoutData, email: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone *</Label>
+                    <Input
+                      id="phone"
+                      value={checkoutData.phone}
+                      onChange={(e) => setCheckoutData({...checkoutData, phone: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="address">Address</Label>
+                    <Input
+                      id="address"
+                      value={checkoutData.address}
+                      onChange={(e) => setCheckoutData({...checkoutData, address: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="city">City</Label>
+                    <Input
+                      id="city"
+                      value={checkoutData.city}
+                      onChange={(e) => setCheckoutData({...checkoutData, city: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="country">Country</Label>
+                    <Input
+                      id="country"
+                      value={checkoutData.country}
+                      onChange={(e) => setCheckoutData({...checkoutData, country: e.target.value})}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowCheckout(false)} disabled={isProcessing}>
+                Cancel
+              </Button>
+              <Button onClick={handleProcessPayment} disabled={isProcessing} className="bg-primary hover:bg-primary/90">
+                {isProcessing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    Place Order
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </>
+    );
+  }
+
+  // Main Marketplace View
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold">Marketplace</h1>
+          <p className="text-sm text-muted-foreground mt-1">Browse and manage cloud providers and SaaS subscriptions</p>
+        </div>
+        {cart.length > 0 && (
+          <Button className="bg-primary hover:bg-primary/90" onClick={() => setShowCart(true)}>
+            <ShoppingCart className="h-4 w-4 mr-2" />
+            Cart ({getTotalItems()})
+          </Button>
+        )}
+      </div>
+
+      {/* Cloud Providers Section */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between pb-4">
+          <div>
+            <CardTitle className="text-base font-medium">Cloud Providers</CardTitle>
+            <p className="text-xs text-muted-foreground mt-1">Infrastructure and platform services</p>
+          </div>
+          <Badge variant="secondary">{cloudProviders.length} Providers</Badge>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {cloudProviders.map((provider) => (
+              <Card 
+                key={provider.id} 
+                className="hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden group relative"
+                onMouseEnter={() => setHoveredCard(provider.id)}
+                onMouseLeave={() => setHoveredCard(null)}
+                onClick={() => handleViewDetails(provider)}
+              >
+                <CardContent className="p-5">
+                  {/* Type Badge - Top Right */}
+                  <div className="absolute top-3 right-3">
+                    <Badge variant="gray" className="text-xs">
+                      {provider.type}
+                    </Badge>
+                  </div>
+
+                  <div className="flex flex-col space-y-3 min-h-[200px]">
+                    {/* Logo - Always Visible */}
+                    <div className="flex justify-center">
+                      <div className="w-16 h-16 flex items-center justify-center">
+                        <img 
+                          src={getLogoUrl(provider.domain)} 
+                          alt={provider.name}
+                          className="w-full h-full object-contain"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                            if (fallback) fallback.style.display = 'flex';
+                          }}
+                        />
+                        <div className="hidden w-full h-full items-center justify-center">
+                          <Cloud className="h-10 w-10 text-primary" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Provider Name */}
+                    <h3 className="font-semibold text-sm text-center">{provider.name}</h3>
+
+                    {/* Description - Default State */}
+                    <div className={`flex-1 transition-opacity duration-300 ${
+                      hoveredCard === provider.id ? 'opacity-0 absolute' : 'opacity-100'
+                    }`}>
+                      <p className="text-xs text-muted-foreground text-center line-clamp-3">
+                        {provider.description}
+                      </p>
+                    </div>
+
+                    {/* Category - Hover State */}
+                    <div className={`transition-opacity duration-300 ${
+                      hoveredCard === provider.id ? 'opacity-100' : 'opacity-0 absolute'
+                    }`}>
+                      <p className="text-xs text-muted-foreground text-center mb-3">
+                        {provider.category}
+                      </p>
+                    </div>
+
+                    {/* View Details Button - Bottom Right (Hover) */}
+                    <div className={`mt-auto transition-opacity duration-300 ${
+                      hoveredCard === provider.id ? 'opacity-100' : 'opacity-0 absolute'
+                    }`}>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="w-full"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewDetails(provider);
+                        }}
+                      >
+                        <Eye className="h-3 w-3 mr-1" />
+                        View Details
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* SaaS Providers Section */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between pb-4">
+          <div>
+            <CardTitle className="text-base font-medium">SaaS Applications</CardTitle>
+            <p className="text-xs text-muted-foreground mt-1">Software as a service subscriptions</p>
+          </div>
+          <Badge variant="secondary">{saasProviders.length} Applications</Badge>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {saasProviders.map((provider) => (
+              <Card 
+                key={provider.id} 
+                className="hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden group relative"
+                onMouseEnter={() => setHoveredCard(provider.id + 100)}
+                onMouseLeave={() => setHoveredCard(null)}
+                onClick={() => handleViewDetails(provider)}
+              >
+                <CardContent className="p-5">
+                  {/* Type Badge - Top Right */}
+                  <div className="absolute top-3 right-3">
+                    <Badge variant="gray" className="text-xs">
+                      {provider.type}
+                    </Badge>
+                  </div>
+
+                  <div className="flex flex-col space-y-3 min-h-[200px]">
+                    {/* Logo - Always Visible */}
+                    <div className="flex justify-center">
+                      <div className="w-16 h-16 flex items-center justify-center">
+                        <img 
+                          src={getLogoUrl(provider.domain)} 
+                          alt={provider.name}
+                          className="w-full h-full object-contain"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                            if (fallback) fallback.style.display = 'flex';
+                          }}
+                        />
+                        <div className="hidden w-full h-full items-center justify-center">
+                          <Database className="h-10 w-10 text-primary" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Provider Name */}
+                    <h3 className="font-semibold text-sm text-center">{provider.name}</h3>
+
+                    {/* Description - Default State */}
+                    <div className={`flex-1 transition-opacity duration-300 ${
+                      hoveredCard === provider.id + 100 ? 'opacity-0 absolute' : 'opacity-100'
+                    }`}>
+                      <p className="text-xs text-muted-foreground text-center line-clamp-3">
+                        {provider.description}
+                      </p>
+                    </div>
+
+                    {/* Category - Hover State */}
+                    <div className={`transition-opacity duration-300 ${
+                      hoveredCard === provider.id + 100 ? 'opacity-100' : 'opacity-0 absolute'
+                    }`}>
+                      <p className="text-xs text-muted-foreground text-center mb-3">
+                        {provider.category}
+                      </p>
+                    </div>
+
+                    {/* View Details Button - Bottom Right (Hover) */}
+                    <div className={`mt-auto transition-opacity duration-300 ${
+                      hoveredCard === provider.id + 100 ? 'opacity-100' : 'opacity-0 absolute'
+                    }`}>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="w-full"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewDetails(provider);
+                        }}
+                      >
+                        <Eye className="h-3 w-3 mr-1" />
+                        View Details
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default Marketplace;
