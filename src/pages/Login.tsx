@@ -30,7 +30,7 @@ const Login = () => {
           <div className="flex justify-center">
             <img src={logo} alt="CloudWatch" className="h-16" />
           </div>
-          <CardTitle className="text-2xl">Welcome Back</CardTitle>
+          <CardTitle className="text-2xl">Welcome Back!</CardTitle>
           <CardDescription>
             Sign in to manage your cloud and SaaS subscriptions
           </CardDescription>
