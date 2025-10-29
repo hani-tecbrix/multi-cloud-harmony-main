@@ -41,14 +41,14 @@ export const NavigationRail = ({ onToggleExpand }: NavigationRailProps = {} as N
   return (
     <aside 
       className={cn(
-        "fixed left-0 top-0 h-screen bg-card border-r border-border transition-all duration-300 z-50 flex flex-col",
+        "fixed left-0 top-0 h-screen bg-[hsl(210,15%,18%)] border-r border-[hsl(210,15%,25%)] transition-all duration-300 z-50 flex flex-col",
         isExpanded ? "w-64" : "w-20"
       )}
     >
-      <div className="flex items-center justify-between p-4 border-b border-border h-16">
+      <div className="flex items-center justify-between p-4 border-b border-[hsl(210,15%,25%)] h-16">
         {isExpanded && (
           <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-2 duration-300">
-            <img src={logo} alt="MindWare" className="h-8" />
+            <img src={logo} alt="MindVerse" className="h-8" />
           </div>
         )}
         {!isExpanded && (
@@ -60,7 +60,7 @@ export const NavigationRail = ({ onToggleExpand }: NavigationRailProps = {} as N
           variant="ghost"
           size="icon"
           onClick={handleToggle}
-          className={cn("h-8 w-8", isExpanded ? "ml-auto" : "absolute bottom-4 left-1/2 -translate-x-1/2")}
+          className={cn("h-8 w-8 text-white hover:bg-white/10", isExpanded ? "ml-auto" : "absolute bottom-4 left-1/2 -translate-x-1/2")}
         >
           {isExpanded ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </Button>
@@ -76,8 +76,8 @@ export const NavigationRail = ({ onToggleExpand }: NavigationRailProps = {} as N
                 isExpanded 
                   ? "flex items-center gap-3 px-3 py-2.5 rounded transition-all duration-200" 
                   : "flex flex-col items-center justify-center gap-1 px-2 py-3 rounded transition-all duration-200",
-                "hover:bg-muted",
-                isActive && "bg-primary/10 text-primary"
+                "hover:bg-white/10 text-white",
+                isActive && "bg-accent text-white shadow-lg"
               )
             }
           >
@@ -85,20 +85,20 @@ export const NavigationRail = ({ onToggleExpand }: NavigationRailProps = {} as N
               <>
                 <item.icon className={cn(
                   isExpanded ? "h-5 w-5 flex-shrink-0" : "h-5 w-5",
-                  isActive ? "text-primary" : "text-foreground"
+                  "text-white"
                 )} />
                 {isExpanded && (
                   <span className={cn(
-                    "text-sm",
-                    isActive ? "text-primary font-medium" : "text-foreground"
+                    "text-sm text-white",
+                    isActive && "font-semibold"
                   )}>
                     {item.label}
                   </span>
                 )}
                 {!isExpanded && (
                   <span className={cn(
-                    "text-xs text-center leading-tight",
-                    isActive ? "text-primary font-medium" : "text-muted-foreground"
+                    "text-xs text-center leading-tight text-white",
+                    isActive && "font-semibold"
                   )}>
                     {item.label}
                   </span>

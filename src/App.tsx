@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Customers from "./pages/Customers";
+import PartnerCustomers from "./pages/PartnerCustomers";
+import AdminPartners from "./pages/AdminPartners";
 import Marketplace from "./pages/Marketplace";
 import Checkout from "./pages/Checkout";
 import OrderHistory from "./pages/OrderHistory";
@@ -16,6 +18,7 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import { AppLayout } from "./components/AppLayout";
 import { CartProvider } from "./contexts/CartContext";
+import { UserRoleProvider } from "./contexts/UserRoleContext";
 
 const queryClient = new QueryClient();
 
@@ -24,12 +27,15 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <CartProvider>
-        <BrowserRouter>
+      <UserRoleProvider>
+        <CartProvider>
+          <BrowserRouter>
           <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
             <Route path="/customers" element={<AppLayout><Customers /></AppLayout>} />
+            <Route path="/partner/customers" element={<AppLayout><PartnerCustomers /></AppLayout>} />
+            <Route path="/admin/partners" element={<AppLayout><AdminPartners /></AppLayout>} />
             <Route path="/marketplace" element={<AppLayout><Marketplace /></AppLayout>} />
             <Route path="/checkout" element={<AppLayout><Checkout /></AppLayout>} />
             <Route path="/orders" element={<AppLayout><OrderHistory /></AppLayout>} />
@@ -39,8 +45,9 @@ const App = () => (
             <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </BrowserRouter>
-      </CartProvider>
+          </BrowserRouter>
+        </CartProvider>
+      </UserRoleProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

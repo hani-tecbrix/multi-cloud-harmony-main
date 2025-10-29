@@ -12,24 +12,57 @@ import { Label } from "@/components/ui/label";
 import { useCart } from "@/contexts/CartContext";
 import { useSearchParams, useNavigate } from "react-router-dom";
 
-// Get logo from Brandfetch CDN
+// Get logo from multiple CDN sources
 const logoUrlMap: { [key: string]: string } = {
-  "amazon.com": "https://cdn.brandfetch.io/idVoqFQ-78/w/128/h/128/fallback/lettermark/icon.webp?c=1ax1761646996625bfumLaCV7mg2sQy1fv",
-  "microsoft.com": "https://cdn.brandfetch.io/idgS27aNck/w/128/h/128/fallback/lettermark/icon.webp?c=1ax1761647174454bfumLaCV7m80_xKfbK",
-  "idsWBrtc_i": "https://cdn.brandfetch.io/idsWBrtc_i/w/128/h/128/fallback/lettermark/icon.webp?c=1ax1761647217879bfumLaCV7ma21emRFS",
-  "google.com": "https://cdn.brandfetch.io/idqwPsNkb7/w/128/h/128/fallback/lettermark/icon.webp?c=1ax1761647109683bfumLaCV7mjq0eST-9",
-  "salesforce.com": "https://img.logo.dev/salesforce.com?token=public-7fpkVsYqkbYHwUU9gZ5vK",
-  "slack.com": "https://img.logo.dev/slack.com?token=public-7fpkVsYqkbYHwUU9gZ5vK",
-  "zoom.us": "https://cdn.brandfetch.io/id3aO4Szj3/w/128/h/128/fallback/lettermark/icon.webp?c=1ax1761651597948bfumLaCV7mjixOxN6m",
-  "atlassian.com": "https://cdn.brandfetch.io/idlQIwGMOK/w/128/h/128/fallback/lettermark/icon.webp?c=1ax1761651686529bfumLaCV7mcxZ8N2lX",
-  "adobe.com": "https://cdn.brandfetch.io/idkrQGARPW/w/128/h/128/fallback/lettermark/icon.webp?c=1ax1761651829573bfumLaCV7mgOrlgZHy",
-  "github.com": "https://cdn.brandfetch.io/idZAyF9rlg/w/128/h/128/fallback/lettermark/icon.webp?c=1ax1761651878703bfumLaCV7mU56CxsUJ",
-  "datadoghq.com": "https://cdn.brandfetch.io/idg33VVWFZ/w/128/h/128/fallback/lettermark/icon.webp?c=1ax1761651921010bfumLaCV7mcDkLNN6A",
-  "snowflake.com": "https://img.logo.dev/snowflake.com?token=public-7fpkVsYqkbYHwUU9gZ5vK",
+  // Cloud Providers
+  "amazon.com": "https://cdn.brandfetch.io/idVoqFQ-78/w/128/h/128/theme/dark/icon.png",
+  "microsoft.com": "https://cdn.brandfetch.io/idgS27aNck/w/128/h/128/theme/dark/icon.png",
+  "google.com": "https://cdn.brandfetch.io/idqwPsNkb7/w/128/h/128/theme/dark/icon.png",
+  
+  // Productivity & Collaboration
+  "idsWBrtc_i": "https://cdn.brandfetch.io/idsWBrtc_i/w/128/h/128/theme/dark/icon.png", // Microsoft 365
+  "slack.com": "https://cdn.brandfetch.io/idJ_HhtG0Z/w/128/h/128/fallback/lettermark/icon.webp?c=1ax1761845184782bfumLaCV7mkRY04hIe",
+  "zoom.us": "https://cdn.brandfetch.io/id3aO4Szj3/w/128/h/128/theme/dark/icon.png",
+  "atlassian.com": "https://cdn.brandfetch.io/idlQIwGMOK/w/128/h/128/theme/dark/icon.png",
+  "asana.com": "https://cdn.brandfetch.io/idDgVMQq-T/w/128/h/128/theme/dark/icon.png",
+  "notion.so": "https://cdn.brandfetch.io/idAnl0GK3J/w/128/h/128/theme/dark/icon.png",
+  "monday.com": "https://cdn.brandfetch.io/idHFUcTb1F/w/128/h/128/fallback/lettermark/icon.webp?c=1ax1761844826900bfumLaCV7mUZw33sQd",
+  "trello.com": "https://cdn.brandfetch.io/idhiE33Q5g/w/128/h/128/theme/dark/icon.png",
+  
+  // CRM & Sales
+  "salesforce.com": "https://cdn.brandfetch.io/idw382nG0m/w/128/h/128/theme/dark/icon.png",
+  "hubspot.com": "https://cdn.brandfetch.io/idJ73K8MBr/w/128/h/128/theme/dark/icon.png",
+  "zendesk.com": "https://cdn.brandfetch.io/idNq8SRGPd/w/128/h/128/fallback/lettermark/icon.webp?c=1ax1761844853773bfumLaCV7mfDFZ8i_C",
+  "intercom.com": "https://cdn.brandfetch.io/idTG7sOdGX/w/128/h/128/theme/dark/icon.png",
+  
+  // Development & DevOps
+  "github.com": "https://cdn.brandfetch.io/idZAyF9rlg/w/128/h/128/theme/dark/icon.png",
+  "gitlab.com": "https://cdn.brandfetch.io/idV_AC9qS-/w/128/h/128/theme/dark/icon.png",
+  "docker.com": "https://cdn.brandfetch.io/idD-OWLqXC/w/128/h/128/theme/dark/icon.png",
+  "datadoghq.com": "https://cdn.brandfetch.io/idg33VVWFZ/w/128/h/128/theme/dark/icon.png",
+  "newrelic.com": "https://cdn.brandfetch.io/id0xeHmxWQ/w/128/h/128/theme/dark/icon.png",
+  
+  // Design & Creative
+  "adobe.com": "https://cdn.brandfetch.io/idkrQGARPW/w/128/h/128/theme/dark/icon.png",
+  "figma.com": "https://cdn.brandfetch.io/idZHcZ_i7F/w/128/h/128/fallback/lettermark/icon.webp?c=1ax1761844252993bfumLaCV7msFWUWiYY",
+  "canva.com": "https://cdn.brandfetch.io/idh7FJcr6g/w/128/h/128/theme/dark/icon.png",
+  
+  // Data & Analytics
+  "snowflake.com": "https://cdn.brandfetch.io/id7jO3Y8mr/w/128/h/128/theme/dark/icon.png",
+  "tableau.com": "https://cdn.brandfetch.io/id3xLZ3VKT/w/128/h/128/theme/dark/icon.png",
+  "databricks.com": "https://cdn.brandfetch.io/idUl8AxRFh/w/128/h/128/theme/dark/icon.png",
+  
+  // E-commerce & Retail
+  "shopify.com": "https://cdn.brandfetch.io/idqwQ6r3S4/w/128/h/128/theme/dark/icon.png",
+  "stripe.com": "https://cdn.brandfetch.io/idzP5YfnqZ/w/128/h/128/theme/dark/icon.png",
+  
+  // HR & Recruiting
+  "workday.com": "https://cdn.brandfetch.io/idKMuXCmuf/w/128/h/128/theme/dark/icon.png",
+  "bamboohr.com": "https://cdn.brandfetch.io/id0v8CvAOL/w/128/h/128/theme/dark/icon.png",
 };
 
 const getLogoUrl = (domain: string) => {
-  return logoUrlMap[domain] || `https://logo.clearbit.com/${domain}`;
+  return logoUrlMap[domain] || `https://img.logo.dev/${domain}?token=pk_X-1ZO13CREWLfXv9Z5h6xQ`;
 };
 
 // Enhanced cloud providers with products (excluding Oracle and IBM)
@@ -188,13 +221,14 @@ const saasProviders = [
     products: [
       {
         id: "salesforce-essentials",
-        name: "Salesforce Essentials",
-        description: "CRM for small businesses",
-        features: ["Contact management", "Lead tracking", "Email integration", "Mobile app"],
+        name: "Salesforce CRM",
+        description: "Complete CRM solution for sales and service teams",
+        features: ["Contact management", "Lead tracking", "Email integration", "Mobile app", "Reports & Dashboards"],
         plans: [
           { name: "Essentials", price: 25, period: "per user/month", specs: "Up to 10 users" },
-          { name: "Professional", price: 75, period: "per user/month", specs: "Unlimited users" },
-          { name: "Enterprise", price: 150, period: "per user/month", specs: "Advanced features" }
+          { name: "Professional", price: 75, period: "per user/month", specs: "Complete CRM for any size team" },
+          { name: "Enterprise", price: 150, period: "per user/month", specs: "Advanced customization" },
+          { name: "Unlimited", price: 300, period: "per user/month", specs: "Unlimited support" }
         ]
       }
     ]
@@ -209,13 +243,275 @@ const saasProviders = [
     products: [
       {
         id: "slack-pro",
-        name: "Slack Pro",
+        name: "Slack Workspace",
         description: "Advanced collaboration features",
         features: ["Unlimited message history", "Screen sharing", "Workflow builder", "Integrations"],
         plans: [
           { name: "Free", price: 0, period: "per user/month", specs: "Basic features" },
           { name: "Pro", price: 7.25, period: "per user/month", specs: "Advanced features" },
-          { name: "Business+", price: 12.50, period: "per user/month", specs: "Enterprise features" }
+          { name: "Business+", price: 12.50, period: "per user/month", specs: "Enterprise features" },
+          { name: "Enterprise Grid", price: 0, period: "per user/month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 4,
+    name: "Zoom", 
+    type: "License", 
+    category: "Communication", 
+    domain: "zoom.us",
+    description: "Video conferencing platform",
+    products: [
+      {
+        id: "zoom-meetings",
+        name: "Zoom Meetings",
+        description: "Enterprise video conferencing",
+        features: ["HD video & audio", "Screen sharing", "Recording", "Breakout rooms", "Virtual backgrounds"],
+        plans: [
+          { name: "Basic", price: 0, period: "per month", specs: "40 min limit, 100 participants" },
+          { name: "Pro", price: 15.99, period: "per host/month", specs: "30 hour limit, 100 participants" },
+          { name: "Business", price: 19.99, period: "per host/month", specs: "300 participants" },
+          { name: "Enterprise", price: 19.99, period: "per host/month", specs: "500 participants" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 5,
+    name: "HubSpot", 
+    type: "License", 
+    category: "CRM", 
+    domain: "hubspot.com",
+    description: "All-in-one CRM, marketing, and sales platform",
+    products: [
+      {
+        id: "hubspot-crm",
+        name: "HubSpot CRM Suite",
+        description: "Integrated CRM and marketing automation",
+        features: ["Contact management", "Email marketing", "Landing pages", "Marketing automation", "Analytics"],
+        plans: [
+          { name: "Free", price: 0, period: "per month", specs: "Basic CRM tools" },
+          { name: "Starter", price: 50, period: "per month", specs: "Essential marketing tools" },
+          { name: "Professional", price: 800, period: "per month", specs: "Advanced automation" },
+          { name: "Enterprise", price: 3200, period: "per month", specs: "Enterprise features" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 6,
+    name: "Atlassian Jira", 
+    type: "License", 
+    category: "Project Management", 
+    domain: "atlassian.com",
+    description: "Project and issue tracking software",
+    products: [
+      {
+        id: "jira-software",
+        name: "Jira Software",
+        description: "Agile project management tool",
+        features: ["Scrum & Kanban boards", "Custom workflows", "Reporting", "Integrations", "Automation"],
+        plans: [
+          { name: "Free", price: 0, period: "per month", specs: "Up to 10 users" },
+          { name: "Standard", price: 7.50, period: "per user/month", specs: "For growing teams" },
+          { name: "Premium", price: 14.50, period: "per user/month", specs: "Advanced features" },
+          { name: "Enterprise", price: 0, period: "per user/month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 7,
+    name: "Adobe Creative Cloud", 
+    type: "License", 
+    category: "Design", 
+    domain: "adobe.com",
+    description: "Professional creative applications",
+    products: [
+      {
+        id: "adobe-cc",
+        name: "Creative Cloud All Apps",
+        description: "Complete collection of Adobe creative apps",
+        features: ["Photoshop", "Illustrator", "InDesign", "Premiere Pro", "After Effects", "100GB cloud storage"],
+        plans: [
+          { name: "Individual", price: 54.99, period: "per month", specs: "All apps + services" },
+          { name: "Business", price: 84.99, period: "per user/month", specs: "Business features" },
+          { name: "Student", price: 19.99, period: "per month", specs: "60% discount" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 8,
+    name: "GitHub", 
+    type: "License", 
+    category: "Development", 
+    domain: "github.com",
+    description: "Code hosting and collaboration platform",
+    products: [
+      {
+        id: "github-enterprise",
+        name: "GitHub Enterprise",
+        description: "Complete developer platform",
+        features: ["Unlimited repositories", "Actions CI/CD", "Advanced security", "Team management", "Support"],
+        plans: [
+          { name: "Free", price: 0, period: "per month", specs: "Unlimited public repositories" },
+          { name: "Team", price: 4, period: "per user/month", specs: "Private repositories" },
+          { name: "Enterprise", price: 21, period: "per user/month", specs: "Advanced security & support" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 9,
+    name: "Shopify", 
+    type: "License", 
+    category: "E-commerce", 
+    domain: "shopify.com",
+    description: "Complete e-commerce platform",
+    products: [
+      {
+        id: "shopify-store",
+        name: "Shopify Online Store",
+        description: "Build and manage your online store",
+        features: ["Custom domain", "SSL certificate", "24/7 support", "Abandoned cart recovery", "Discount codes"],
+        plans: [
+          { name: "Basic", price: 39, period: "per month", specs: "Everything to start selling" },
+          { name: "Shopify", price: 105, period: "per month", specs: "Professional reports" },
+          { name: "Advanced", price: 399, period: "per month", specs: "Advanced reports & shipping" },
+          { name: "Plus", price: 2000, period: "per month", specs: "Enterprise solutions" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 10,
+    name: "Datadog", 
+    type: "License", 
+    category: "Monitoring", 
+    domain: "datadoghq.com",
+    description: "Cloud monitoring and security platform",
+    products: [
+      {
+        id: "datadog-monitoring",
+        name: "Datadog Platform",
+        description: "Full-stack observability",
+        features: ["Infrastructure monitoring", "APM", "Log management", "Synthetic monitoring", "Security"],
+        plans: [
+          { name: "Free", price: 0, period: "per month", specs: "5 hosts, 1-day retention" },
+          { name: "Pro", price: 15, period: "per host/month", specs: "15-month retention" },
+          { name: "Enterprise", price: 23, period: "per host/month", specs: "Advanced features" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 11,
+    name: "Notion", 
+    type: "License", 
+    category: "Productivity", 
+    domain: "notion.so",
+    description: "All-in-one workspace",
+    products: [
+      {
+        id: "notion-workspace",
+        name: "Notion Workspace",
+        description: "Connected workspace for wiki, docs, and projects",
+        features: ["Unlimited pages", "Collaborative workspace", "API access", "Advanced permissions", "Version history"],
+        plans: [
+          { name: "Free", price: 0, period: "per month", specs: "For individuals" },
+          { name: "Plus", price: 10, period: "per user/month", specs: "For small teams" },
+          { name: "Business", price: 18, period: "per user/month", specs: "For companies" },
+          { name: "Enterprise", price: 0, period: "per user/month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 12,
+    name: "Monday.com", 
+    type: "License", 
+    category: "Project Management", 
+    domain: "monday.com",
+    description: "Work operating system",
+    products: [
+      {
+        id: "monday-work-os",
+        name: "Monday Work OS",
+        description: "Flexible project management platform",
+        features: ["Custom workflows", "Automations", "Integrations", "Dashboards", "Time tracking"],
+        plans: [
+          { name: "Individual", price: 0, period: "per month", specs: "Up to 2 seats" },
+          { name: "Basic", price: 8, period: "per seat/month", specs: "Essential features" },
+          { name: "Standard", price: 10, period: "per seat/month", specs: "Advanced features" },
+          { name: "Pro", price: 16, period: "per seat/month", specs: "Complete features" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 13,
+    name: "Zendesk", 
+    type: "License", 
+    category: "Customer Support", 
+    domain: "zendesk.com",
+    description: "Customer service software",
+    products: [
+      {
+        id: "zendesk-support",
+        name: "Zendesk Support",
+        description: "Customer support ticketing system",
+        features: ["Email, chat, phone", "Ticket management", "Knowledge base", "Reporting", "Mobile apps"],
+        plans: [
+          { name: "Suite Team", price: 49, period: "per agent/month", specs: "For small teams" },
+          { name: "Suite Growth", price: 79, period: "per agent/month", specs: "For growing teams" },
+          { name: "Suite Professional", price: 99, period: "per agent/month", specs: "Advanced features" },
+          { name: "Suite Enterprise", price: 150, period: "per agent/month", specs: "Complete control" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 14,
+    name: "Figma", 
+    type: "License", 
+    category: "Design", 
+    domain: "figma.com",
+    description: "Collaborative interface design tool",
+    products: [
+      {
+        id: "figma-design",
+        name: "Figma Design",
+        description: "Collaborative design platform",
+        features: ["Real-time collaboration", "Prototyping", "Design systems", "Developer handoff", "Plugins"],
+        plans: [
+          { name: "Starter", price: 0, period: "per month", specs: "3 files, unlimited drafts" },
+          { name: "Professional", price: 12, period: "per editor/month", specs: "Unlimited files" },
+          { name: "Organization", price: 45, period: "per editor/month", specs: "Advanced security" },
+          { name: "Enterprise", price: 75, period: "per editor/month", specs: "Enterprise features" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 15,
+    name: "Asana", 
+    type: "License", 
+    category: "Project Management", 
+    domain: "asana.com",
+    description: "Work management platform",
+    products: [
+      {
+        id: "asana-work",
+        name: "Asana Work Management",
+        description: "Organize and manage team projects",
+        features: ["Tasks & projects", "Timelines", "Portfolios", "Goals", "Workload management", "Automations"],
+        plans: [
+          { name: "Basic", price: 0, period: "per month", specs: "Core features for individuals" },
+          { name: "Premium", price: 10.99, period: "per user/month", specs: "For teams" },
+          { name: "Business", price: 24.99, period: "per user/month", specs: "For organizations" },
+          { name: "Enterprise", price: 0, period: "per user/month", specs: "Contact sales" }
         ]
       }
     ]

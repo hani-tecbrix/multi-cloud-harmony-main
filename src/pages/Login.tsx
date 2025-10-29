@@ -15,11 +15,11 @@ const Login = () => {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (email === "admin@mindware.com" && password === "admin123") {
+    if (email === "user@mindverse.com" && password === "user123") {
       toast.success("Login successful!");
       navigate("/dashboard");
     } else {
-      toast.error("Invalid credentials. Try admin@mindware.com / admin123");
+      toast.error("Invalid credentials. Try user@mindverse.com / user123");
     }
   };
 
@@ -28,9 +28,9 @@ const Login = () => {
       <Card className="w-full max-w-md shadow-2xl">
         <CardHeader className="space-y-4 text-center">
           <div className="flex justify-center">
-            <img src={logo} alt="CloudWatch" className="h-16" />
+            <img src={logo} alt="CloudWatch" className="h-24" />
           </div>
-          <CardTitle className="text-2xl">Welcome Back!</CardTitle>
+          {/* <CardTitle className="text-2xl">Welcome Back!</CardTitle> */}
           <CardDescription>
             Sign in to manage your cloud and SaaS subscriptions
           </CardDescription>
@@ -42,7 +42,7 @@ const Login = () => {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@mindware.com"
+                placeholder="user@mindverse.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -63,7 +63,7 @@ const Login = () => {
               Sign In
             </Button>
             <p className="text-xs text-center text-muted-foreground mt-4">
-              Demo credentials: admin@mindware.com / admin123
+              Demo credentials: user@mindverse.com / user123
             </p>
           </form>
         </CardContent>

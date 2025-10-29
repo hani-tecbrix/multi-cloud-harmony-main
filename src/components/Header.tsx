@@ -24,6 +24,7 @@ import { Building2, FileText, Package } from "lucide-react";
 import { useSearch } from "@/hooks/use-search";
 import { Badge } from "@/components/ui/badge";
 import CartSidebar from "./CartSidebar";
+import { RoleSwitcher } from "./RoleSwitcher";
 
 const mockNotifications = [
   {
@@ -130,7 +131,9 @@ export const Header = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
+            <RoleSwitcher />
+            
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative h-8 w-8">
