@@ -195,7 +195,7 @@ export const RoleBasedNavigationRail = ({ onToggleExpand }: RoleBasedNavigationR
             </div>
           )}
           {!isExpanded && (
-            <div className="flex items-center gap-2 mx-auto">
+            <div className="flex items-center gap-2 mx-auto p-1">
               <img src="/mw_favicon.svg" alt="MW" className="w-10 h-10" />
             </div>
           )}

@@ -2,13 +2,15 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Eye, Cloud, Database, ArrowLeft, ShoppingCart, Check, Star, Shield, Zap, Users, Clock, ChevronRight, Trash2, CreditCard, MapPin, Mail, Phone, Building2, Loader2 } from "lucide-react";
+import { Plus, Eye, Cloud, Database, ArrowLeft, ShoppingCart, Check, Star, Shield, Zap, Users, Clock, ChevronRight, Trash2, CreditCard, MapPin, Mail, Phone, Building2, Loader2, Globe, UserPlus, UserCheck } from "lucide-react";
 import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCart } from "@/contexts/CartContext";
 import { useSearchParams, useNavigate } from "react-router-dom";
 
@@ -524,13 +526,26 @@ const Marketplace = () => {
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [showCart, setShowCart] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
+  const [showCustomerSelection, setShowCustomerSelection] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [customerType, setCustomerType] = useState<"new" | "existing">("new");
   const [checkoutData, setCheckoutData] = useState({
-    companyName: "TechCorp Inc",
-    email: "billing@techcorp.com",
-    phone: "+1 (555) 123-4567",
-    address: "123 Main Street",
-    city: "San Francisco",
+    // Existing customer fields
+    domain: "",
+    
+    // New customer fields
+    company: "",
+    cloud: "",
+    plan: "",
+    consumer: "",
+    name: "",
+    primaryDomain: "",
+    reference: "",
+    invoiceProfile: "",
+    endCustomer: "",
+    phone: "",
+    address: "",
+    city: "",
     country: "United States"
   });
   
@@ -575,13 +590,29 @@ const Marketplace = () => {
       toast.error("Your cart is empty");
       return;
     }
+    setShowCustomerSelection(true);
+  };
+
+  const handleCustomerSelectionContinue = () => {
+    if (customerType === "existing" && !checkoutData.domain) {
+      toast.error("Please enter your domain");
+      return;
+    }
+    setShowCustomerSelection(false);
     setShowCheckout(true);
   };
 
   const handleProcessPayment = async () => {
-    if (!checkoutData.companyName || !checkoutData.email || !checkoutData.phone) {
-      toast.error("Please fill in all required fields");
-      return;
+    if (customerType === "existing") {
+      if (!checkoutData.domain) {
+        toast.error("Please fill in all required fields");
+        return;
+      }
+    } else {
+      if (!checkoutData.company || !checkoutData.name || !checkoutData.primaryDomain) {
+        toast.error("Please fill in all required fields");
+        return;
+      }
     }
     
     setIsProcessing(true);
@@ -604,13 +635,22 @@ const Marketplace = () => {
       
       // Reset form for next order
       setCheckoutData({
-        companyName: "",
-        email: "",
+        domain: "",
+        company: "",
+        cloud: "",
+        plan: "",
+        consumer: "",
+        name: "",
+        primaryDomain: "",
+        reference: "",
+        invoiceProfile: "",
+        endCustomer: "",
         phone: "",
         address: "",
         city: "",
-        country: ""
+        country: "United States"
       });
+      setCustomerType("new");
       
     } catch (error) {
       setIsProcessing(false);
@@ -663,7 +703,7 @@ const Marketplace = () => {
                     <h1 className="text-2xl font-bold">{selectedProduct.name}</h1>
                     <p className="text-muted-foreground mt-2">{selectedProduct.description}</p>
                     <div className="flex items-center gap-4 mt-4">
-                      <Badge variant="secondary" className="bg-primary/10 text-primary">
+                      <Badge variant="outline" className="bg-primary/10 text-primary">
                         {selectedProvider?.type}
                       </Badge>
                       <Badge variant="outline">{selectedProvider?.category}</Badge>
@@ -723,7 +763,7 @@ const Marketplace = () => {
                           <Button
                             size="sm"
                             onClick={() => handleAddToCart(selectedProduct, plan)}
-                            className="bg-primary hover:bg-primary/90"
+                            className="bg-primary-10 hover:bg-primary/90 text-primary hover:text-white shadow-md"
                           >
                             <ShoppingCart className="h-4 w-4 mr-1" />
                             Add to Cart
@@ -769,15 +809,15 @@ const Marketplace = () => {
                 <Separator />
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <Shield className="h-4 w-4 text-green-600" />
+                    <Shield className="h-4 w-4 text-gray-600" />
                     <span className="text-sm">Enterprise Security</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Zap className="h-4 w-4 text-blue-600" />
+                    <Zap className="h-4 w-4 text-gray-600" />
                     <span className="text-sm">High Performance</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-purple-600" />
+                    <Users className="h-4 w-4 text-gray-600" />
                     <span className="text-sm">24/7 Support</span>
                   </div>
                 </div>
@@ -877,30 +917,41 @@ const Marketplace = () => {
           </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {selectedProvider.products.map((product) => (
             <Card 
               key={product.id}
-              className="hover:shadow-lg transition-all duration-300 cursor-pointer group"
+              className="group relative overflow-hidden border-0 bg-gradient-to-br from-card to-card/50 shadow-md hover:shadow-2xl transition-all duration-500 cursor-pointer transform hover:-translate-y-2 hover:scale-[1.02]"
               onClick={() => handleViewProduct(product)}
             >
-              <CardContent className="p-6">
+              {/* Gradient overlay on hover */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              
+              <CardContent className="p-6 relative z-10">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-lg">{product.name}</h3>
-                    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                    <h3 className="font-bold text-lg group-hover:text-primary transition-colors duration-300">
+                      {product.name}
+                    </h3>
+                    <div className="transform transition-transform duration-300 group-hover:translate-x-1">
+                      <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                    </div>
                   </div>
-                  <p className="text-sm text-muted-foreground line-clamp-2">{product.description}</p>
+                  <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                    {product.description}
+                  </p>
                   <div className="space-y-2">
                     {product.features.slice(0, 3).map((feature, index) => (
-                      <div key={index} className="flex items-center gap-2">
-                        <Check className="h-3 w-3 text-green-600" />
+                      <div key={index} className="flex items-center gap-2 animate-in fade-in slide-in-from-left-1">
+                        <div className="w-4 h-4 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                          <Check className="h-2.5 w-2.5 text-green-600" />
+                        </div>
                         <span className="text-xs text-muted-foreground">{feature}</span>
                       </div>
                     ))}
                   </div>
                   <div className="pt-2">
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-xs font-medium shadow-sm">
                       Starting at ${product.plans[0].price}{product.plans[0].period.includes('hour') ? '/hr' : product.plans[0].period.includes('month') ? '/mo' : ''}
                     </Badge>
                   </div>
@@ -1043,28 +1094,125 @@ const Marketplace = () => {
           )}
         </div>
 
+        {/* Customer Selection Dialog */}
+        <Dialog open={showCustomerSelection} onOpenChange={setShowCustomerSelection}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-xl">
+                <UserCheck className="h-5 w-5 text-primary" />
+                Customer Selection
+              </DialogTitle>
+              <DialogDescription>
+                Are you a new customer or an existing customer?
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-6 py-4">
+              <RadioGroup value={customerType} onValueChange={(value) => setCustomerType(value as "new" | "existing")}>
+                <div className="grid gap-4">
+                  {/* Existing Customer Option */}
+                  <label
+                    htmlFor="existing"
+                    className={`flex flex-col space-y-3 rounded-lg border-2 p-4 cursor-pointer transition-all duration-300 ${
+                      customerType === "existing"
+                        ? "border-primary bg-primary/5 shadow-md"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <RadioGroupItem value="existing" id="existing" />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <UserCheck className="h-5 w-5 text-primary" />
+                          <span className="font-semibold">Existing Customer</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          I already have an account with this domain
+                        </p>
+                      </div>
+                    </div>
+                    {customerType === "existing" && (
+                      <div className="ml-7 space-y-2 animate-in slide-in-from-top-2">
+                        <Label htmlFor="domain">Your Domain *</Label>
+                        <div className="relative">
+                          <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            id="domain"
+                            placeholder="example.com"
+                            value={checkoutData.domain}
+                            onChange={(e) => setCheckoutData({...checkoutData, domain: e.target.value})}
+                            className="pl-9"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </label>
+
+                  {/* New Customer Option */}
+                  <label
+                    htmlFor="new"
+                    className={`flex flex-col space-y-3 rounded-lg border-2 p-4 cursor-pointer transition-all duration-300 ${
+                      customerType === "new"
+                        ? "border-primary bg-primary/5 shadow-md"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <RadioGroupItem value="new" id="new" />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <UserPlus className="h-5 w-5 text-primary" />
+                          <span className="font-semibold">New Customer</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Create a new account and complete registration
+                        </p>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowCustomerSelection(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleCustomerSelectionContinue} className="bg-primary hover:bg-primary/90">
+                Continue
+                <ChevronRight className="h-4 w-4 ml-2" />
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
         {/* Checkout Dialog */}
         <Dialog open={showCheckout} onOpenChange={setShowCheckout}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
+              <DialogTitle className="flex items-center gap-2 text-xl">
                 <CreditCard className="h-5 w-5 text-primary" />
                 Checkout
               </DialogTitle>
               <DialogDescription>
-                Please review your order and provide billing information
+                {customerType === "existing" 
+                  ? "Please review your order and confirm your domain"
+                  : "Please review your order and complete your registration"}
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-6 py-4">
               {/* Order Summary */}
-              <Card>
+              <Card className="border-2">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm">Order Summary</CardTitle>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <ShoppingCart className="h-4 w-4" />
+                    Order Summary
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {cart.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between text-sm">
+                    <div key={item.id} className="flex items-center justify-between text-sm p-2 rounded-lg hover:bg-muted/50 transition-colors">
                       <div>
                         <p className="font-medium">{item.product.name} - {item.plan.name}</p>
                         <p className="text-muted-foreground">Qty: {item.quantity}</p>
@@ -1077,74 +1225,182 @@ const Marketplace = () => {
                   <Separator />
                   <div className="flex items-center justify-between">
                     <span className="font-semibold">Total</span>
-                    <span className="font-bold text-lg">${(calculateTotal() * 1.08).toFixed(2)}</span>
+                    <span className="font-bold text-lg text-primary">${(calculateTotal() * 1.08).toFixed(2)}</span>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Billing Information */}
+              {/* Customer Information */}
               <div className="space-y-4">
-                <h3 className="font-semibold flex items-center gap-2">
-                  <Building2 className="h-4 w-4" />
-                  Billing Information
+                <h3 className="font-semibold flex items-center gap-2 text-lg">
+                  <Building2 className="h-5 w-5 text-primary" />
+                  {customerType === "existing" ? "Customer Information" : "Registration Information"}
                 </h3>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="companyName">Company Name *</Label>
-                    <Input
-                      id="companyName"
-                      value={checkoutData.companyName}
-                      onChange={(e) => setCheckoutData({...checkoutData, companyName: e.target.value})}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={checkoutData.email}
-                      onChange={(e) => setCheckoutData({...checkoutData, email: e.target.value})}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone *</Label>
-                    <Input
-                      id="phone"
-                      value={checkoutData.phone}
-                      onChange={(e) => setCheckoutData({...checkoutData, phone: e.target.value})}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="address">Address</Label>
-                    <Input
-                      id="address"
-                      value={checkoutData.address}
-                      onChange={(e) => setCheckoutData({...checkoutData, address: e.target.value})}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="city">City</Label>
-                    <Input
-                      id="city"
-                      value={checkoutData.city}
-                      onChange={(e) => setCheckoutData({...checkoutData, city: e.target.value})}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="country">Country</Label>
-                    <Input
-                      id="country"
-                      value={checkoutData.country}
-                      onChange={(e) => setCheckoutData({...checkoutData, country: e.target.value})}
-                    />
-                  </div>
-                </div>
+
+                {customerType === "existing" ? (
+                  /* Existing Customer Form */
+                  <Card className="border-2">
+                    <CardContent className="pt-6 space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="existing-domain" className="flex items-center gap-2">
+                          <Globe className="h-4 w-4" />
+                          Domain *
+                        </Label>
+                        <Input
+                          id="existing-domain"
+                          placeholder="example.com"
+                          value={checkoutData.domain}
+                          onChange={(e) => setCheckoutData({...checkoutData, domain: e.target.value})}
+                          className="font-mono"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Enter your registered domain to continue
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  /* New Customer Form */
+                  <Card className="border-2">
+                    <CardContent className="pt-6 space-y-6">
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="company">Company *</Label>
+                          <Input
+                            id="company"
+                            placeholder="Company Name"
+                            value={checkoutData.company}
+                            onChange={(e) => setCheckoutData({...checkoutData, company: e.target.value})}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="name">Name *</Label>
+                          <Input
+                            id="name"
+                            placeholder="Full Name"
+                            value={checkoutData.name}
+                            onChange={(e) => setCheckoutData({...checkoutData, name: e.target.value})}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="primaryDomain">Primary Domain *</Label>
+                          <div className="relative">
+                            <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              id="primaryDomain"
+                              placeholder="example.com"
+                              value={checkoutData.primaryDomain}
+                              onChange={(e) => setCheckoutData({...checkoutData, primaryDomain: e.target.value})}
+                              className="pl-9 font-mono"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="cloud">Cloud Provider</Label>
+                          <Select value={checkoutData.cloud} onValueChange={(value) => setCheckoutData({...checkoutData, cloud: value})}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select cloud provider" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {cloudProviders.map((provider) => (
+                                <SelectItem key={provider.id} value={provider.name}>
+                                  {provider.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="plan">Plan</Label>
+                          <Input
+                            id="plan"
+                            placeholder="Selected plan"
+                            value={checkoutData.plan}
+                            onChange={(e) => setCheckoutData({...checkoutData, plan: e.target.value})}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="consumer">Consumer</Label>
+                          <Input
+                            id="consumer"
+                            placeholder="Consumer name"
+                            value={checkoutData.consumer}
+                            onChange={(e) => setCheckoutData({...checkoutData, consumer: e.target.value})}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="reference">Reference (Optional)</Label>
+                          <Input
+                            id="reference"
+                            placeholder="Reference code or number"
+                            value={checkoutData.reference}
+                            onChange={(e) => setCheckoutData({...checkoutData, reference: e.target.value})}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="invoiceProfile">Invoice Profile</Label>
+                          <Input
+                            id="invoiceProfile"
+                            placeholder="Invoice profile name"
+                            value={checkoutData.invoiceProfile}
+                            onChange={(e) => setCheckoutData({...checkoutData, invoiceProfile: e.target.value})}
+                          />
+                        </div>
+                        <div className="space-y-2 md:col-span-2">
+                          <Label htmlFor="endCustomer">End Customer</Label>
+                          <Input
+                            id="endCustomer"
+                            placeholder="End customer name"
+                            value={checkoutData.endCustomer}
+                            onChange={(e) => setCheckoutData({...checkoutData, endCustomer: e.target.value})}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="phone">Phone</Label>
+                          <Input
+                            id="phone"
+                            placeholder="+1 (555) 123-4567"
+                            value={checkoutData.phone}
+                            onChange={(e) => setCheckoutData({...checkoutData, phone: e.target.value})}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="address">Address</Label>
+                          <Input
+                            id="address"
+                            placeholder="Street address"
+                            value={checkoutData.address}
+                            onChange={(e) => setCheckoutData({...checkoutData, address: e.target.value})}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="city">City</Label>
+                          <Input
+                            id="city"
+                            placeholder="City"
+                            value={checkoutData.city}
+                            onChange={(e) => setCheckoutData({...checkoutData, city: e.target.value})}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="country">Country</Label>
+                          <Input
+                            id="country"
+                            placeholder="Country"
+                            value={checkoutData.country}
+                            onChange={(e) => setCheckoutData({...checkoutData, country: e.target.value})}
+                          />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             </div>
 
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowCheckout(false)} disabled={isProcessing}>
-                Cancel
+              <Button variant="outline" onClick={() => {setShowCheckout(false); setShowCustomerSelection(true);}} disabled={isProcessing}>
+                Back
               </Button>
               <Button onClick={handleProcessPayment} disabled={isProcessing} className="bg-primary hover:bg-primary/90">
                 {isProcessing ? (
@@ -1196,7 +1452,7 @@ const Marketplace = () => {
             {cloudProviders.map((provider) => (
               <Card 
                 key={provider.id} 
-                className="hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden group relative"
+                className="hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden group relative border"
                 onMouseEnter={() => setHoveredCard(provider.id)}
                 onMouseLeave={() => setHoveredCard(null)}
                 onClick={() => handleViewDetails(provider)}
@@ -1204,7 +1460,7 @@ const Marketplace = () => {
                 <CardContent className="p-5">
                   {/* Type Badge - Top Right */}
                   <div className="absolute top-3 right-3">
-                    <Badge variant="gray" className="text-xs">
+                    <Badge variant="secondary" className="text-xs">
                       {provider.type}
                     </Badge>
                   </div>
@@ -1224,7 +1480,7 @@ const Marketplace = () => {
                           }}
                         />
                         <div className="hidden w-full h-full items-center justify-center">
-                          <Cloud className="h-10 w-10 text-primary" />
+                          <Cloud className="h-10 w-10 text-muted-foreground" />
                         </div>
                       </div>
                     </div>
@@ -1289,7 +1545,7 @@ const Marketplace = () => {
             {saasProviders.map((provider) => (
               <Card 
                 key={provider.id} 
-                className="hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden group relative"
+                className="hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden group relative border"
                 onMouseEnter={() => setHoveredCard(provider.id + 100)}
                 onMouseLeave={() => setHoveredCard(null)}
                 onClick={() => handleViewDetails(provider)}
@@ -1297,7 +1553,7 @@ const Marketplace = () => {
                 <CardContent className="p-5">
                   {/* Type Badge - Top Right */}
                   <div className="absolute top-3 right-3">
-                    <Badge variant="gray" className="text-xs">
+                    <Badge variant="secondary" className="text-xs">
                       {provider.type}
                     </Badge>
                   </div>
@@ -1317,7 +1573,7 @@ const Marketplace = () => {
                           }}
                         />
                         <div className="hidden w-full h-full items-center justify-center">
-                          <Database className="h-10 w-10 text-primary" />
+                          <Database className="h-10 w-10 text-muted-foreground" />
                         </div>
                       </div>
                     </div>

@@ -6,10 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Plus, Building2, ArrowLeft, DollarSign, Clock, CheckCircle, AlertCircle, Cloud, Mail, X, Sparkles, Hash } from "lucide-react";
+import { Search, Plus, Building2, ArrowLeft, DollarSign, Clock, CheckCircle, AlertCircle, Cloud, Mail, X, Sparkles, Hash, Globe, UserPlus, UserCheck } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const customersData = [
   { 
@@ -139,13 +140,20 @@ const Customers = () => {
   const [selectedCustomer, setSelectedCustomer] = useState<typeof customersData[0] | null>(null);
   const [isAddSheetOpen, setIsAddSheetOpen] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [customerType, setCustomerType] = useState<"new" | "existing">("new");
+  const [existingDomain, setExistingDomain] = useState("");
   
   // Add customer form state
   const [newCustomer, setNewCustomer] = useState({
+    company: "",
+    cloud: "",
+    plan: "",
+    consumer: "",
     name: "",
-    email: "",
-    cloudProvider: "AWS",
-    industry: "",
+    primaryDomain: "",
+    reference: "",
+    invoiceProfile: "",
+    endCustomer: "",
   });
 
   const filteredCustomers = customersData.filter(customer =>
@@ -154,34 +162,47 @@ const Customers = () => {
   );
 
   const handleAddCustomer = () => {
-    if (!newCustomer.name || !newCustomer.email || !newCustomer.cloudProvider) {
+    if (!newCustomer.company || !newCustomer.name || !newCustomer.primaryDomain) {
       toast.error("Please fill in all required fields");
       return;
     }
 
     // Generate customer ID based on cloud provider
-    const customerId = `CUST-${newCustomer.cloudProvider.toUpperCase()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+    const cloudProvider = newCustomer.cloud || "AWS";
+    const customerId = `CUST-${cloudProvider.toUpperCase()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
 
     toast.success("Customer added successfully!", {
-      description: `${newCustomer.name} (${customerId}) has been added to ${newCustomer.cloudProvider}.`
+      description: `${newCustomer.company} (${customerId}) has been added.`
     });
     
     setIsAddSheetOpen(false);
     setNewCustomer({
+      company: "",
+      cloud: "",
+      plan: "",
+      consumer: "",
       name: "",
-      email: "",
-      cloudProvider: "AWS",
-      industry: "",
+      primaryDomain: "",
+      reference: "",
+      invoiceProfile: "",
+      endCustomer: "",
     });
   };
 
   const handleCloseSheet = () => {
     setIsAddSheetOpen(false);
+    setCustomerType("new");
+    setExistingDomain("");
     setNewCustomer({
+      company: "",
+      cloud: "",
+      plan: "",
+      consumer: "",
       name: "",
-      email: "",
-      cloudProvider: "AWS",
-      industry: "",
+      primaryDomain: "",
+      reference: "",
+      invoiceProfile: "",
+      endCustomer: "",
     });
   };
 
@@ -477,110 +498,245 @@ const Customers = () => {
             
             <ScrollArea ref={scrollAreaRef} className="flex-1 px-6">
               <div className="space-y-6 py-6">
-                {/* Basic Information Section */}
+                {/* Customer Type Selection */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
                     <div className="h-px flex-1 bg-border" />
                     <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                      Customer Information
+                      Customer Type
                     </span>
                     <div className="h-px flex-1 bg-border" />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="customer-name" className="text-sm font-medium">
-                      Company Name
-                      <span className="text-destructive ml-1">*</span>
-                    </Label>
-                    <Input
-                      id="customer-name"
-                      placeholder="e.g., Acme Corporation"
-                      value={newCustomer.name}
-                      onChange={(e) => setNewCustomer({...newCustomer, name: e.target.value})}
-                      className="h-11"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="customer-email" className="text-sm font-medium">
-                      Company Email
-                      <span className="text-destructive ml-1">*</span>
-                    </Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="customer-email"
-                        type="email"
-                        placeholder="admin@company.com"
-                        value={newCustomer.email}
-                        onChange={(e) => setNewCustomer({...newCustomer, email: e.target.value})}
-                        className="h-11 pl-10"
-                      />
+                  <RadioGroup value={customerType} onValueChange={(value) => setCustomerType(value as "new" | "existing")}>
+                    <div className="grid gap-3 md:grid-cols-2">
+                      <label
+                        htmlFor="customer-new"
+                        className={`flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                          customerType === "new"
+                            ? "border-primary bg-primary/5"
+                            : "border-border hover:border-primary/50"
+                        }`}
+                      >
+                        <RadioGroupItem value="new" id="customer-new" />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <UserPlus className="h-4 w-4 text-primary" />
+                            <span className="font-semibold text-sm">New Customer</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">Create a new customer account</p>
+                        </div>
+                      </label>
+                      <label
+                        htmlFor="customer-existing"
+                        className={`flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                          customerType === "existing"
+                            ? "border-primary bg-primary/5"
+                            : "border-border hover:border-primary/50"
+                        }`}
+                      >
+                        <RadioGroupItem value="existing" id="customer-existing" />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <UserCheck className="h-4 w-4 text-primary" />
+                            <span className="font-semibold text-sm">Existing Customer</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">Add to existing account</p>
+                        </div>
+                      </label>
                     </div>
-                  </div>
+                  </RadioGroup>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="customer-industry" className="text-sm font-medium">
-                      Industry
-                    </Label>
-                    <Input
-                      id="customer-industry"
-                      placeholder="e.g., Technology, Healthcare, Finance"
-                      value={newCustomer.industry}
-                      onChange={(e) => setNewCustomer({...newCustomer, industry: e.target.value})}
-                      className="h-11"
-                    />
-                  </div>
+                  {customerType === "existing" && (
+                    <div className="space-y-2 animate-in slide-in-from-top-2">
+                      <Label htmlFor="existing-domain">Domain</Label>
+                      <div className="relative">
+                        <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="existing-domain"
+                          placeholder="example.com"
+                          value={existingDomain}
+                          onChange={(e) => setExistingDomain(e.target.value)}
+                          className="pl-10 font-mono"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Cloud Provider Section */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <div className="h-px flex-1 bg-border" />
-                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                      Cloud Provider
-                    </span>
-                    <div className="h-px flex-1 bg-border" />
-                  </div>
+                {customerType === "new" && (
+                  <>
+                    {/* Cloud Provider Selection - Card Based */}
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2">
+                        <div className="h-px flex-1 bg-border" />
+                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                          Cloud Provider
+                        </span>
+                        <div className="h-px flex-1 bg-border" />
+                      </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="cloud-provider" className="text-sm font-medium">
-                      Primary Cloud Provider
-                      <span className="text-destructive ml-1">*</span>
-                    </Label>
-                    <Select
-                      value={newCustomer.cloudProvider}
-                      onValueChange={(value) => setNewCustomer({...newCustomer, cloudProvider: value})}
-                    >
-                      <SelectTrigger id="cloud-provider" className="h-11">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="AWS">
-                          <div className="flex items-center gap-2">
-                            <Cloud className="h-4 w-4 text-orange-600" />
-                            <span>Amazon Web Services (AWS)</span>
+                      <div className="grid gap-3 md:grid-cols-3">
+                        {[
+                          { value: "AWS", label: "Amazon Web Services", icon: Cloud, color: "text-orange-600", bgColor: "bg-orange-50" },
+                          { value: "Azure", label: "Microsoft Azure", icon: Cloud, color: "text-blue-600", bgColor: "bg-blue-50" },
+                          { value: "GCP", label: "Google Cloud Platform", icon: Cloud, color: "text-green-600", bgColor: "bg-green-50" },
+                        ].map((provider) => {
+                          const IconComponent = provider.icon;
+                          return (
+                            <button
+                              key={provider.value}
+                              type="button"
+                              onClick={() => setNewCustomer({...newCustomer, cloud: provider.value})}
+                              className={`p-4 rounded-lg border-2 transition-all text-left ${
+                                newCustomer.cloud === provider.value
+                                  ? "border-primary bg-primary/5 shadow-md"
+                                  : "border-border hover:border-primary/50"
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className={`p-2 rounded-lg ${provider.bgColor}`}>
+                                  <IconComponent className={`h-5 w-5 ${provider.color}`} />
+                                </div>
+                                <div className="flex-1">
+                                  <p className="font-semibold text-sm">{provider.value}</p>
+                                  <p className="text-xs text-muted-foreground">{provider.label}</p>
+                                </div>
+                                {newCustomer.cloud === provider.value && (
+                                  <CheckCircle className="h-5 w-5 text-primary" />
+                                )}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Customer Information Section */}
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2">
+                        <div className="h-px flex-1 bg-border" />
+                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                          Customer Information
+                        </span>
+                        <div className="h-px flex-1 bg-border" />
+                      </div>
+
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="company" className="text-sm font-medium">
+                            Company
+                            <span className="text-destructive ml-1">*</span>
+                          </Label>
+                          <Input
+                            id="company"
+                            placeholder="Company Name"
+                            value={newCustomer.company}
+                            onChange={(e) => setNewCustomer({...newCustomer, company: e.target.value})}
+                            className="h-11"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="primaryDomain" className="text-sm font-medium">
+                            Primary Domain
+                            <span className="text-destructive ml-1">*</span>
+                          </Label>
+                          <div className="relative">
+                            <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              id="primaryDomain"
+                              placeholder="example.com"
+                              value={newCustomer.primaryDomain}
+                              onChange={(e) => setNewCustomer({...newCustomer, primaryDomain: e.target.value})}
+                              className="h-11 pl-10 font-mono"
+                            />
                           </div>
-                        </SelectItem>
-                        <SelectItem value="Azure">
-                          <div className="flex items-center gap-2">
-                            <Cloud className="h-4 w-4 text-blue-600" />
-                            <span>Microsoft Azure</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="GCP">
-                          <div className="flex items-center gap-2">
-                            <Cloud className="h-4 w-4 text-green-600" />
-                            <span>Google Cloud Platform (GCP)</span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <p className="text-xs text-muted-foreground">
-                      Select the primary cloud provider for this customer
-                    </p>
-                  </div>
-                </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="name" className="text-sm font-medium">
+                          Name
+                          <span className="text-destructive ml-1">*</span>
+                        </Label>
+                        <Input
+                          id="name"
+                          placeholder="Full Name"
+                          value={newCustomer.name}
+                          onChange={(e) => setNewCustomer({...newCustomer, name: e.target.value})}
+                          className="h-11"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="plan" className="text-sm font-medium">
+                          Plan
+                        </Label>
+                        <Input
+                          id="plan"
+                          placeholder="Selected plan"
+                          value={newCustomer.plan}
+                          onChange={(e) => setNewCustomer({...newCustomer, plan: e.target.value})}
+                          className="h-11"
+                        />
+                      </div>
+
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="consumer" className="text-sm font-medium">
+                            Consumer
+                          </Label>
+                          <Input
+                            id="consumer"
+                            placeholder="Consumer name"
+                            value={newCustomer.consumer}
+                            onChange={(e) => setNewCustomer({...newCustomer, consumer: e.target.value})}
+                            className="h-11"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="endCustomer" className="text-sm font-medium">
+                            End Customer
+                          </Label>
+                          <Input
+                            id="endCustomer"
+                            placeholder="End customer name"
+                            value={newCustomer.endCustomer}
+                            onChange={(e) => setNewCustomer({...newCustomer, endCustomer: e.target.value})}
+                            className="h-11"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="reference" className="text-sm font-medium">
+                            Reference (Optional)
+                          </Label>
+                          <Input
+                            id="reference"
+                            placeholder="Reference code or number"
+                            value={newCustomer.reference}
+                            onChange={(e) => setNewCustomer({...newCustomer, reference: e.target.value})}
+                            className="h-11"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="invoiceProfile" className="text-sm font-medium">
+                            Invoice Profile
+                          </Label>
+                          <Input
+                            id="invoiceProfile"
+                            placeholder="Invoice profile name"
+                            value={newCustomer.invoiceProfile}
+                            onChange={(e) => setNewCustomer({...newCustomer, invoiceProfile: e.target.value})}
+                            className="h-11"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </ScrollArea>
 
@@ -598,7 +754,7 @@ const Customers = () => {
                   variant="gradient" 
                   onClick={handleAddCustomer}
                   className="flex-1"
-                  disabled={!newCustomer.name || !newCustomer.email || !newCustomer.cloudProvider}
+                  disabled={customerType === "existing" ? !existingDomain : (!newCustomer.company || !newCustomer.name || !newCustomer.primaryDomain)}
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Customer

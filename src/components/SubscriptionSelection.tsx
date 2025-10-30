@@ -298,18 +298,13 @@ const SubscriptionSelection = ({ onSubscriptionsSelect, selectedSubscriptions, o
                     
                     <div className="mt-3">
                       <p className="text-xs font-medium mb-2">Key Features:</p>
-                      <div className="flex flex-wrap gap-1">
-                        {subscription.features.slice(0, 2).map((feature, idx) => (
-                          <Badge key={idx} variant="secondary" className="text-xs">
+                      <ul className="space-y-1 list-disc list-inside">
+                        {subscription.features.map((feature, idx) => (
+                          <li key={idx} className="text-xs text-muted-foreground">
                             {feature}
-                          </Badge>
+                          </li>
                         ))}
-                        {subscription.features.length > 2 && (
-                          <Badge variant="secondary" className="text-xs">
-                            +{subscription.features.length - 2} more
-                          </Badge>
-                        )}
-                      </div>
+                      </ul>
                     </div>
                   </div>
                 );
