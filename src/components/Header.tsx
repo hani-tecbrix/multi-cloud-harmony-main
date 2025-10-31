@@ -1,4 +1,4 @@
-import { Bell, Search, User, AlertCircle, CheckCircle2, TrendingUp, CreditCard } from "lucide-react";
+import { Bell, Search, User, AlertCircle, CheckCircle2, TrendingUp, CreditCard, Phone, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -25,6 +25,7 @@ import { useSearch } from "@/hooks/use-search";
 import { Badge } from "@/components/ui/badge";
 import CartSidebar from "./CartSidebar";
 import { RoleSwitcher } from "./RoleSwitcher";
+import { useUserRole } from "@/contexts/UserRoleContext";
 
 const mockNotifications = [
   {
@@ -76,9 +77,21 @@ const mockNotifications = [
 
 export const Header = () => {
   const navigate = useNavigate();
+  const { user, isPartner, isCustomer } = useUserRole();
   const [open, setOpen] = useState(false);
   const { results, searchQuery, setSearchQuery } = useSearch();
   const unreadCount = mockNotifications.filter(n => n.unread).length;
+
+  // Dubai format contact numbers
+  const supportNumbers = [
+    { label: "General Support", number: "+971 4 123 4567" },
+    { label: "Technical Support", number: "+971 4 234 5678" },
+    { label: "Billing Support", number: "+971 4 345 6789" },
+  ];
+
+  const handlePhoneClick = (phoneNumber: string) => {
+    window.location.href = `tel:${phoneNumber.replace(/\s/g, "")}`;
+  };
 
   // Global keyboard shortcut (Cmd+K or Ctrl+K)
   useEffect(() => {
@@ -133,6 +146,46 @@ export const Header = () => {
 
           <div className="flex items-center gap-2">
             <RoleSwitcher />
+            
+            {/* Portal Support Dropdown - Only for Partner and Customer */}
+            {(isPartner || isCustomer) && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="gap-2 h-9">
+                    <Phone className="h-4 w-4" />
+                    <span className="hidden sm:inline">Portal Support</span>
+                    <ChevronDown className="h-3 w-3 opacity-50" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-64">
+                  <DropdownMenuLabel>Contact Support</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {supportNumbers.map((support, index) => (
+                    <DropdownMenuItem
+                      key={index}
+                      className="flex flex-col items-start gap-1 p-3 cursor-pointer"
+                      onClick={() => handlePhoneClick(support.number)}
+                    >
+                      <div className="flex items-center gap-2 w-full">
+                        <Phone className="h-4 w-4 text-primary" />
+                        <span className="text-sm font-medium">{support.label}</span>
+                      </div>
+                      <a 
+                        href={`tel:${support.number.replace(/\s/g, "")}`}
+                        className="text-sm text-primary hover:underline font-mono"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {support.number}
+                      </a>
+                    </DropdownMenuItem>
+                  ))}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="text-xs text-muted-foreground justify-center">
+                    Available 24/7
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

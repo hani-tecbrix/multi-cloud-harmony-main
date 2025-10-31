@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Customers from "./pages/Customers";
 import PartnerCustomers from "./pages/PartnerCustomers";
+import PartnerTransactions from "./pages/PartnerTransactions";
 import AdminPartners from "./pages/AdminPartners";
 import Marketplace from "./pages/Marketplace";
 import Checkout from "./pages/Checkout";
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
             <Route path="/customers" element={<AppLayout><Customers /></AppLayout>} />
             <Route path="/partner/customers" element={<AppLayout><PartnerCustomers /></AppLayout>} />
+            <Route path="/partner/transactions" element={<AppLayout><PartnerTransactions /></AppLayout>} />
             <Route path="/admin/partners" element={<AppLayout><AdminPartners /></AppLayout>} />
             <Route path="/marketplace" element={<AppLayout><Marketplace /></AppLayout>} />
             <Route path="/checkout" element={<AppLayout><Checkout /></AppLayout>} />

@@ -15,6 +15,7 @@ import {
   Briefcase,
   Package,
   TrendingUp,
+  Receipt,
   CreditCard,
   Eye
 } from "lucide-react";
@@ -88,9 +89,9 @@ const navigationConfig: NavItem[] = [
     roles: ['partner'] 
   },
   { 
-    icon: FileText, 
-    label: "Invoices", 
-    path: "/partner/invoices", 
+    icon: Receipt, 
+    label: "Transactions", 
+    path: "/partner/transactions", 
     roles: ['partner'] 
   },
   { 

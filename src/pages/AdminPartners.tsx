@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Building2, ArrowLeft, Users, ShoppingBag, DollarSign, TrendingUp, Calendar, CheckCircle, Clock, Mail, Phone, MapPin, Eye, Filter, Download, Shield } from "lucide-react";
+import { Search, Building2, ArrowLeft, Users, ShoppingBag, DollarSign, TrendingUp, Calendar, CheckCircle, Clock, Mail, Phone, MapPin, Eye, Filter, Download, Shield, Cloud, Package, CreditCard } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -26,16 +26,24 @@ const partnersData = [
     monthlyRevenue: 12000,
     commission: 15, // percentage
     customers: [
-      { id: "CUST-001", name: "Acme Corp", status: "active", mrr: 2500, cloudProvider: "AWS" },
-      { id: "CUST-002", name: "TechStart Ltd", status: "active", mrr: 1800, cloudProvider: "Azure" },
-      { id: "CUST-003", name: "Innovation Hub", status: "active", mrr: 3200, cloudProvider: "GCP" },
-      { id: "CUST-004", name: "Digital Dynamics", status: "active", mrr: 1500, cloudProvider: "AWS" },
-      { id: "CUST-005", name: "CloudFirst Inc", status: "trial", mrr: 0, cloudProvider: "Azure" },
+      { id: "CUST-001", name: "Acme Corp", status: "active", mrr: 2500, cloudProvider: "AWS", subscriptions: 5, lastOrderDate: "2024-10-25", industry: "Technology" },
+      { id: "CUST-002", name: "TechStart Ltd", status: "active", mrr: 1800, cloudProvider: "Azure", subscriptions: 3, lastOrderDate: "2024-10-24", industry: "Startup" },
+      { id: "CUST-003", name: "Innovation Hub", status: "active", mrr: 3200, cloudProvider: "GCP", subscriptions: 7, lastOrderDate: "2024-10-23", industry: "Technology" },
+      { id: "CUST-004", name: "Digital Dynamics", status: "active", mrr: 1500, cloudProvider: "AWS", subscriptions: 2, lastOrderDate: "2024-10-20", industry: "Digital" },
+      { id: "CUST-005", name: "CloudFirst Inc", status: "trial", mrr: 0, cloudProvider: "Azure", subscriptions: 1, lastOrderDate: "2024-10-18", industry: "Cloud Services" },
     ],
     recentOrders: [
-      { id: "ORD-1234", customer: "Acme Corp", date: "2024-10-25", amount: 2500, status: "completed", items: 3 },
-      { id: "ORD-1235", customer: "TechStart Ltd", date: "2024-10-24", amount: 1800, status: "completed", items: 2 },
-      { id: "ORD-1236", customer: "Innovation Hub", date: "2024-10-23", amount: 3200, status: "processing", items: 5 },
+      { id: "ORD-1234", customer: "Acme Corp", customerId: "CUST-001", date: "2024-10-25", amount: 2500, status: "completed", items: 3, cloudProvider: "AWS", commission: 375 },
+      { id: "ORD-1235", customer: "TechStart Ltd", customerId: "CUST-002", date: "2024-10-24", amount: 1800, status: "completed", items: 2, cloudProvider: "Azure", commission: 216 },
+      { id: "ORD-1236", customer: "Innovation Hub", customerId: "CUST-003", date: "2024-10-23", amount: 3200, status: "processing", items: 5, cloudProvider: "GCP", commission: 480 },
+    ],
+    allOrders: [
+      { id: "ORD-1234", customer: "Acme Corp", customerId: "CUST-001", date: "2024-10-25", amount: 2500, status: "completed", items: 3, cloudProvider: "AWS", commission: 375 },
+      { id: "ORD-1235", customer: "TechStart Ltd", customerId: "CUST-002", date: "2024-10-24", amount: 1800, status: "completed", items: 2, cloudProvider: "Azure", commission: 216 },
+      { id: "ORD-1236", customer: "Innovation Hub", customerId: "CUST-003", date: "2024-10-23", amount: 3200, status: "processing", items: 5, cloudProvider: "GCP", commission: 480 },
+      { id: "ORD-1220", customer: "Acme Corp", customerId: "CUST-001", date: "2024-10-15", amount: 2500, status: "completed", items: 3, cloudProvider: "AWS", commission: 375 },
+      { id: "ORD-1215", customer: "Digital Dynamics", customerId: "CUST-004", date: "2024-10-10", amount: 1500, status: "completed", items: 2, cloudProvider: "AWS", commission: 225 },
+      { id: "ORD-1210", customer: "TechStart Ltd", customerId: "CUST-002", date: "2024-10-05", amount: 1800, status: "completed", items: 2, cloudProvider: "Azure", commission: 216 },
     ]
   },
   {
@@ -53,14 +61,20 @@ const partnersData = [
     monthlyRevenue: 8500,
     commission: 12,
     customers: [
-      { id: "CUST-006", name: "Metro Systems", status: "active", mrr: 1900, cloudProvider: "AWS" },
-      { id: "CUST-007", name: "DataFlow Corp", status: "active", mrr: 2800, cloudProvider: "GCP" },
-      { id: "CUST-008", name: "Smart Solutions", status: "active", mrr: 1600, cloudProvider: "Azure" },
-      { id: "CUST-009", name: "Cloud Ventures", status: "suspended", mrr: 0, cloudProvider: "AWS" },
+      { id: "CUST-006", name: "Metro Systems", status: "active", mrr: 1900, cloudProvider: "AWS", subscriptions: 4, lastOrderDate: "2024-10-26", industry: "Telecommunications" },
+      { id: "CUST-007", name: "DataFlow Corp", status: "active", mrr: 2800, cloudProvider: "GCP", subscriptions: 6, lastOrderDate: "2024-10-25", industry: "Data Analytics" },
+      { id: "CUST-008", name: "Smart Solutions", status: "active", mrr: 1600, cloudProvider: "Azure", subscriptions: 3, lastOrderDate: "2024-10-22", industry: "Technology" },
+      { id: "CUST-009", name: "Cloud Ventures", status: "suspended", mrr: 0, cloudProvider: "AWS", subscriptions: 0, lastOrderDate: "2024-09-15", industry: "Cloud Services" },
     ],
     recentOrders: [
-      { id: "ORD-1237", customer: "Metro Systems", date: "2024-10-26", amount: 1900, status: "completed", items: 2 },
-      { id: "ORD-1238", customer: "DataFlow Corp", date: "2024-10-25", amount: 2800, status: "completed", items: 4 },
+      { id: "ORD-1237", customer: "Metro Systems", customerId: "CUST-006", date: "2024-10-26", amount: 1900, status: "completed", items: 2, cloudProvider: "AWS", commission: 228 },
+      { id: "ORD-1238", customer: "DataFlow Corp", customerId: "CUST-007", date: "2024-10-25", amount: 2800, status: "completed", items: 4, cloudProvider: "GCP", commission: 336 },
+    ],
+    allOrders: [
+      { id: "ORD-1237", customer: "Metro Systems", customerId: "CUST-006", date: "2024-10-26", amount: 1900, status: "completed", items: 2, cloudProvider: "AWS", commission: 228 },
+      { id: "ORD-1238", customer: "DataFlow Corp", customerId: "CUST-007", date: "2024-10-25", amount: 2800, status: "completed", items: 4, cloudProvider: "GCP", commission: 336 },
+      { id: "ORD-1225", customer: "Smart Solutions", customerId: "CUST-008", date: "2024-10-22", amount: 1600, status: "completed", items: 3, cloudProvider: "Azure", commission: 192 },
+      { id: "ORD-1218", customer: "DataFlow Corp", customerId: "CUST-007", date: "2024-10-18", amount: 2800, status: "completed", items: 4, cloudProvider: "GCP", commission: 336 },
     ]
   },
   {
@@ -78,13 +92,18 @@ const partnersData = [
     monthlyRevenue: 5600,
     commission: 10,
     customers: [
-      { id: "CUST-010", name: "NextGen Tech", status: "active", mrr: 2100, cloudProvider: "Azure" },
-      { id: "CUST-011", name: "Scale Systems", status: "active", mrr: 1400, cloudProvider: "GCP" },
-      { id: "CUST-012", name: "Digital Wave", status: "trial", mrr: 0, cloudProvider: "AWS" },
+      { id: "CUST-010", name: "NextGen Tech", status: "active", mrr: 2100, cloudProvider: "Azure", subscriptions: 4, lastOrderDate: "2024-10-27", industry: "Technology" },
+      { id: "CUST-011", name: "Scale Systems", status: "active", mrr: 1400, cloudProvider: "GCP", subscriptions: 2, lastOrderDate: "2024-10-26", industry: "Enterprise" },
+      { id: "CUST-012", name: "Digital Wave", status: "trial", mrr: 0, cloudProvider: "AWS", subscriptions: 1, lastOrderDate: "2024-10-20", industry: "Digital" },
     ],
     recentOrders: [
-      { id: "ORD-1239", customer: "NextGen Tech", date: "2024-10-27", amount: 2100, status: "completed", items: 3 },
-      { id: "ORD-1240", customer: "Scale Systems", date: "2024-10-26", amount: 1400, status: "processing", items: 2 },
+      { id: "ORD-1239", customer: "NextGen Tech", customerId: "CUST-010", date: "2024-10-27", amount: 2100, status: "completed", items: 3, cloudProvider: "Azure", commission: 210 },
+      { id: "ORD-1240", customer: "Scale Systems", customerId: "CUST-011", date: "2024-10-26", amount: 1400, status: "processing", items: 2, cloudProvider: "GCP", commission: 140 },
+    ],
+    allOrders: [
+      { id: "ORD-1239", customer: "NextGen Tech", customerId: "CUST-010", date: "2024-10-27", amount: 2100, status: "completed", items: 3, cloudProvider: "Azure", commission: 210 },
+      { id: "ORD-1240", customer: "Scale Systems", customerId: "CUST-011", date: "2024-10-26", amount: 1400, status: "processing", items: 2, cloudProvider: "GCP", commission: 140 },
+      { id: "ORD-1222", customer: "NextGen Tech", customerId: "CUST-010", date: "2024-10-15", amount: 2100, status: "completed", items: 3, cloudProvider: "Azure", commission: 210 },
     ]
   },
   {
@@ -102,16 +121,24 @@ const partnersData = [
     monthlyRevenue: 15500,
     commission: 15,
     customers: [
-      { id: "CUST-013", name: "Enterprise Plus", status: "active", mrr: 4200, cloudProvider: "AWS" },
-      { id: "CUST-014", name: "Global Tech", status: "active", mrr: 3800, cloudProvider: "Azure" },
-      { id: "CUST-015", name: "Innovation Labs", status: "active", mrr: 2900, cloudProvider: "GCP" },
-      { id: "CUST-016", name: "Tech Solutions", status: "active", mrr: 2100, cloudProvider: "AWS" },
-      { id: "CUST-017", name: "Cloud Masters", status: "active", mrr: 1500, cloudProvider: "Azure" },
+      { id: "CUST-013", name: "Enterprise Plus", status: "active", mrr: 4200, cloudProvider: "AWS", subscriptions: 8, lastOrderDate: "2024-10-28", industry: "Enterprise" },
+      { id: "CUST-014", name: "Global Tech", status: "active", mrr: 3800, cloudProvider: "Azure", subscriptions: 7, lastOrderDate: "2024-10-27", industry: "Technology" },
+      { id: "CUST-015", name: "Innovation Labs", status: "active", mrr: 2900, cloudProvider: "GCP", subscriptions: 5, lastOrderDate: "2024-10-26", industry: "Research" },
+      { id: "CUST-016", name: "Tech Solutions", status: "active", mrr: 2100, cloudProvider: "AWS", subscriptions: 4, lastOrderDate: "2024-10-24", industry: "Technology" },
+      { id: "CUST-017", name: "Cloud Masters", status: "active", mrr: 1500, cloudProvider: "Azure", subscriptions: 3, lastOrderDate: "2024-10-23", industry: "Cloud Services" },
     ],
     recentOrders: [
-      { id: "ORD-1241", customer: "Enterprise Plus", date: "2024-10-28", amount: 4200, status: "completed", items: 6 },
-      { id: "ORD-1242", customer: "Global Tech", date: "2024-10-27", amount: 3800, status: "completed", items: 5 },
-      { id: "ORD-1243", customer: "Innovation Labs", date: "2024-10-26", amount: 2900, status: "completed", items: 4 },
+      { id: "ORD-1241", customer: "Enterprise Plus", customerId: "CUST-013", date: "2024-10-28", amount: 4200, status: "completed", items: 6, cloudProvider: "AWS", commission: 630 },
+      { id: "ORD-1242", customer: "Global Tech", customerId: "CUST-014", date: "2024-10-27", amount: 3800, status: "completed", items: 5, cloudProvider: "Azure", commission: 570 },
+      { id: "ORD-1243", customer: "Innovation Labs", customerId: "CUST-015", date: "2024-10-26", amount: 2900, status: "completed", items: 4, cloudProvider: "GCP", commission: 435 },
+    ],
+    allOrders: [
+      { id: "ORD-1241", customer: "Enterprise Plus", customerId: "CUST-013", date: "2024-10-28", amount: 4200, status: "completed", items: 6, cloudProvider: "AWS", commission: 630 },
+      { id: "ORD-1242", customer: "Global Tech", customerId: "CUST-014", date: "2024-10-27", amount: 3800, status: "completed", items: 5, cloudProvider: "Azure", commission: 570 },
+      { id: "ORD-1243", customer: "Innovation Labs", customerId: "CUST-015", date: "2024-10-26", amount: 2900, status: "completed", items: 4, cloudProvider: "GCP", commission: 435 },
+      { id: "ORD-1230", customer: "Tech Solutions", customerId: "CUST-016", date: "2024-10-24", amount: 2100, status: "completed", items: 4, cloudProvider: "AWS", commission: 315 },
+      { id: "ORD-1228", customer: "Cloud Masters", customerId: "CUST-017", date: "2024-10-23", amount: 1500, status: "completed", items: 3, cloudProvider: "Azure", commission: 225 },
+      { id: "ORD-1220", customer: "Enterprise Plus", customerId: "CUST-013", date: "2024-10-15", amount: 4200, status: "completed", items: 6, cloudProvider: "AWS", commission: 630 },
     ]
   },
   {
@@ -129,13 +156,19 @@ const partnersData = [
     monthlyRevenue: 7400,
     commission: 12,
     customers: [
-      { id: "CUST-018", name: "Future Systems", status: "active", mrr: 2300, cloudProvider: "GCP" },
-      { id: "CUST-019", name: "Smart Cloud", status: "active", mrr: 1900, cloudProvider: "AWS" },
-      { id: "CUST-020", name: "Tech Innovators", status: "active", mrr: 1600, cloudProvider: "Azure" },
+      { id: "CUST-018", name: "Future Systems", status: "active", mrr: 2300, cloudProvider: "GCP", subscriptions: 5, lastOrderDate: "2024-10-28", industry: "Technology" },
+      { id: "CUST-019", name: "Smart Cloud", status: "active", mrr: 1900, cloudProvider: "AWS", subscriptions: 3, lastOrderDate: "2024-10-27", industry: "Cloud Services" },
+      { id: "CUST-020", name: "Tech Innovators", status: "active", mrr: 1600, cloudProvider: "Azure", subscriptions: 3, lastOrderDate: "2024-10-25", industry: "Innovation" },
     ],
     recentOrders: [
-      { id: "ORD-1244", customer: "Future Systems", date: "2024-10-28", amount: 2300, status: "processing", items: 3 },
-      { id: "ORD-1245", customer: "Smart Cloud", date: "2024-10-27", amount: 1900, status: "completed", items: 2 },
+      { id: "ORD-1244", customer: "Future Systems", customerId: "CUST-018", date: "2024-10-28", amount: 2300, status: "processing", items: 3, cloudProvider: "GCP", commission: 276 },
+      { id: "ORD-1245", customer: "Smart Cloud", customerId: "CUST-019", date: "2024-10-27", amount: 1900, status: "completed", items: 2, cloudProvider: "AWS", commission: 228 },
+    ],
+    allOrders: [
+      { id: "ORD-1244", customer: "Future Systems", customerId: "CUST-018", date: "2024-10-28", amount: 2300, status: "processing", items: 3, cloudProvider: "GCP", commission: 276 },
+      { id: "ORD-1245", customer: "Smart Cloud", customerId: "CUST-019", date: "2024-10-27", amount: 1900, status: "completed", items: 2, cloudProvider: "AWS", commission: 228 },
+      { id: "ORD-1225", customer: "Tech Innovators", customerId: "CUST-020", date: "2024-10-25", amount: 1600, status: "completed", items: 3, cloudProvider: "Azure", commission: 192 },
+      { id: "ORD-1215", customer: "Future Systems", customerId: "CUST-018", date: "2024-10-15", amount: 2300, status: "completed", items: 3, cloudProvider: "GCP", commission: 276 },
     ]
   },
   {
@@ -153,11 +186,14 @@ const partnersData = [
     monthlyRevenue: 2800,
     commission: 10,
     customers: [
-      { id: "CUST-021", name: "StartUp Tech", status: "trial", mrr: 0, cloudProvider: "AWS" },
-      { id: "CUST-022", name: "Growth Co", status: "active", mrr: 1400, cloudProvider: "Azure" },
+      { id: "CUST-021", name: "StartUp Tech", status: "trial", mrr: 0, cloudProvider: "AWS", subscriptions: 1, lastOrderDate: "2024-10-10", industry: "Startup" },
+      { id: "CUST-022", name: "Growth Co", status: "active", mrr: 1400, cloudProvider: "Azure", subscriptions: 2, lastOrderDate: "2024-10-15", industry: "Growth" },
     ],
     recentOrders: [
-      { id: "ORD-1246", customer: "Growth Co", date: "2024-10-15", amount: 1400, status: "completed", items: 2 },
+      { id: "ORD-1246", customer: "Growth Co", customerId: "CUST-022", date: "2024-10-15", amount: 1400, status: "completed", items: 2, cloudProvider: "Azure", commission: 140 },
+    ],
+    allOrders: [
+      { id: "ORD-1246", customer: "Growth Co", customerId: "CUST-022", date: "2024-10-15", amount: 1400, status: "completed", items: 2, cloudProvider: "Azure", commission: 140 },
     ]
   }
 ];
@@ -167,6 +203,34 @@ const AdminPartners = () => {
   const [selectedPartner, setSelectedPartner] = useState<typeof partnersData[0] | null>(null);
   const [statusFilter, setStatusFilter] = useState("all");
   const [tierFilter, setTierFilter] = useState("all");
+  const [customerSearchTerm, setCustomerSearchTerm] = useState("");
+  const [orderSearchTerm, setOrderSearchTerm] = useState("");
+  const [orderStatusFilter, setOrderStatusFilter] = useState("all");
+
+  // Reset search terms when partner changes
+  useEffect(() => {
+    setCustomerSearchTerm("");
+    setOrderSearchTerm("");
+    setOrderStatusFilter("all");
+  }, [selectedPartner]);
+
+  const filteredCustomers = selectedPartner?.customers.filter(customer =>
+    customer.name.toLowerCase().includes(customerSearchTerm.toLowerCase()) ||
+    customer.id.toLowerCase().includes(customerSearchTerm.toLowerCase()) ||
+    customer.cloudProvider.toLowerCase().includes(customerSearchTerm.toLowerCase()) ||
+    customer.industry?.toLowerCase().includes(customerSearchTerm.toLowerCase())
+  ) || [];
+
+  const filteredOrders = selectedPartner?.allOrders?.filter(order =>
+    (order.customer.toLowerCase().includes(orderSearchTerm.toLowerCase()) ||
+    order.id.toLowerCase().includes(orderSearchTerm.toLowerCase()) ||
+    order.customerId.toLowerCase().includes(orderSearchTerm.toLowerCase())) &&
+    (orderStatusFilter === "all" || order.status === orderStatusFilter)
+  ) || selectedPartner?.recentOrders.filter(order =>
+    (order.customer.toLowerCase().includes(orderSearchTerm.toLowerCase()) ||
+    order.id.toLowerCase().includes(orderSearchTerm.toLowerCase())) &&
+    (orderStatusFilter === "all" || order.status === orderStatusFilter)
+  ) || [];
 
   const filteredPartners = partnersData.filter(partner => {
     const matchesSearch = 
@@ -373,55 +437,128 @@ const AdminPartners = () => {
             </TabsTrigger>
             <TabsTrigger value="orders">
               <ShoppingBag className="h-4 w-4 mr-2" />
-              Recent Orders ({selectedPartner.recentOrders.length})
+              Orders ({selectedPartner?.allOrders?.length || selectedPartner?.recentOrders?.length || 0})
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="customers" className="mt-4">
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Partner's Customers</CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Aggregated business metrics only - individual customer data managed by partner
-                </p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-base">Partner's Customers</CardTitle>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Business metrics only - Customer PII managed by partner per privacy agreement
+                    </p>
+                  </div>
+                  <Badge variant="outline" className="flex items-center gap-1">
+                    <Shield className="h-3 w-3" />
+                    Privacy Compliant
+                  </Badge>
+                </div>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Customer ID</TableHead>
-                      <TableHead>Company Name</TableHead>
-                      <TableHead>Cloud Provider</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">MRR</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {selectedPartner.customers.map((customer) => (
-                      <TableRow key={customer.id}>
-                        <TableCell>
-                          <span className="font-mono text-xs text-muted-foreground">
-                            {customer.id}
-                          </span>
-                        </TableCell>
-                        <TableCell className="font-medium">{customer.name}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className={getCloudProviderColor(customer.cloudProvider)}>
-                            {customer.cloudProvider}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className={getStatusColor(customer.status)}>
-                            {customer.status.charAt(0).toUpperCase() + customer.status.slice(1)}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right font-medium">
-                          ${customer.mrr.toLocaleString()}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                {/* Search and Filters */}
+                <div className="mb-4">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      placeholder="Search customers by name, ID, or industry..."
+                      value={customerSearchTerm}
+                      onChange={(e) => setCustomerSearchTerm(e.target.value)}
+                      className="pl-9 h-9"
+                    />
+                  </div>
+                </div>
+
+                {filteredCustomers.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Users className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p>No customers found</p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="mb-4 p-3 bg-muted/50 rounded-lg flex items-center justify-between text-sm">
+                      <div>
+                        <span className="font-medium">Total Customers:</span> {filteredCustomers.length}
+                      </div>
+                      <div>
+                        <span className="font-medium">Total MRR:</span> ${filteredCustomers.reduce((sum, c) => sum + c.mrr, 0).toLocaleString()}
+                      </div>
+                      <div>
+                        <span className="font-medium">Active:</span> {filteredCustomers.filter(c => c.status === 'active').length}
+                      </div>
+                    </div>
+
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Customer ID</TableHead>
+                          <TableHead>Company Name</TableHead>
+                          <TableHead>Industry</TableHead>
+                          <TableHead>Cloud Provider</TableHead>
+                          <TableHead className="text-center">Subscriptions</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead className="text-right">MRR</TableHead>
+                          <TableHead className="text-right">Last Order</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredCustomers.map((customer) => (
+                          <TableRow key={customer.id}>
+                            <TableCell>
+                              <span className="font-mono text-xs text-muted-foreground">
+                                {customer.id}
+                              </span>
+                            </TableCell>
+                            <TableCell className="font-medium">{customer.name}</TableCell>
+                            <TableCell>
+                              <span className="text-sm text-muted-foreground">{customer.industry || "N/A"}</span>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline" className={getCloudProviderColor(customer.cloudProvider)}>
+                                <Cloud className="h-3 w-3 mr-1" />
+                                {customer.cloudProvider}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <div className="flex items-center justify-center gap-1">
+                                <Package className="h-4 w-4 text-muted-foreground" />
+                                <span className="font-medium">{customer.subscriptions || 0}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline" className={getStatusColor(customer.status)}>
+                                {customer.status === 'active' && <CheckCircle className="h-3 w-3 mr-1" />}
+                                {customer.status === 'trial' && <Clock className="h-3 w-3 mr-1" />}
+                                {customer.status.charAt(0).toUpperCase() + customer.status.slice(1)}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-right font-medium">
+                              ${customer.mrr.toLocaleString()}
+                            </TableCell>
+                            <TableCell className="text-right text-sm text-muted-foreground">
+                              {customer.lastOrderDate ? new Date(customer.lastOrderDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : "N/A"}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                    
+                    {/* Privacy Notice */}
+                    <div className="mt-4 p-3 bg-blue-50/50 dark:bg-blue-950/10 border border-blue-200/50 dark:border-blue-800/30 rounded-lg">
+                      <div className="flex items-start gap-2 text-sm">
+                        <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="font-medium text-blue-900 dark:text-blue-100">Privacy-Compliant Data Display</p>
+                          <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
+                            Only business metrics are shown. Personal identifiable information (PII) such as customer emails, personal addresses, and contact details are managed by the partner under their data processing agreement. This view complies with GDPR, CCPA, and SOC 2 requirements.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -429,54 +566,148 @@ const AdminPartners = () => {
           <TabsContent value="orders" className="mt-4">
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Recent Orders</CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Last 7 days - Financial and business metrics only
-                </p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-base">Order History</CardTitle>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Financial and business metrics only - Customer details managed by partner
+                    </p>
+                  </div>
+                  <Badge variant="outline" className="flex items-center gap-1">
+                    <Shield className="h-3 w-3" />
+                    Privacy Compliant
+                  </Badge>
+                </div>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Order ID</TableHead>
-                      <TableHead>Customer</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead className="text-center">Items</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Amount</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {selectedPartner.recentOrders.map((order) => (
-                      <TableRow key={order.id}>
-                        <TableCell>
-                          <span className="font-mono text-xs text-muted-foreground">
-                            {order.id}
-                          </span>
-                        </TableCell>
-                        <TableCell className="font-medium">{order.customer}</TableCell>
-                        <TableCell>
-                          {new Date(order.date).toLocaleDateString('en-US', { 
-                            month: 'short', 
-                            day: 'numeric',
-                            year: 'numeric'
-                          })}
-                        </TableCell>
-                        <TableCell className="text-center">{order.items}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className={getOrderStatusColor(order.status)}>
-                            {order.status === 'completed' && <CheckCircle className="h-3 w-3 mr-1" />}
-                            {order.status === 'processing' && <Clock className="h-3 w-3 mr-1" />}
-                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right font-medium">
-                          ${order.amount.toLocaleString()}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                {/* Search and Filters */}
+                <div className="mb-4 space-y-3">
+                  <div className="flex gap-3">
+                    <div className="relative flex-1">
+                      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        placeholder="Search orders by ID, customer, or customer ID..."
+                        value={orderSearchTerm}
+                        onChange={(e) => setOrderSearchTerm(e.target.value)}
+                        className="pl-9 h-9"
+                      />
+                    </div>
+                    <Select value={orderStatusFilter} onValueChange={setOrderStatusFilter}>
+                      <SelectTrigger className="w-[150px] h-9">
+                        <Filter className="h-4 w-4 mr-2" />
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Status</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="processing">Processing</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {filteredOrders.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <ShoppingBag className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p>No orders found</p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="mb-4 p-3 bg-muted/50 rounded-lg flex items-center justify-between text-sm">
+                      <div>
+                        <span className="font-medium">Total Orders:</span> {filteredOrders.length}
+                      </div>
+                      <div>
+                        <span className="font-medium">Total Revenue:</span> ${filteredOrders.reduce((sum, o) => sum + o.amount, 0).toLocaleString()}
+                      </div>
+                      <div>
+                        <span className="font-medium">Total Commission:</span> ${filteredOrders.reduce((sum, o) => sum + (o.commission || 0), 0).toLocaleString()}
+                      </div>
+                    </div>
+
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Order ID</TableHead>
+                          <TableHead>Customer</TableHead>
+                          <TableHead>Customer ID</TableHead>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Cloud Provider</TableHead>
+                          <TableHead className="text-center">Items</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead className="text-right">Amount</TableHead>
+                          <TableHead className="text-right">Commission</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredOrders.map((order) => (
+                          <TableRow key={order.id}>
+                            <TableCell>
+                              <span className="font-mono text-xs text-muted-foreground">
+                                {order.id}
+                              </span>
+                            </TableCell>
+                            <TableCell className="font-medium">{order.customer}</TableCell>
+                            <TableCell>
+                              <span className="font-mono text-xs text-muted-foreground">
+                                {order.customerId || "N/A"}
+                              </span>
+                            </TableCell>
+                            <TableCell>
+                              {new Date(order.date).toLocaleDateString('en-US', { 
+                                month: 'short', 
+                                day: 'numeric',
+                                year: 'numeric'
+                              })}
+                            </TableCell>
+                            <TableCell>
+                              {order.cloudProvider && (
+                                <Badge variant="outline" className={getCloudProviderColor(order.cloudProvider)}>
+                                  <Cloud className="h-3 w-3 mr-1" />
+                                  {order.cloudProvider}
+                                </Badge>
+                              )}
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <div className="flex items-center justify-center gap-1">
+                                <Package className="h-4 w-4 text-muted-foreground" />
+                                <span>{order.items}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline" className={getOrderStatusColor(order.status)}>
+                                {order.status === 'completed' && <CheckCircle className="h-3 w-3 mr-1" />}
+                                {order.status === 'processing' && <Clock className="h-3 w-3 mr-1" />}
+                                {order.status === 'pending' && <Clock className="h-3 w-3 mr-1" />}
+                                {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-right font-medium">
+                              ${order.amount.toLocaleString()}
+                            </TableCell>
+                            <TableCell className="text-right font-medium text-primary">
+                              ${(order.commission || 0).toLocaleString()}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                    
+                    {/* Privacy Notice */}
+                    <div className="mt-4 p-3 bg-blue-50/50 dark:bg-blue-950/10 border border-blue-200/50 dark:border-blue-800/30 rounded-lg">
+                      <div className="flex items-start gap-2 text-sm">
+                        <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="font-medium text-blue-900 dark:text-blue-100">Privacy-Compliant Data Display</p>
+                          <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
+                            Order details shown are limited to financial and business metrics only. Customer personal information, billing addresses, and payment details are managed by the partner per their privacy policy. Commission calculations are based on partner agreement terms.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
