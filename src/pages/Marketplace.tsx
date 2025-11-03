@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Eye, Cloud, Database, ArrowLeft, ShoppingCart, Check, Star, Shield, Zap, Users, Clock, ChevronRight, Trash2, CreditCard, MapPin, Mail, Phone, Building2, Loader2, Globe, UserPlus, UserCheck } from "lucide-react";
+import { Plus, Eye, Cloud, Database, ArrowLeft, ShoppingCart, Check, Star, Shield, Zap, Users, Clock, ChevronRight, Trash2, CreditCard, MapPin, Mail, Phone, Building2, Loader2, Globe, UserPlus, UserCheck, Search, Filter, ChevronLeft, ChevronRight as ChevronRightIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
@@ -13,6 +13,95 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCart } from "@/contexts/CartContext";
 import { useSearchParams, useNavigate } from "react-router-dom";
+
+// Import vendor logos from vendors-logos folder
+import acronisLogo from "@/assets/vendors-logos/acronis.png";
+import archerLogo from "@/assets/vendors-logos/archer.png";
+import arcteraLogo from "@/assets/vendors-logos/arctera.png";
+import arubaLogo from "@/assets/vendors-logos/aruba.png";
+import assuredLogo from "@/assets/vendors-logos/assured-data-protection.png";
+import autodeskLogo from "@/assets/vendors-logos/autodesk.png";
+import awsLogo from "@/assets/vendors-logos/aws.png";
+import barracudaLogo from "@/assets/vendors-logos/barracuda.png";
+import bittitanLogo from "@/assets/vendors-logos/bittitan.png";
+import ciscoLogo from "@/assets/vendors-logos/cisco.png";
+import citrixLogo from "@/assets/vendors-logos/citrix.png";
+import cloudflareLogo from "@/assets/vendors-logos/cloudflare.png";
+import cohesityLogo from "@/assets/vendors-logos/cohesity.png";
+import esetLogo from "@/assets/vendors-logos/eset.png";
+import everfoxLogo from "@/assets/vendors-logos/everfox.png";
+import forcepointLogo from "@/assets/vendors-logos/forcepoint.png";
+import genesysLogo from "@/assets/vendors-logos/genesys.png";
+import googleCloudLogo from "@/assets/vendors-logos/google-cloud.png";
+import ibmLogo from "@/assets/vendors-logos/ibm.png";
+import igelLogo from "@/assets/vendors-logos/igel.png";
+import ivantiLogo from "@/assets/vendors-logos/ivanti.png";
+import microsoftLogo from "@/assets/vendors-logos/microsoft.png";
+import netwitnessLogo from "@/assets/vendors-logos/netwitness.png";
+import oneIdentityLogo from "@/assets/vendors-logos/one-identity.png";
+import onespanLogo from "@/assets/vendors-logos/onespan.png";
+import oracleLogo from "@/assets/vendors-logos/oracle.png";
+import outseerLogo from "@/assets/vendors-logos/outseer.png";
+import questLogo from "@/assets/vendors-logos/quest.png";
+import riverbedLogo from "@/assets/vendors-logos/riverbed.png";
+import rsaLogo from "@/assets/vendors-logos/rsa.png";
+import rubrikLogo from "@/assets/vendors-logos/rubrik.png";
+import skyhighLogo from "@/assets/vendors-logos/skyhigh-security.png";
+import softwareAgLogo from "@/assets/vendors-logos/software-ag.png";
+import splunkLogo from "@/assets/vendors-logos/splunk.png";
+import trellixLogo from "@/assets/vendors-logos/trellix.png";
+import trendMicroLogo from "@/assets/vendors-logos/trend-micro.png";
+import vectraLogo from "@/assets/vendors-logos/vectra.png";
+import vmwareLogo from "@/assets/vendors-logos/vmware.png";
+
+// Vendor name to local asset mapping (optimized naming)
+const vendorLogoMap: { [key: string]: string } = {
+  // Cloud Providers
+  "Amazon AWS": awsLogo,
+  "AWS SaaS": awsLogo,
+  "Microsoft Azure": microsoftLogo,
+  "Microsoft SaaS": microsoftLogo,
+  "Microsoft 365": microsoftLogo,
+  "Google Cloud": googleCloudLogo,
+  "Google Cloud SaaS": googleCloudLogo,
+  
+  // SaaS Vendors - New
+  "Acronis": acronisLogo,
+  "Archer": archerLogo,
+  "Arctera": arcteraLogo,
+  "Aruba (HPE)": arubaLogo,
+  "Assured Data Protection": assuredLogo,
+  "Autodesk": autodeskLogo,
+  "Barracuda": barracudaLogo,
+  "BitTitan": bittitanLogo,
+  "Citrix": citrixLogo,
+  "Cloudflare": cloudflareLogo,
+  "Cohesity": cohesityLogo,
+  "Forcepoint": forcepointLogo,
+  "Genesys": genesysLogo,
+  "IBM Cloud SaaS": ibmLogo,
+  "IGEL": igelLogo,
+  "Ivanti": ivantiLogo,
+  "Cisco": ciscoLogo,
+  "VMware (by Broadcom)": vmwareLogo,
+  "ESET": esetLogo,
+  "Everfox": everfoxLogo,
+  "NetWitness": netwitnessLogo,
+  "One Identity": oneIdentityLogo,
+  "OneSpan": onespanLogo,
+  "Oracle Cloud SaaS": oracleLogo,
+  "Outseer": outseerLogo,
+  "Quest": questLogo,
+  "Riverbed": riverbedLogo,
+  "RSA": rsaLogo,
+  "Rubrik": rubrikLogo,
+  "Skyhigh Security": skyhighLogo,
+  "Software AG": softwareAgLogo,
+  "Splunk (Cisco)": splunkLogo,
+  "Trend Micro": trendMicroLogo,
+  "Trellix": trellixLogo,
+  "Vectra AI": vectraLogo,
+};
 
 // Get logo from multiple CDN sources
 const logoUrlMap: { [key: string]: string } = {
@@ -63,7 +152,13 @@ const logoUrlMap: { [key: string]: string } = {
   "bamboohr.com": "https://cdn.brandfetch.io/id0v8CvAOL/w/128/h/128/theme/dark/icon.png",
 };
 
-const getLogoUrl = (domain: string) => {
+const getLogoUrl = (domain: string, vendorName?: string) => {
+  // First try local asset logo if vendor name is provided
+  if (vendorName && vendorLogoMap[vendorName]) {
+    return vendorLogoMap[vendorName];
+  }
+  
+  // Fallback to domain-based CDN
   return logoUrlMap[domain] || `https://img.logo.dev/${domain}?token=pk_X-1ZO13CREWLfXv9Z5h6xQ`;
 };
 
@@ -517,6 +612,806 @@ const saasProviders = [
         ]
       }
     ]
+  },
+  // New SaaS Vendors
+  { 
+    id: 16,
+    name: "Acronis", 
+    type: "License", 
+    category: "Security & Backup", 
+    domain: "acronis.com",
+    description: "Cyber protection, backup, and disaster recovery SaaS",
+    products: [
+      {
+        id: "acronis-cyber-protect",
+        name: "Acronis Cyber Protect",
+        description: "Complete cyber protection and backup solution",
+        features: ["Automated backups", "Disaster recovery", "Malware protection", "Ransomware protection", "Cloud storage"],
+        plans: [
+          { name: "Essential", price: 69, period: "per user/month", specs: "Basic backup & protection" },
+          { name: "Advanced", price: 129, period: "per user/month", specs: "Advanced features & recovery" },
+          { name: "Enterprise", price: 249, period: "per user/month", specs: "Complete cyber protection" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 17,
+    name: "Archer", 
+    type: "License", 
+    category: "Governance & Compliance", 
+    domain: "archer.com",
+    description: "Governance, risk, and compliance SaaS",
+    products: [
+      {
+        id: "archer-grc",
+        name: "Archer GRC Platform",
+        description: "Enterprise governance, risk, and compliance management",
+        features: ["Risk management", "Compliance tracking", "Policy management", "Audit management", "Reporting"],
+        plans: [
+          { name: "Starter", price: 0, period: "per month", specs: "Contact sales" },
+          { name: "Professional", price: 0, period: "per month", specs: "Contact sales" },
+          { name: "Enterprise", price: 0, period: "per month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 18,
+    name: "Arctera", 
+    type: "License", 
+    category: "Monitoring & Analytics", 
+    domain: "arctera.com",
+    description: "Network analytics and observability SaaS",
+    products: [
+      {
+        id: "arctera-network-analytics",
+        name: "Arctera Network Analytics",
+        description: "Advanced network analytics and observability platform",
+        features: ["Network monitoring", "Traffic analysis", "Performance insights", "Real-time alerts", "Reporting"],
+        plans: [
+          { name: "Basic", price: 49, period: "per month", specs: "Up to 100 devices" },
+          { name: "Professional", price: 149, period: "per month", specs: "Up to 500 devices" },
+          { name: "Enterprise", price: 0, period: "per month", specs: "Unlimited devices" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 19,
+    name: "Aruba (HPE)", 
+    type: "License", 
+    category: "Networking", 
+    domain: "arubanetworks.com",
+    description: "Cloud-managed networking (Aruba Central)",
+    products: [
+      {
+        id: "aruba-central",
+        name: "Aruba Central",
+        description: "Cloud-managed networking and Wi-Fi management",
+        features: ["Wi-Fi management", "Network monitoring", "Device management", "Analytics", "Security"],
+        plans: [
+          { name: "Foundation", price: 0, period: "per device/month", specs: "Basic device management" },
+          { name: "Advanced", price: 1.99, period: "per device/month", specs: "Advanced features" },
+          { name: "Premium", price: 4.99, period: "per device/month", specs: "Complete features" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 20,
+    name: "Assured Data Protection", 
+    type: "License", 
+    category: "Security & Backup", 
+    domain: "assureddp.com",
+    description: "Backup and disaster recovery SaaS (Rubrik-based)",
+    products: [
+      {
+        id: "assured-backup",
+        name: "Assured Backup Service",
+        description: "Enterprise backup and disaster recovery solution",
+        features: ["Automated backups", "Disaster recovery", "Data protection", "Cloud storage", "Ransomware protection"],
+        plans: [
+          { name: "Starter", price: 99, period: "per month", specs: "Basic backup services" },
+          { name: "Professional", price: 199, period: "per month", specs: "Advanced recovery options" },
+          { name: "Enterprise", price: 499, period: "per month", specs: "Complete DR solution" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 21,
+    name: "Autodesk", 
+    type: "License", 
+    category: "Design & Engineering", 
+    domain: "autodesk.com",
+    description: "Cloud design and engineering software (Fusion 360, AutoCAD Web)",
+    products: [
+      {
+        id: "autodesk-cloud",
+        name: "Autodesk Cloud Platform",
+        description: "Cloud-based design and engineering tools",
+        features: ["Fusion 360", "AutoCAD Web", "Cloud collaboration", "3D modeling", "CAD tools"],
+        plans: [
+          { name: "Personal", price: 55, period: "per month", specs: "For individuals" },
+          { name: "Commercial", price: 220, period: "per month", specs: "For businesses" },
+          { name: "Enterprise", price: 0, period: "per month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 22,
+    name: "AWS SaaS", 
+    type: "License", 
+    category: "Cloud Services", 
+    domain: "amazon.com",
+    description: "Broad SaaS and PaaS offerings",
+    products: [
+      {
+        id: "aws-saas-platform",
+        name: "AWS SaaS Platform",
+        description: "Comprehensive SaaS and PaaS solutions",
+        features: ["Multiple SaaS offerings", "Scalable infrastructure", "Managed services", "API access", "Enterprise support"],
+        plans: [
+          { name: "Pay-as-you-go", price: 0, period: "per month", specs: "Usage-based pricing" },
+          { name: "Reserved", price: 0, period: "per month", specs: "Contact sales" },
+          { name: "Enterprise", price: 0, period: "per month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 23,
+    name: "Barracuda", 
+    type: "License", 
+    category: "Security", 
+    domain: "barracuda.com",
+    description: "Email and network security SaaS",
+    products: [
+      {
+        id: "barracuda-security",
+        name: "Barracuda Security Suite",
+        description: "Email and network security protection",
+        features: ["Email security", "Network security", "Threat protection", "Spam filtering", "Firewall"],
+        plans: [
+          { name: "Essentials", price: 9.99, period: "per user/month", specs: "Basic email security" },
+          { name: "Advanced", price: 19.99, period: "per user/month", specs: "Advanced protection" },
+          { name: "Enterprise", price: 39.99, period: "per user/month", specs: "Complete security suite" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 24,
+    name: "BitTitan", 
+    type: "License", 
+    category: "Migration", 
+    domain: "bittitan.com",
+    description: "Cloud migration SaaS (MigrationWiz)",
+    products: [
+      {
+        id: "bittitan-migrationwiz",
+        name: "MigrationWiz",
+        description: "Cloud migration and data transfer platform",
+        features: ["Email migration", "Data migration", "Cloud-to-cloud transfer", "Automated migration", "Support"],
+        plans: [
+          { name: "Basic", price: 12, period: "per user", specs: "One-time migration" },
+          { name: "Professional", price: 0, period: "per migration", specs: "Contact sales" },
+          { name: "Enterprise", price: 0, period: "per migration", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 25,
+    name: "Citrix", 
+    type: "License", 
+    category: "Workspace & Virtualization", 
+    domain: "citrix.com",
+    description: "Cloud workspace and app delivery SaaS (Citrix Cloud)",
+    products: [
+      {
+        id: "citrix-cloud",
+        name: "Citrix Cloud",
+        description: "Cloud workspace and virtual application delivery",
+        features: ["Virtual desktops", "App delivery", "Secure access", "Cloud management", "Multi-cloud support"],
+        plans: [
+          { name: "Citrix Workspace", price: 0, period: "per user/month", specs: "Contact sales" },
+          { name: "Citrix DaaS", price: 0, period: "per user/month", specs: "Contact sales" },
+          { name: "Enterprise", price: 0, period: "per user/month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 26,
+    name: "Cloudflare", 
+    type: "License", 
+    category: "Security & Performance", 
+    domain: "cloudflare.com",
+    description: "Security, CDN, and Zero Trust SaaS",
+    products: [
+      {
+        id: "cloudflare-platform",
+        name: "Cloudflare Platform",
+        description: "Comprehensive security, CDN, and Zero Trust solution",
+        features: ["CDN", "DDoS protection", "Zero Trust security", "WAF", "Load balancing"],
+        plans: [
+          { name: "Free", price: 0, period: "per month", specs: "Basic features" },
+          { name: "Pro", price: 20, period: "per month", specs: "Advanced features" },
+          { name: "Business", price: 200, period: "per month", specs: "Business features" },
+          { name: "Enterprise", price: 0, period: "per month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 27,
+    name: "Cohesity", 
+    type: "License", 
+    category: "Data Management", 
+    domain: "cohesity.com",
+    description: "Data management SaaS (DataProtect as a Service)",
+    products: [
+      {
+        id: "cohesity-dataprotect",
+        name: "Cohesity DataProtect",
+        description: "Enterprise data management and protection as a service",
+        features: ["Data backup", "Disaster recovery", "Data protection", "Cloud storage", "Analytics"],
+        plans: [
+          { name: "Starter", price: 0, period: "per month", specs: "Contact sales" },
+          { name: "Professional", price: 0, period: "per month", specs: "Contact sales" },
+          { name: "Enterprise", price: 0, period: "per month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 28,
+    name: "Forcepoint", 
+    type: "License", 
+    category: "Security", 
+    domain: "forcepoint.com",
+    description: "Cloud security and DLP SaaS",
+    products: [
+      {
+        id: "forcepoint-security",
+        name: "Forcepoint Security Platform",
+        description: "Advanced cloud security and data loss prevention",
+        features: ["DLP", "Cloud security", "Threat protection", "Web security", "Email security"],
+        plans: [
+          { name: "Essentials", price: 0, period: "per user/month", specs: "Contact sales" },
+          { name: "Advanced", price: 0, period: "per user/month", specs: "Contact sales" },
+          { name: "Enterprise", price: 0, period: "per user/month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 29,
+    name: "Genesys", 
+    type: "License", 
+    category: "Customer Experience", 
+    domain: "genesys.com",
+    description: "Cloud contact center SaaS (Genesys Cloud CX)",
+    products: [
+      {
+        id: "genesys-cloud-cx",
+        name: "Genesys Cloud CX",
+        description: "Complete cloud contact center solution",
+        features: ["Call center", "Omnichannel support", "AI capabilities", "Analytics", "Workforce management"],
+        plans: [
+          { name: "CX 1", price: 75, period: "per user/month", specs: "Basic contact center" },
+          { name: "CX 2", price: 110, period: "per user/month", specs: "Advanced features" },
+          { name: "CX 3", price: 155, period: "per user/month", specs: "Complete platform" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 30,
+    name: "Google Cloud SaaS", 
+    type: "License", 
+    category: "Cloud Services", 
+    domain: "google.com",
+    description: "SaaS products such as Google Workspace and Contact Center AI",
+    products: [
+      {
+        id: "google-cloud-saas",
+        name: "Google Cloud SaaS Platform",
+        description: "Comprehensive SaaS solutions including Workspace and AI",
+        features: ["Google Workspace", "Contact Center AI", "Cloud services", "AI & ML", "Collaboration tools"],
+        plans: [
+          { name: "Starter", price: 0, period: "per user/month", specs: "Basic features" },
+          { name: "Business", price: 12, period: "per user/month", specs: "Business features" },
+          { name: "Enterprise", price: 0, period: "per user/month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 31,
+    name: "IBM Cloud SaaS", 
+    type: "License", 
+    category: "Cloud Services", 
+    domain: "ibm.com",
+    description: "Multiple SaaS offerings (Watson AI, analytics, security)",
+    products: [
+      {
+        id: "ibm-cloud-saas",
+        name: "IBM Cloud SaaS Platform",
+        description: "Enterprise SaaS solutions including Watson AI and analytics",
+        features: ["Watson AI", "Analytics", "Security services", "Cloud management", "Enterprise support"],
+        plans: [
+          { name: "Lite", price: 0, period: "per month", specs: "Free tier" },
+          { name: "Pay-as-you-go", price: 0, period: "per month", specs: "Usage-based pricing" },
+          { name: "Enterprise", price: 0, period: "per month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 32,
+    name: "IGEL", 
+    type: "License", 
+    category: "Endpoint Management", 
+    domain: "igel.com",
+    description: "Cloud endpoint management SaaS",
+    products: [
+      {
+        id: "igel-os",
+        name: "IGEL OS Cloud",
+        description: "Cloud-managed endpoint operating system",
+        features: ["Endpoint management", "VDI optimization", "Cloud management", "Security", "Device control"],
+        plans: [
+          { name: "Starter", price: 0, period: "per device/month", specs: "Contact sales" },
+          { name: "Professional", price: 0, period: "per device/month", specs: "Contact sales" },
+          { name: "Enterprise", price: 0, period: "per device/month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 33,
+    name: "Ivanti", 
+    type: "License", 
+    category: "IT Management", 
+    domain: "ivanti.com",
+    description: "ITSM and endpoint management SaaS (Ivanti Neurons)",
+    products: [
+      {
+        id: "ivanti-neurons",
+        name: "Ivanti Neurons",
+        description: "AI-powered ITSM and endpoint management platform",
+        features: ["ITSM", "Endpoint management", "Asset management", "Service desk", "Automation"],
+        plans: [
+          { name: "Starter", price: 0, period: "per user/month", specs: "Contact sales" },
+          { name: "Professional", price: 0, period: "per user/month", specs: "Contact sales" },
+          { name: "Enterprise", price: 0, period: "per user/month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 34,
+    name: "Cisco", 
+    type: "License", 
+    category: "Collaboration & Security", 
+    domain: "cisco.com",
+    description: "Collaboration and security SaaS (Webex, Meraki Cloud)",
+    products: [
+      {
+        id: "cisco-cloud",
+        name: "Cisco Cloud Platform",
+        description: "Collaboration and security cloud services",
+        features: ["Webex", "Meraki Cloud", "Security", "Networking", "Collaboration tools"],
+        plans: [
+          { name: "Webex Basic", price: 0, period: "per user/month", specs: "Basic collaboration" },
+          { name: "Webex Business", price: 25, period: "per user/month", specs: "Business features" },
+          { name: "Enterprise", price: 0, period: "per user/month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 35,
+    name: "VMware (by Broadcom)", 
+    type: "License", 
+    category: "Cloud Management", 
+    domain: "vmware.com",
+    description: "Cloud management and endpoint SaaS (VMware Cloud)",
+    products: [
+      {
+        id: "vmware-cloud",
+        name: "VMware Cloud",
+        description: "Cloud management and endpoint solutions",
+        features: ["Cloud management", "Virtualization", "Endpoint security", "Multi-cloud", "Automation"],
+        plans: [
+          { name: "Starter", price: 0, period: "per month", specs: "Contact sales" },
+          { name: "Professional", price: 0, period: "per month", specs: "Contact sales" },
+          { name: "Enterprise", price: 0, period: "per month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 36,
+    name: "ESET", 
+    type: "License", 
+    category: "Security", 
+    domain: "eset.com",
+    description: "Cloud-managed security SaaS (ESET PROTECT Cloud)",
+    products: [
+      {
+        id: "eset-protect-cloud",
+        name: "ESET PROTECT Cloud",
+        description: "Cloud-managed endpoint security and protection",
+        features: ["Endpoint protection", "Cloud management", "Threat detection", "Malware protection", "Centralized management"],
+        plans: [
+          { name: "Essential", price: 38.99, period: "per device/year", specs: "Basic protection" },
+          { name: "Professional", price: 54.99, period: "per device/year", specs: "Advanced features" },
+          { name: "Enterprise", price: 0, period: "per device/year", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 37,
+    name: "Everfox", 
+    type: "License", 
+    category: "Security", 
+    domain: "everfox.com",
+    description: "Cloud security SaaS (Forcepoint Federal)",
+    products: [
+      {
+        id: "everfox-security",
+        name: "Everfox Security Platform",
+        description: "Federal-grade cloud security solutions",
+        features: ["Federal security", "Cloud protection", "Data protection", "Compliance", "Threat detection"],
+        plans: [
+          { name: "Starter", price: 0, period: "per user/month", specs: "Contact sales" },
+          { name: "Professional", price: 0, period: "per user/month", specs: "Contact sales" },
+          { name: "Enterprise", price: 0, period: "per user/month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 38,
+    name: "Microsoft SaaS", 
+    type: "License", 
+    category: "Productivity & Business", 
+    domain: "microsoft.com",
+    description: "Microsoft 365, Dynamics 365, Power Platform SaaS",
+    products: [
+      {
+        id: "microsoft-saas-platform",
+        name: "Microsoft SaaS Platform",
+        description: "Complete Microsoft SaaS ecosystem",
+        features: ["Microsoft 365", "Dynamics 365", "Power Platform", "Azure services", "Collaboration"],
+        plans: [
+          { name: "Business Basic", price: 6, period: "per user/month", specs: "Basic productivity" },
+          { name: "Business Standard", price: 12.50, period: "per user/month", specs: "Standard features" },
+          { name: "Enterprise", price: 0, period: "per user/month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 39,
+    name: "NetWitness", 
+    type: "License", 
+    category: "Security", 
+    domain: "netwitness.com",
+    description: "Threat detection and response SaaS",
+    products: [
+      {
+        id: "netwitness-platform",
+        name: "NetWitness Platform",
+        description: "Advanced threat detection and response system",
+        features: ["Threat detection", "SIEM", "Network analysis", "Log analysis", "Incident response"],
+        plans: [
+          { name: "Starter", price: 0, period: "per month", specs: "Contact sales" },
+          { name: "Professional", price: 0, period: "per month", specs: "Contact sales" },
+          { name: "Enterprise", price: 0, period: "per month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 40,
+    name: "One Identity", 
+    type: "License", 
+    category: "Identity & Access", 
+    domain: "oneidentity.com",
+    description: "Identity governance and administration SaaS",
+    products: [
+      {
+        id: "one-identity-platform",
+        name: "One Identity Platform",
+        description: "Identity governance and access management",
+        features: ["Identity governance", "Access management", "Privileged access", "Compliance", "Automation"],
+        plans: [
+          { name: "Starter", price: 0, period: "per user/month", specs: "Contact sales" },
+          { name: "Professional", price: 0, period: "per user/month", specs: "Contact sales" },
+          { name: "Enterprise", price: 0, period: "per user/month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 41,
+    name: "OneSpan", 
+    type: "License", 
+    category: "Identity & Security", 
+    domain: "onespan.com",
+    description: "Digital identity, e-signature, and authentication SaaS",
+    products: [
+      {
+        id: "onespan-platform",
+        name: "OneSpan Platform",
+        description: "Digital identity and e-signature solutions",
+        features: ["E-signatures", "Digital identity", "Authentication", "Document management", "Compliance"],
+        plans: [
+          { name: "Starter", price: 15, period: "per user/month", specs: "Basic e-signatures" },
+          { name: "Professional", price: 35, period: "per user/month", specs: "Advanced features" },
+          { name: "Enterprise", price: 0, period: "per user/month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 42,
+    name: "Oracle Cloud SaaS", 
+    type: "License", 
+    category: "Business Applications", 
+    domain: "oracle.com",
+    description: "Cloud ERP, HCM, and CRM SaaS applications",
+    products: [
+      {
+        id: "oracle-cloud-saas",
+        name: "Oracle Cloud SaaS",
+        description: "Complete cloud ERP, HCM, and CRM suite",
+        features: ["ERP", "HCM", "CRM", "Supply chain", "Financial management"],
+        plans: [
+          { name: "Starter", price: 0, period: "per user/month", specs: "Contact sales" },
+          { name: "Professional", price: 0, period: "per user/month", specs: "Contact sales" },
+          { name: "Enterprise", price: 0, period: "per user/month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 43,
+    name: "Outseer", 
+    type: "License", 
+    category: "Security", 
+    domain: "outseer.com",
+    description: "Fraud detection SaaS (RSA company)",
+    products: [
+      {
+        id: "outseer-fraud-detection",
+        name: "Outseer Fraud Detection",
+        description: "Advanced fraud detection and prevention platform",
+        features: ["Fraud detection", "Risk analysis", "Transaction monitoring", "Real-time alerts", "Analytics"],
+        plans: [
+          { name: "Starter", price: 0, period: "per month", specs: "Contact sales" },
+          { name: "Professional", price: 0, period: "per month", specs: "Contact sales" },
+          { name: "Enterprise", price: 0, period: "per month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 44,
+    name: "Quest", 
+    type: "License", 
+    category: "IT Management", 
+    domain: "quest.com",
+    description: "IT management and data protection SaaS",
+    products: [
+      {
+        id: "quest-platform",
+        name: "Quest Platform",
+        description: "IT management and data protection solutions",
+        features: ["IT management", "Data protection", "Backup & recovery", "Monitoring", "Automation"],
+        plans: [
+          { name: "Starter", price: 0, period: "per month", specs: "Contact sales" },
+          { name: "Professional", price: 0, period: "per month", specs: "Contact sales" },
+          { name: "Enterprise", price: 0, period: "per month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 45,
+    name: "Riverbed", 
+    type: "License", 
+    category: "Monitoring & Performance", 
+    domain: "riverbed.com",
+    description: "Cloud-based observability and performance monitoring SaaS",
+    products: [
+      {
+        id: "riverbed-observability",
+        name: "Riverbed Observability",
+        description: "Cloud-based performance monitoring and observability",
+        features: ["Performance monitoring", "Network observability", "Application monitoring", "Analytics", "Reporting"],
+        plans: [
+          { name: "Starter", price: 0, period: "per month", specs: "Contact sales" },
+          { name: "Professional", price: 0, period: "per month", specs: "Contact sales" },
+          { name: "Enterprise", price: 0, period: "per month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 46,
+    name: "RSA", 
+    type: "License", 
+    category: "Security & Governance", 
+    domain: "rsa.com",
+    description: "Security and governance SaaS (Archer, SecurID Cloud)",
+    products: [
+      {
+        id: "rsa-platform",
+        name: "RSA Security Platform",
+        description: "Enterprise security and governance solutions",
+        features: ["Archer GRC", "SecurID Cloud", "Identity management", "Governance", "Compliance"],
+        plans: [
+          { name: "Starter", price: 0, period: "per user/month", specs: "Contact sales" },
+          { name: "Professional", price: 0, period: "per user/month", specs: "Contact sales" },
+          { name: "Enterprise", price: 0, period: "per user/month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 47,
+    name: "Rubrik", 
+    type: "License", 
+    category: "Data Management", 
+    domain: "rubrik.com",
+    description: "Cloud data management and backup SaaS",
+    products: [
+      {
+        id: "rubrik-platform",
+        name: "Rubrik Platform",
+        description: "Enterprise cloud data management and backup",
+        features: ["Data backup", "Disaster recovery", "Data governance", "Cloud storage", "Automation"],
+        plans: [
+          { name: "Starter", price: 0, period: "per month", specs: "Contact sales" },
+          { name: "Professional", price: 0, period: "per month", specs: "Contact sales" },
+          { name: "Enterprise", price: 0, period: "per month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 48,
+    name: "Skyhigh Security", 
+    type: "License", 
+    category: "Security", 
+    domain: "skyhighsecurity.com",
+    description: "Cloud security SaaS (CASB, SWG)",
+    products: [
+      {
+        id: "skyhigh-security",
+        name: "Skyhigh Security Platform",
+        description: "Cloud access security broker and secure web gateway",
+        features: ["CASB", "SWG", "Cloud security", "Threat protection", "Compliance"],
+        plans: [
+          { name: "Starter", price: 0, period: "per user/month", specs: "Contact sales" },
+          { name: "Professional", price: 0, period: "per user/month", specs: "Contact sales" },
+          { name: "Enterprise", price: 0, period: "per user/month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 49,
+    name: "Software AG", 
+    type: "License", 
+    category: "Integration", 
+    domain: "softwareag.com",
+    description: "Integration and API management SaaS (webMethods .io)",
+    products: [
+      {
+        id: "softwareag-webmethods",
+        name: "webMethods.io",
+        description: "Cloud-based integration and API management platform",
+        features: ["API management", "Integration", "Workflow automation", "Data transformation", "Cloud connectors"],
+        plans: [
+          { name: "Starter", price: 0, period: "per month", specs: "Contact sales" },
+          { name: "Professional", price: 0, period: "per month", specs: "Contact sales" },
+          { name: "Enterprise", price: 0, period: "per month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 50,
+    name: "Splunk (Cisco)", 
+    type: "License", 
+    category: "Monitoring & Security", 
+    domain: "splunk.com",
+    description: "Cloud monitoring, observability, and SIEM SaaS",
+    products: [
+      {
+        id: "splunk-cloud",
+        name: "Splunk Cloud",
+        description: "Cloud-based monitoring, observability, and SIEM platform",
+        features: ["SIEM", "Log analysis", "Monitoring", "Observability", "Security analytics"],
+        plans: [
+          { name: "Essentials", price: 0, period: "per GB/month", specs: "Usage-based pricing" },
+          { name: "Workload", price: 0, period: "per GB/month", specs: "Contact sales" },
+          { name: "Enterprise", price: 0, period: "per GB/month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 51,
+    name: "Trend Micro", 
+    type: "License", 
+    category: "Security", 
+    domain: "trendmicro.com",
+    description: "Cloud security SaaS (Vision One, Cloud One platform)",
+    products: [
+      {
+        id: "trendmicro-cloud",
+        name: "Trend Micro Cloud Platform",
+        description: "Comprehensive cloud security solutions",
+        features: ["Vision One", "Cloud One", "Threat protection", "Cloud security", "XDR"],
+        plans: [
+          { name: "Essentials", price: 0, period: "per user/month", specs: "Contact sales" },
+          { name: "Advanced", price: 0, period: "per user/month", specs: "Contact sales" },
+          { name: "Enterprise", price: 0, period: "per user/month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 52,
+    name: "Trellix", 
+    type: "License", 
+    category: "Security", 
+    domain: "trellix.com",
+    description: "Cybersecurity SaaS (XDR platform)",
+    products: [
+      {
+        id: "trellix-xdr",
+        name: "Trellix XDR Platform",
+        description: "Extended detection and response cybersecurity platform",
+        features: ["XDR", "Threat detection", "Endpoint security", "Network security", "Cloud security"],
+        plans: [
+          { name: "Starter", price: 0, period: "per user/month", specs: "Contact sales" },
+          { name: "Professional", price: 0, period: "per user/month", specs: "Contact sales" },
+          { name: "Enterprise", price: 0, period: "per user/month", specs: "Contact sales" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 53,
+    name: "Vectra AI", 
+    type: "License", 
+    category: "Security", 
+    domain: "vectra.ai",
+    description: "Cloud-native threat detection and response SaaS",
+    products: [
+      {
+        id: "vectra-platform",
+        name: "Vectra AI Platform",
+        description: "AI-powered threat detection and response platform",
+        features: ["Threat detection", "AI-powered analysis", "Network detection", "Cloud security", "Incident response"],
+        plans: [
+          { name: "Starter", price: 0, period: "per month", specs: "Contact sales" },
+          { name: "Professional", price: 0, period: "per month", specs: "Contact sales" },
+          { name: "Enterprise", price: 0, period: "per month", specs: "Contact sales" }
+        ]
+      }
+    ]
   }
 ];
 
@@ -549,10 +1444,53 @@ const Marketplace = () => {
     country: "United States"
   });
   
+  // Filtering and pagination state
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [providerTypeFilter, setProviderTypeFilter] = useState<"all" | "cloud" | "saas">("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(12);
+  
   // Use CartContext instead of local state
   const { cart, addToCart, removeFromCart, updateQuantity, getTotalItems, getTotalPrice, clearCart } = useCart();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  
+  // Combine all providers
+  const allProviders = [
+    ...cloudProviders.map(p => ({ ...p, providerType: "cloud" as const })),
+    ...saasProviders.map(p => ({ ...p, providerType: "saas" as const }))
+  ];
+  
+  // Filter providers
+  const filteredProviders = allProviders.filter(provider => {
+    const matchesSearch = 
+      provider.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      provider.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      provider.category.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesCategory = categoryFilter === "all" || provider.category === categoryFilter;
+    const matchesType = typeFilter === "all" || provider.type === typeFilter;
+    const matchesProviderType = providerTypeFilter === "all" || provider.providerType === providerTypeFilter;
+    
+    return matchesSearch && matchesCategory && matchesType && matchesProviderType;
+  });
+  
+  // Get unique categories and types
+  const uniqueCategories = Array.from(new Set(allProviders.map(p => p.category))).sort();
+  const uniqueTypes = Array.from(new Set(allProviders.map(p => p.type))).sort();
+  
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredProviders.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedProviders = filteredProviders.slice(startIndex, endIndex);
+  
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, categoryFilter, typeFilter, providerTypeFilter]);
   
   // Check if cart should be shown from URL params
   useEffect(() => {
@@ -686,7 +1624,7 @@ const Marketplace = () => {
                 <div className="flex items-start gap-4">
                   <div className="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center">
                     <img
-                      src={getLogoUrl(selectedProvider?.domain || "")}
+                      src={getLogoUrl(selectedProvider?.domain || "", selectedProvider?.name)}
                       alt={selectedProvider?.name}
                       className="w-12 h-12 object-contain"
                       onError={(e) => {
@@ -788,7 +1726,7 @@ const Marketplace = () => {
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
                     <img
-                      src={getLogoUrl(selectedProvider?.domain || "")}
+                      src={getLogoUrl(selectedProvider?.domain || "", selectedProvider?.name)}
                       alt={selectedProvider?.name}
                       className="w-8 h-8 object-contain"
                       onError={(e) => {
@@ -892,7 +1830,7 @@ const Marketplace = () => {
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center">
             <img
-              src={getLogoUrl(selectedProvider.domain)}
+              src={getLogoUrl(selectedProvider.domain, selectedProvider.name)}
               alt={selectedProvider.name}
               className="w-12 h-12 object-contain"
               onError={(e) => {
@@ -1438,189 +2376,242 @@ const Marketplace = () => {
         )}
       </div>
 
-      {/* Cloud Providers Section */}
+      {/* Filters Section */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-4">
-          <div>
-            <CardTitle className="text-base font-medium">Cloud Providers</CardTitle>
-            <p className="text-xs text-muted-foreground mt-1">Infrastructure and platform services</p>
+        <CardHeader className="pb-3">
+          <div className="flex flex-col gap-4">
+            {/* Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Search vendors by name, description, or category..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9 h-10"
+              />
+            </div>
+            
+            {/* Filter Controls */}
+            <div className="flex flex-wrap gap-3">
+              <Select value={providerTypeFilter} onValueChange={(value) => setProviderTypeFilter(value as "all" | "cloud" | "saas")}>
+                <SelectTrigger className="w-[140px]">
+                  <Filter className="h-4 w-4 mr-2" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="cloud">Cloud Providers</SelectItem>
+                  <SelectItem value="saas">SaaS Applications</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {uniqueCategories.map((cat) => (
+                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  {uniqueTypes.map((type) => (
+                    <SelectItem key={type} value={type}>{type}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <div className="ml-auto flex items-center gap-2 text-sm text-muted-foreground">
+                <span>Showing {filteredProviders.length} of {allProviders.length} vendors</span>
+              </div>
+            </div>
           </div>
-          <Badge variant="secondary">{cloudProviders.length} Providers</Badge>
         </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {cloudProviders.map((provider) => (
-              <Card 
-                key={provider.id} 
-                className="hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden group relative border"
-                onMouseEnter={() => setHoveredCard(provider.id)}
-                onMouseLeave={() => setHoveredCard(null)}
-                onClick={() => handleViewDetails(provider)}
-              >
-                <CardContent className="p-5">
-                  {/* Type Badge - Top Right */}
-                  <div className="absolute top-3 right-3">
-                    <Badge variant="secondary" className="text-xs">
-                      {provider.type}
-                    </Badge>
-                  </div>
-
-                  <div className="flex flex-col space-y-3 min-h-[200px]">
-                    {/* Logo - Always Visible */}
-                    <div className="flex justify-center">
-                      <div className="w-16 h-16 flex items-center justify-center">
-                        <img 
-                          src={getLogoUrl(provider.domain)} 
-                          alt={provider.name}
-                          className="w-full h-full object-contain"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                            const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                            if (fallback) fallback.style.display = 'flex';
-                          }}
-                        />
-                        <div className="hidden w-full h-full items-center justify-center">
-                          <Cloud className="h-10 w-10 text-muted-foreground" />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Provider Name */}
-                    <h3 className="font-semibold text-sm text-center">{provider.name}</h3>
-
-                    {/* Description - Default State */}
-                    <div className={`flex-1 transition-opacity duration-300 ${
-                      hoveredCard === provider.id ? 'opacity-0 absolute' : 'opacity-100'
-                    }`}>
-                      <p className="text-xs text-muted-foreground text-center line-clamp-3">
-                        {provider.description}
-                      </p>
-                    </div>
-
-                    {/* Category - Hover State */}
-                    <div className={`transition-opacity duration-300 ${
-                      hoveredCard === provider.id ? 'opacity-100' : 'opacity-0 absolute'
-                    }`}>
-                      <p className="text-xs text-muted-foreground text-center mb-3">
-                        {provider.category}
-                      </p>
-                    </div>
-
-                    {/* View Details Button - Bottom Right (Hover) */}
-                    <div className={`mt-auto transition-opacity duration-300 ${
-                      hoveredCard === provider.id ? 'opacity-100' : 'opacity-0 absolute'
-                    }`}>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="w-full"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleViewDetails(provider);
-                        }}
-                      >
-                        <Eye className="h-3 w-3 mr-1" />
-                        View Details
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </CardContent>
       </Card>
 
-      {/* SaaS Providers Section */}
+      {/* Vendors Grid */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-4">
           <div>
-            <CardTitle className="text-base font-medium">SaaS Applications</CardTitle>
-            <p className="text-xs text-muted-foreground mt-1">Software as a service subscriptions</p>
+            <CardTitle className="text-base font-medium">All Vendors</CardTitle>
+            <p className="text-xs text-muted-foreground mt-1">
+              {providerTypeFilter === "cloud" && "Infrastructure and platform services"}
+              {providerTypeFilter === "saas" && "Software as a service subscriptions"}
+              {providerTypeFilter === "all" && "All cloud providers and SaaS applications"}
+            </p>
           </div>
-          <Badge variant="secondary">{saasProviders.length} Applications</Badge>
+          <Badge variant="secondary">{filteredProviders.length} Vendors</Badge>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {saasProviders.map((provider) => (
-              <Card 
-                key={provider.id} 
-                className="hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden group relative border"
-                onMouseEnter={() => setHoveredCard(provider.id + 100)}
-                onMouseLeave={() => setHoveredCard(null)}
-                onClick={() => handleViewDetails(provider)}
-              >
-                <CardContent className="p-5">
-                  {/* Type Badge - Top Right */}
-                  <div className="absolute top-3 right-3">
-                    <Badge variant="secondary" className="text-xs">
-                      {provider.type}
-                    </Badge>
-                  </div>
-
-                  <div className="flex flex-col space-y-3 min-h-[200px]">
-                    {/* Logo - Always Visible */}
-                    <div className="flex justify-center">
-                      <div className="w-16 h-16 flex items-center justify-center">
-                        <img 
-                          src={getLogoUrl(provider.domain)} 
-                          alt={provider.name}
-                          className="w-full h-full object-contain"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                            const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                            if (fallback) fallback.style.display = 'flex';
-                          }}
-                        />
-                        <div className="hidden w-full h-full items-center justify-center">
-                          <Database className="h-10 w-10 text-muted-foreground" />
+          {paginatedProviders.length === 0 ? (
+            <div className="text-center py-12">
+              <Cloud className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No vendors found</h3>
+              <p className="text-muted-foreground">Try adjusting your filters to see more results</p>
+            </div>
+          ) : (
+            <>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
+                {paginatedProviders.map((provider) => {
+                  const displayId = provider.providerType === "cloud" ? provider.id : provider.id + 100;
+                  return (
+                    <Card 
+                      key={provider.id} 
+                      className="hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden group relative border"
+                      onClick={() => handleViewDetails(provider)}
+                    >
+                      <CardContent className="p-5">
+                        {/* Provider Type Badge - Top Right (Extra Small) */}
+                        <div className="absolute top-3 right-3">
+                          <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4">
+                            {provider.providerType === "cloud" ? "Cloud" : "SaaS"}
+                          </Badge>
                         </div>
-                      </div>
-                    </div>
 
-                    {/* Provider Name */}
-                    <h3 className="font-semibold text-sm text-center">{provider.name}</h3>
+                        <div className="flex flex-col space-y-3 min-h-[200px]">
+                          {/* Logo - Separate Row */}
+                          <div className="flex items-center justify-start h-14 overflow-hidden">
+                            <img 
+                              src={getLogoUrl(provider.domain, provider.name)} 
+                              alt={provider.name}
+                              className="h-14 w-auto max-w-full object-contain object-left"
+                              style={{ maxHeight: '56px' }}
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                                if (fallback) fallback.style.display = 'flex';
+                              }}
+                              loading="lazy"
+                            />
+                            <div className="hidden h-14 w-auto items-center justify-center">
+                              {provider.providerType === "cloud" ? (
+                                <Cloud className="h-10 w-10 text-muted-foreground" />
+                              ) : (
+                                <Database className="h-10 w-10 text-muted-foreground" />
+                              )}
+                            </div>
+                          </div>
+                          
+                          {/* Heading and Type - Left Aligned */}
+                          <div>
+                            <h3 className="font-semibold text-base leading-tight mb-1 text-left">{provider.name}</h3>
+                            <p className="text-xs font-medium text-muted-foreground text-left">{provider.category}</p>
+                          </div>
 
-                    {/* Description - Default State */}
-                    <div className={`flex-1 transition-opacity duration-300 ${
-                      hoveredCard === provider.id + 100 ? 'opacity-0 absolute' : 'opacity-100'
-                    }`}>
-                      <p className="text-xs text-muted-foreground text-center line-clamp-3">
-                        {provider.description}
-                      </p>
-                    </div>
+                          {/* Description */}
+                          <div className="flex-1">
+                            <p className="text-sm text-muted-foreground line-clamp-3 text-left">
+                              {provider.description}
+                            </p>
+                          </div>
 
-                    {/* Category - Hover State */}
-                    <div className={`transition-opacity duration-300 ${
-                      hoveredCard === provider.id + 100 ? 'opacity-100' : 'opacity-0 absolute'
-                    }`}>
-                      <p className="text-xs text-muted-foreground text-center mb-3">
-                        {provider.category}
-                      </p>
-                    </div>
-
-                    {/* View Details Button - Bottom Right (Hover) */}
-                    <div className={`mt-auto transition-opacity duration-300 ${
-                      hoveredCard === provider.id + 100 ? 'opacity-100' : 'opacity-0 absolute'
-                    }`}>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="w-full"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleViewDetails(provider);
-                        }}
-                      >
-                        <Eye className="h-3 w-3 mr-1" />
-                        View Details
-                      </Button>
-                    </div>
+                          {/* View Details Button - Always Visible */}
+                          <div className="mt-auto">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              className="w-auto"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleViewDetails(provider);
+                              }}
+                            >
+                              <Eye className="h-3 w-3 mr-1" />
+                              View Details
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+              
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between border-t pt-4 mt-6">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">Show</span>
+                    <Select
+                      value={itemsPerPage.toString()}
+                      onValueChange={(value) => {
+                        setItemsPerPage(Number(value));
+                        setCurrentPage(1);
+                      }}
+                    >
+                      <SelectTrigger className="h-8 w-[70px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="12">12</SelectItem>
+                        <SelectItem value="24">24</SelectItem>
+                        <SelectItem value="36">36</SelectItem>
+                        <SelectItem value="48">48</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <span className="text-sm text-muted-foreground">
+                      of {filteredProviders.length} vendor{filteredProviders.length !== 1 ? 's' : ''}
+                    </span>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1}
+                    >
+                      <ChevronLeft className="h-4 w-4 mr-1" />
+                      Previous
+                    </Button>
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        let pageNum;
+                        if (totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (currentPage <= 3) {
+                          pageNum = i + 1;
+                        } else if (currentPage >= totalPages - 2) {
+                          pageNum = totalPages - 4 + i;
+                        } else {
+                          pageNum = currentPage - 2 + i;
+                        }
+                        
+                        return (
+                          <Button
+                            key={pageNum}
+                            variant={currentPage === pageNum ? "default" : "outline"}
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            onClick={() => setCurrentPage(pageNum)}
+                          >
+                            {pageNum}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      disabled={currentPage === totalPages}
+                    >
+                      Next
+                      <ChevronRightIcon className="h-4 w-4 ml-1" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -1,11 +1,15 @@
 import { MetricCard } from "@/components/MetricCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, TrendingUp, Users, Package, Calendar, Mail, Send } from "lucide-react";
+import { DollarSign, TrendingUp, Users, Package, Calendar, Mail, Send, Clock } from "lucide-react";
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -42,6 +46,12 @@ const unpaidInvoices = [
 
 const Dashboard = () => {
   const [dateRange, setDateRange] = useState("thisyear");
+  const [reminderDialogOpen, setReminderDialogOpen] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState<typeof unpaidInvoices[0] | null>(null);
+  const [isSendingAll, setIsSendingAll] = useState(false);
+  const [reminderType, setReminderType] = useState<"now" | "schedule">("now");
+  const [scheduledDate, setScheduledDate] = useState("");
+  const [scheduledTime, setScheduledTime] = useState("");
 
   const handleDateRangeChange = (value: string) => {
     setDateRange(value);
@@ -49,12 +59,59 @@ const Dashboard = () => {
   };
 
   const handleSendReminder = (invoice: typeof unpaidInvoices[0]) => {
-    toast.success(`Payment reminder sent to ${invoice.client} for ${invoice.id}`);
+    setSelectedInvoice(invoice);
+    setIsSendingAll(false);
+    setReminderType("now");
+    setScheduledDate("");
+    setScheduledTime("");
+    setReminderDialogOpen(true);
   };
 
   const handleSendAllReminders = () => {
-    const overdueCount = unpaidInvoices.filter(inv => inv.status === "overdue").length;
-    toast.success(`Payment reminders sent to ${overdueCount} clients`);
+    setSelectedInvoice(null);
+    setIsSendingAll(true);
+    setReminderType("now");
+    setScheduledDate("");
+    setScheduledTime("");
+    setReminderDialogOpen(true);
+  };
+
+  const handleConfirmReminder = () => {
+    if (reminderType === "schedule") {
+      if (!scheduledDate || !scheduledTime) {
+        toast.error("Please select both date and time for scheduling");
+        return;
+      }
+      
+      const scheduledDateTime = new Date(`${scheduledDate}T${scheduledTime}`);
+      const now = new Date();
+      
+      if (scheduledDateTime <= now) {
+        toast.error("Scheduled time must be in the future");
+        return;
+      }
+
+      if (isSendingAll) {
+        const overdueCount = unpaidInvoices.filter(inv => inv.status === "overdue").length;
+        toast.success(`Payment reminders scheduled for ${overdueCount} clients on ${scheduledDate} at ${scheduledTime}`);
+      } else {
+        toast.success(`Payment reminder scheduled for ${selectedInvoice?.client} (${selectedInvoice?.id}) on ${scheduledDate} at ${scheduledTime}`);
+      }
+    } else {
+      if (isSendingAll) {
+        const overdueCount = unpaidInvoices.filter(inv => inv.status === "overdue").length;
+        toast.success(`Payment reminders sent to ${overdueCount} clients`);
+      } else {
+        toast.success(`Payment reminder sent to ${selectedInvoice?.client} for ${selectedInvoice?.id}`);
+      }
+    }
+    
+    setReminderDialogOpen(false);
+    setSelectedInvoice(null);
+    setIsSendingAll(false);
+    setReminderType("now");
+    setScheduledDate("");
+    setScheduledTime("");
   };
 
   return (
@@ -305,6 +362,104 @@ const Dashboard = () => {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Reminder Dialog */}
+      <Dialog open={reminderDialogOpen} onOpenChange={setReminderDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Mail className="h-5 w-5 text-primary" />
+              {isSendingAll ? "Send Reminders to All Clients" : "Send Payment Reminder"}
+            </DialogTitle>
+            <DialogDescription>
+              {isSendingAll 
+                ? "Choose to send payment reminders now or schedule them for later"
+                : `Choose to send payment reminder to ${selectedInvoice?.client} (${selectedInvoice?.id}) now or schedule it for later`
+              }
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <RadioGroup value={reminderType} onValueChange={(value) => setReminderType(value as "now" | "schedule")}>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="now" id="now" />
+                <Label htmlFor="now" className="flex items-center gap-2 cursor-pointer">
+                  <Send className="h-4 w-4 text-primary" />
+                  <span className="font-medium">Send Now</span>
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="schedule" id="schedule" />
+                <Label htmlFor="schedule" className="flex items-center gap-2 cursor-pointer">
+                  <Clock className="h-4 w-4 text-primary" />
+                  <span className="font-medium">Schedule</span>
+                </Label>
+              </div>
+            </RadioGroup>
+
+            {reminderType === "schedule" && (
+              <div className="space-y-4 pl-7 animate-in slide-in-from-top-2">
+                <div className="space-y-2">
+                  <Label htmlFor="reminder-date" className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    Date
+                  </Label>
+                  <Input
+                    id="reminder-date"
+                    type="date"
+                    value={scheduledDate}
+                    onChange={(e) => setScheduledDate(e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
+                    className="w-full"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="reminder-time" className="flex items-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    Time
+                  </Label>
+                  <Input
+                    id="reminder-time"
+                    type="time"
+                    value={scheduledTime}
+                    onChange={(e) => setScheduledTime(e.target.value)}
+                    className="w-full"
+                  />
+                </div>
+                {scheduledDate && scheduledTime && (
+                  <div className="mt-2 p-3 bg-muted rounded-lg">
+                    <p className="text-sm text-muted-foreground">
+                      Reminder will be sent on{" "}
+                      <span className="font-medium text-foreground">
+                        {new Date(`${scheduledDate}T${scheduledTime}`).toLocaleString()}
+                      </span>
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setReminderDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleConfirmReminder} className="bg-primary hover:bg-primary/90">
+              {reminderType === "now" ? (
+                <>
+                  <Send className="h-4 w-4 mr-2" />
+                  Send {isSendingAll ? "All Reminders" : "Reminder"}
+                </>
+              ) : (
+                <>
+                  <Clock className="h-4 w-4 mr-2" />
+                  Schedule Reminder
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

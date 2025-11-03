@@ -117,7 +117,7 @@ const navigationConfig: NavItem[] = [
   { 
     icon: Package, 
     label: "Packages", 
-    path: "/customer/packkages", 
+    path: "/customer/packages", 
     roles: ['customer'] 
   },
   { 
