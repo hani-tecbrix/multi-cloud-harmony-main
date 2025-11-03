@@ -2459,18 +2459,25 @@ const Marketplace = () => {
             </div>
           ) : (
             <>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
+              <div 
+                className="grid gap-4 justify-items-center"
+                style={{
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(256px, 360px))',
+                  justifyContent: 'center'
+                }}
+              >
                 {paginatedProviders.map((provider) => {
                   const displayId = provider.providerType === "cloud" ? provider.id : provider.id + 100;
                   return (
                     <Card 
                       key={provider.id} 
-                      className="hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden group relative border"
+                      className="hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden group relative border w-full"
+                      style={{ maxWidth: '360px', minWidth: '256px' }}
                       onClick={() => handleViewDetails(provider)}
                     >
                       <CardContent className="p-5">
                         {/* Provider Type Badge - Top Right (Extra Small) */}
-                        <div className="absolute top-3 right-3">
+                        <div className="absolute top-3 right-3 z-10">
                           <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4">
                             {provider.providerType === "cloud" ? "Cloud" : "SaaS"}
                           </Badge>
@@ -2478,12 +2485,12 @@ const Marketplace = () => {
 
                         <div className="flex flex-col space-y-3 min-h-[200px]">
                           {/* Logo - Separate Row */}
-                          <div className="flex items-center justify-start h-14 overflow-hidden">
+                          <div className="flex items-center justify-start h-10 overflow-hidden">
                             <img 
                               src={getLogoUrl(provider.domain, provider.name)} 
                               alt={provider.name}
-                              className="h-14 w-auto max-w-full object-contain object-left"
-                              style={{ maxHeight: '56px' }}
+                              className="h-10 w-auto max-w-full object-contain object-left"
+                              style={{ maxHeight: '40px', maxWidth: '100%' }}
                               onError={(e) => {
                                 e.currentTarget.style.display = 'none';
                                 const fallback = e.currentTarget.nextElementSibling as HTMLElement;
@@ -2491,34 +2498,34 @@ const Marketplace = () => {
                               }}
                               loading="lazy"
                             />
-                            <div className="hidden h-14 w-auto items-center justify-center">
+                            <div className="hidden h-10 w-auto items-center justify-center">
                               {provider.providerType === "cloud" ? (
-                                <Cloud className="h-10 w-10 text-muted-foreground" />
+                                <Cloud className="h-8 w-8 text-muted-foreground" />
                               ) : (
-                                <Database className="h-10 w-10 text-muted-foreground" />
+                                <Database className="h-8 w-8 text-muted-foreground" />
                               )}
                             </div>
                           </div>
                           
                           {/* Heading and Type - Left Aligned */}
                           <div>
-                            <h3 className="font-semibold text-base leading-tight mb-1 text-left">{provider.name}</h3>
-                            <p className="text-xs font-medium text-muted-foreground text-left">{provider.category}</p>
+                            <h3 className="font-semibold text-base leading-tight mb-1 text-left line-clamp-2">{provider.name}</h3>
+                            <p className="text-xs font-medium text-muted-foreground text-left truncate">{provider.category}</p>
                           </div>
 
                           {/* Description */}
-                          <div className="flex-1">
-                            <p className="text-sm text-muted-foreground line-clamp-3 text-left">
+                          <div className="flex-1 min-h-[60px]">
+                            <p className="text-sm text-muted-foreground line-clamp-3 text-left leading-relaxed">
                               {provider.description}
                             </p>
                           </div>
 
                           {/* View Details Button - Always Visible */}
-                          <div className="mt-auto">
+                          <div className="mt-auto pt-2">
                             <Button 
                               variant="outline" 
                               size="sm"
-                              className="w-auto"
+                              className="w-full"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleViewDetails(provider);
