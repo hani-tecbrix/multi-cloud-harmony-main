@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Building2, ArrowLeft, Users, ShoppingBag, DollarSign, TrendingUp, Calendar, CheckCircle, Clock, Mail, Phone, MapPin, Eye, Filter, Download, Shield, Cloud, Package, CreditCard, UserPlus } from "lucide-react";
+import { Search, Building2, ArrowLeft, Users, ShoppingBag, DollarSign, TrendingUp, Calendar, CheckCircle, Clock, Mail, Phone, MapPin, Eye, Filter, Download, Shield, Cloud, Package, CreditCard, UserPlus, Upload, FileText, Sparkles, X, Wrench } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Globe, UserCheck } from "lucide-react";
 import { toast } from "sonner";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Mock data for partners (Admin view - business relationship data only)
 const partnersData = [
@@ -212,6 +213,7 @@ const AdminPartners = () => {
   const [orderSearchTerm, setOrderSearchTerm] = useState("");
   const [orderStatusFilter, setOrderStatusFilter] = useState("all");
   const [isAddSheetOpen, setIsAddSheetOpen] = useState(false);
+  const [isAddPartnerSheetOpen, setIsAddPartnerSheetOpen] = useState(false);
   const [customerType, setCustomerType] = useState<"new" | "existing">("new");
   const [existingDomain, setExistingDomain] = useState("");
   const [newCustomer, setNewCustomer] = useState({
@@ -225,6 +227,30 @@ const AdminPartners = () => {
     invoiceProfile: "",
     endCustomer: "",
   });
+  const [newPartner, setNewPartner] = useState({
+    companyName: "",
+    logo: null as File | null,
+    financialReport: null as File | null,
+    tradeLicense: null as File | null,
+    vatCertificate: null as File | null,
+    businessContact: {
+      name: "",
+      email: "",
+      phone: "",
+      address: "",
+    },
+    financeContact: {
+      name: "",
+      email: "",
+      phone: "",
+    },
+    technicalContact: {
+      name: "",
+      email: "",
+      phone: "",
+    },
+  });
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   // Reset search terms when partner changes
   useEffect(() => {
@@ -403,13 +429,14 @@ const AdminPartners = () => {
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Contact Information</CardTitle>
-            <p className="text-sm text-muted-foreground">Contact details for business and finance operations</p>
+            <p className="text-sm text-muted-foreground">Contact details for business, finance, and technical operations</p>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="business" className="w-full">
-              <TabsList className="grid w-full max-w-md grid-cols-2">
+              <TabsList className="grid w-full max-w-md grid-cols-3">
                 <TabsTrigger value="business">Business</TabsTrigger>
                 <TabsTrigger value="finance">Finance</TabsTrigger>
+                <TabsTrigger value="technical">Technical</TabsTrigger>
               </TabsList>
               
               <TabsContent value="business" className="mt-4">
@@ -489,6 +516,47 @@ const AdminPartners = () => {
                     <div>
                       <p className="text-sm font-medium">Payment Terms</p>
                       <p className="text-sm text-muted-foreground">Net 30</p>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="technical" className="mt-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded bg-muted">
+                      <Wrench className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Technical Contact</p>
+                      <p className="text-sm text-muted-foreground">{selectedPartner.contactName || "N/A"}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded bg-muted">
+                      <Mail className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Technical Email</p>
+                      <p className="text-sm text-muted-foreground">{selectedPartner.email || "N/A"}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded bg-muted">
+                      <Phone className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Technical Phone</p>
+                      <p className="text-sm text-muted-foreground">{selectedPartner.phone || "N/A"}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded bg-muted">
+                      <Users className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Department</p>
+                      <p className="text-sm text-muted-foreground">IT/Technical</p>
                     </div>
                   </div>
                 </div>
@@ -1001,7 +1069,11 @@ const AdminPartners = () => {
             Manage partner relationships and business performance
           </p>
         </div>
-        <Button variant="gradient" size="sm">
+        <Button 
+          variant="gradient" 
+          size="sm"
+          onClick={() => setIsAddPartnerSheetOpen(true)}
+        >
           <Building2 className="h-4 w-4 mr-2" />
           Add Partner
         </Button>
@@ -1184,6 +1256,440 @@ const AdminPartners = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Add Partner Sheet */}
+      <Sheet open={isAddPartnerSheetOpen} onOpenChange={setIsAddPartnerSheetOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-2xl p-0 flex flex-col">
+          <SheetHeader className="px-6 pt-6 pb-4 border-b">
+            <div className="flex items-center gap-2">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-primary to-accent">
+                <Sparkles className="h-5 w-5 text-white" />
+              </div>
+              <div className="flex-1">
+                <SheetTitle className="text-xl">Add New Partner</SheetTitle>
+                <SheetDescription className="text-sm mt-1">
+                  Register a new partner company
+                </SheetDescription>
+              </div>
+            </div>
+          </SheetHeader>
+          
+          <ScrollArea ref={scrollAreaRef} className="flex-1 px-6">
+            <div className="space-y-6 py-6">
+              {/* Company Information */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="h-px flex-1 bg-border" />
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Company Information
+                  </span>
+                  <div className="h-px flex-1 bg-border" />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="company-name">Company Name *</Label>
+                  <Input
+                    id="company-name"
+                    placeholder="Enter company name"
+                    value={newPartner.companyName}
+                    onChange={(e) => setNewPartner({...newPartner, companyName: e.target.value})}
+                    className="h-11"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="logo-upload">Company Logo (Optional)</Label>
+                  <div className="flex items-center gap-3">
+                    <label
+                      htmlFor="logo-upload"
+                      className="flex items-center justify-center px-4 py-2 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      <span className="text-sm">Upload Logo</span>
+                      <input
+                        id="logo-upload"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) setNewPartner({...newPartner, logo: file});
+                        }}
+                      />
+                    </label>
+                    {newPartner.logo && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <FileText className="h-4 w-4" />
+                        <span>{newPartner.logo.name}</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setNewPartner({...newPartner, logo: null})}
+                          className="h-6 w-6 p-0"
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Documents Upload */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="h-px flex-1 bg-border" />
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Documents (Optional)
+                  </span>
+                  <div className="h-px flex-1 bg-border" />
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="financial-report">Audited Financial Report</Label>
+                    <label
+                      htmlFor="financial-report"
+                      className="flex items-center justify-center px-4 py-2 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      <span className="text-sm">Upload PDF</span>
+                      <input
+                        id="financial-report"
+                        type="file"
+                        accept="application/pdf"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) setNewPartner({...newPartner, financialReport: file});
+                        }}
+                      />
+                    </label>
+                    {newPartner.financialReport && (
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                        <FileText className="h-3 w-3" />
+                        <span className="truncate">{newPartner.financialReport.name}</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setNewPartner({...newPartner, financialReport: null})}
+                          className="h-5 w-5 p-0"
+                        >
+                          <X className="h-2 w-2" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="trade-license">Trade License</Label>
+                    <label
+                      htmlFor="trade-license"
+                      className="flex items-center justify-center px-4 py-2 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      <span className="text-sm">Upload PDF</span>
+                      <input
+                        id="trade-license"
+                        type="file"
+                        accept="application/pdf"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) setNewPartner({...newPartner, tradeLicense: file});
+                        }}
+                      />
+                    </label>
+                    {newPartner.tradeLicense && (
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                        <FileText className="h-3 w-3" />
+                        <span className="truncate">{newPartner.tradeLicense.name}</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setNewPartner({...newPartner, tradeLicense: null})}
+                          className="h-5 w-5 p-0"
+                        >
+                          <X className="h-2 w-2" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="vat-certificate">VAT Certificate</Label>
+                    <label
+                      htmlFor="vat-certificate"
+                      className="flex items-center justify-center px-4 py-2 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      <span className="text-sm">Upload PDF</span>
+                      <input
+                        id="vat-certificate"
+                        type="file"
+                        accept="application/pdf"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) setNewPartner({...newPartner, vatCertificate: file});
+                        }}
+                      />
+                    </label>
+                    {newPartner.vatCertificate && (
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                        <FileText className="h-3 w-3" />
+                        <span className="truncate">{newPartner.vatCertificate.name}</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setNewPartner({...newPartner, vatCertificate: null})}
+                          className="h-5 w-5 p-0"
+                        >
+                          <X className="h-2 w-2" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Business Contact */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="h-px flex-1 bg-border" />
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Business Contact *
+                  </span>
+                  <div className="h-px flex-1 bg-border" />
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="business-name">Contact Name *</Label>
+                    <Input
+                      id="business-name"
+                      placeholder="Full name"
+                      value={newPartner.businessContact.name}
+                      onChange={(e) => setNewPartner({
+                        ...newPartner,
+                        businessContact: {...newPartner.businessContact, name: e.target.value}
+                      })}
+                      className="h-11"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="business-email">Email *</Label>
+                    <Input
+                      id="business-email"
+                      type="email"
+                      placeholder="email@example.com"
+                      value={newPartner.businessContact.email}
+                      onChange={(e) => setNewPartner({
+                        ...newPartner,
+                        businessContact: {...newPartner.businessContact, email: e.target.value}
+                      })}
+                      className="h-11"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="business-phone">Phone *</Label>
+                    <Input
+                      id="business-phone"
+                      type="tel"
+                      placeholder="+1 (555) 123-4567"
+                      value={newPartner.businessContact.phone}
+                      onChange={(e) => setNewPartner({
+                        ...newPartner,
+                        businessContact: {...newPartner.businessContact, phone: e.target.value}
+                      })}
+                      className="h-11"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="business-address">Business Address *</Label>
+                    <Input
+                      id="business-address"
+                      placeholder="123 Street, City, State ZIP"
+                      value={newPartner.businessContact.address}
+                      onChange={(e) => setNewPartner({
+                        ...newPartner,
+                        businessContact: {...newPartner.businessContact, address: e.target.value}
+                      })}
+                      className="h-11"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Finance Contact */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="h-px flex-1 bg-border" />
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Finance Contact *
+                  </span>
+                  <div className="h-px flex-1 bg-border" />
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="finance-name">Contact Name *</Label>
+                    <Input
+                      id="finance-name"
+                      placeholder="Full name"
+                      value={newPartner.financeContact.name}
+                      onChange={(e) => setNewPartner({
+                        ...newPartner,
+                        financeContact: {...newPartner.financeContact, name: e.target.value}
+                      })}
+                      className="h-11"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="finance-email">Email *</Label>
+                    <Input
+                      id="finance-email"
+                      type="email"
+                      placeholder="email@example.com"
+                      value={newPartner.financeContact.email}
+                      onChange={(e) => setNewPartner({
+                        ...newPartner,
+                        financeContact: {...newPartner.financeContact, email: e.target.value}
+                      })}
+                      className="h-11"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="finance-phone">Phone *</Label>
+                    <Input
+                      id="finance-phone"
+                      type="tel"
+                      placeholder="+1 (555) 123-4567"
+                      value={newPartner.financeContact.phone}
+                      onChange={(e) => setNewPartner({
+                        ...newPartner,
+                        financeContact: {...newPartner.financeContact, phone: e.target.value}
+                      })}
+                      className="h-11"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Technical Contact */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="h-px flex-1 bg-border" />
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Technical Contact (Optional)
+                  </span>
+                  <div className="h-px flex-1 bg-border" />
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="technical-name">Contact Name</Label>
+                    <Input
+                      id="technical-name"
+                      placeholder="Full name"
+                      value={newPartner.technicalContact.name}
+                      onChange={(e) => setNewPartner({
+                        ...newPartner,
+                        technicalContact: {...newPartner.technicalContact, name: e.target.value}
+                      })}
+                      className="h-11"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="technical-email">Email</Label>
+                    <Input
+                      id="technical-email"
+                      type="email"
+                      placeholder="email@example.com"
+                      value={newPartner.technicalContact.email}
+                      onChange={(e) => setNewPartner({
+                        ...newPartner,
+                        technicalContact: {...newPartner.technicalContact, email: e.target.value}
+                      })}
+                      className="h-11"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="technical-phone">Phone</Label>
+                    <Input
+                      id="technical-phone"
+                      type="tel"
+                      placeholder="+1 (555) 123-4567"
+                      value={newPartner.technicalContact.phone}
+                      onChange={(e) => setNewPartner({
+                        ...newPartner,
+                        technicalContact: {...newPartner.technicalContact, phone: e.target.value}
+                      })}
+                      className="h-11"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ScrollArea>
+
+          <SheetFooter className="px-6 py-4 border-t bg-muted/30">
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setIsAddPartnerSheetOpen(false);
+                setNewPartner({
+                  companyName: "",
+                  logo: null,
+                  financialReport: null,
+                  tradeLicense: null,
+                  vatCertificate: null,
+                  businessContact: { name: "", email: "", phone: "", address: "" },
+                  financeContact: { name: "", email: "", phone: "" },
+                  technicalContact: { name: "", email: "", phone: "" },
+                });
+              }}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={() => {
+                if (!newPartner.companyName || !newPartner.businessContact.name || !newPartner.businessContact.email || !newPartner.businessContact.phone || !newPartner.businessContact.address || !newPartner.financeContact.name || !newPartner.financeContact.email || !newPartner.financeContact.phone) {
+                  toast.error("Please fill in all required fields");
+                  return;
+                }
+                toast.success(`Partner ${newPartner.companyName} added successfully!`);
+                setIsAddPartnerSheetOpen(false);
+                setNewPartner({
+                  companyName: "",
+                  logo: null,
+                  financialReport: null,
+                  tradeLicense: null,
+                  vatCertificate: null,
+                  businessContact: { name: "", email: "", phone: "", address: "" },
+                  financeContact: { name: "", email: "", phone: "" },
+                  technicalContact: { name: "", email: "", phone: "" },
+                });
+              }}
+              className="flex-1"
+              disabled={
+                !newPartner.companyName || 
+                !newPartner.businessContact.name || 
+                !newPartner.businessContact.email || 
+                !newPartner.businessContact.phone || 
+                !newPartner.businessContact.address || 
+                !newPartner.financeContact.name || 
+                !newPartner.financeContact.email || 
+                !newPartner.financeContact.phone
+              }
+            >
+              <UserPlus className="h-4 w-4 mr-2" />
+              Add Partner
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
