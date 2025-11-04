@@ -56,6 +56,12 @@ const navigationConfig: NavItem[] = [
     roles: ['admin'] 
   },
   { 
+    icon: Users, 
+    label: "Users", 
+    path: "/admin/users", 
+    roles: ['admin'] 
+  },
+  { 
     icon: TrendingUp, 
     label: "Reports", 
     path: "/admin/reports", 
@@ -183,20 +189,20 @@ export const RoleBasedNavigationRail = ({ onToggleExpand }: RoleBasedNavigationR
   return (
     <aside 
       className={cn(
-        "fixed left-0 top-0 h-screen bg-[hsl(210,15%,18%)] border-r border-[hsl(210,15%,25%)] transition-all duration-300 z-50 flex flex-col",
+        "fixed left-0 top-0 h-screen bg-[hsl(210,15%,18%)] transition-all duration-300 z-50 flex flex-col",
         isExpanded ? "w-64" : "w-20"
       )}
     >
       {/* Header with Logo and Role Badge */}
       <div className="flex flex-col h-auto">
-        <div className="flex items-center justify-between p-4">
+        <div className="flex items-center justify-between px-4 py-2 bg-white">
           {isExpanded && (
             <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-2 duration-300">
               <img src={logo} alt="MindVerse" className="h-10" />
             </div>
           )}
           {!isExpanded && (
-            <div className="flex items-center gap-2 mx-auto p-1">
+            <div className="flex items-center mx-auto">
               <img src="/mw_favicon.svg" alt="MW" className="w-10 h-10" />
             </div>
           )}
@@ -204,7 +210,7 @@ export const RoleBasedNavigationRail = ({ onToggleExpand }: RoleBasedNavigationR
             variant="ghost"
             size="icon"
             onClick={handleToggle}
-            className={cn("h-8 w-8 text-white hover:bg-white/10", isExpanded ? "ml-auto" : "absolute bottom-4 left-1/2 -translate-x-1/2")}
+            className={cn("h-8 w-8 bg-white/10", isExpanded ? "ml-auto" : "absolute bottom-4 left-1/2 -translate-x-1/2")}
           >
             {isExpanded ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           </Button>
@@ -227,7 +233,7 @@ export const RoleBasedNavigationRail = ({ onToggleExpand }: RoleBasedNavigationR
       </div>
 
       {/* Navigation Items */}
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+      <nav className="flex-1 p-3 pt-4 space-y-1 overflow-y-auto">
         {filteredNavItems.map((item) => (
           <NavLink
             key={item.path}

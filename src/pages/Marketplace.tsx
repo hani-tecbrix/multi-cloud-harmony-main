@@ -217,26 +217,27 @@ const cloudProviders = [
     description: "Enterprise cloud services",
     products: [
       {
-        id: "azure-vm",
-        name: "Azure Virtual Machines",
-        description: "Scalable on-demand computing resources",
-        features: ["Windows & Linux VMs", "Auto scaling", "Hybrid cloud", "Enterprise security"],
+        id: "azure-licenses",
+        name: "Licenses",
+        description: "Microsoft software licenses and subscriptions",
+        features: ["Microsoft 365", "Windows Server", "SQL Server", "Enterprise agreements", "Volume licensing"],
         plans: [
-          { name: "B1s", price: 0.0052, period: "per hour", specs: "1 vCPU, 1 GB RAM" },
-          { name: "B2s", price: 0.0104, period: "per hour", specs: "2 vCPU, 4 GB RAM" },
-          { name: "D2s v3", price: 0.096, period: "per hour", specs: "2 vCPU, 8 GB RAM" },
-          { name: "D4s v3", price: 0.192, period: "per hour", specs: "4 vCPU, 16 GB RAM" }
+          { name: "Microsoft 365 E3", price: 36, period: "per user/month", specs: "Full productivity suite" },
+          { name: "Microsoft 365 E5", price: 57, period: "per user/month", specs: "Advanced security & analytics" },
+          { name: "Windows Server Standard", price: 6, period: "per 2-core pack/month", specs: "Server operating system" },
+          { name: "SQL Server Standard", price: 15, period: "per 2-core pack/month", specs: "Database server" }
         ]
       },
       {
-        id: "azure-sql",
-        name: "Azure SQL Database",
-        description: "Fully managed relational database",
-        features: ["Built-in intelligence", "Automatic tuning", "High availability", "Security"],
+        id: "azure-reservation",
+        name: "Reservation",
+        description: "Azure reserved instances and capacity",
+        features: ["Cost savings", "1-year & 3-year terms", "Flexible payment", "Capacity guarantees", "Predictable pricing"],
         plans: [
-          { name: "Basic", price: 4.99, period: "per month", specs: "5 DTU, 2 GB storage" },
-          { name: "Standard S0", price: 15, period: "per month", specs: "10 DTU, 250 GB storage" },
-          { name: "Premium P1", price: 125, period: "per month", specs: "125 DTU, 500 GB storage" }
+          { name: "1 Year Reserved", price: 0, period: "per month", specs: "Up to 42% savings, pay upfront" },
+          { name: "3 Year Reserved", price: 0, period: "per month", specs: "Up to 72% savings, pay upfront" },
+          { name: "1 Year Monthly", price: 0, period: "per month", specs: "Up to 36% savings, monthly payments" },
+          { name: "3 Year Monthly", price: 0, period: "per month", specs: "Up to 65% savings, monthly payments" }
         ]
       }
     ]

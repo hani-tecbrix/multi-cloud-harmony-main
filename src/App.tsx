@@ -48,12 +48,13 @@ const App = () => (
             <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
             
             {/* Admin Role-Specific Routes */}
-            <Route path="/admin/reports" element={<AppLayout><UnderConstruction /></AppLayout>} />
+            <Route path="/admin/users" element={<AppLayout><UnderConstruction /></AppLayout>} />
+            <Route path="/admin/reports" element={<AppLayout><Reports /></AppLayout>} />
             <Route path="/admin/help" element={<AppLayout><UnderConstruction /></AppLayout>} />
             <Route path="/admin/settings" element={<AppLayout><UnderConstruction /></AppLayout>} />
             
             {/* Partner Role-Specific Routes */}
-            <Route path="/partner/reports" element={<AppLayout><UnderConstruction /></AppLayout>} />
+            <Route path="/partner/reports" element={<AppLayout><Reports /></AppLayout>} />
             <Route path="/partner/help" element={<AppLayout><UnderConstruction /></AppLayout>} />
             <Route path="/partner/settings" element={<AppLayout><UnderConstruction /></AppLayout>} />
             

@@ -312,7 +312,6 @@ const Dashboard = () => {
                 <TableHead className="text-right">Amount</TableHead>
                 <TableHead className="text-center">Status</TableHead>
                 <TableHead className="text-center">Days Overdue</TableHead>
-                <TableHead className="text-center">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -344,17 +343,6 @@ const Dashboard = () => {
                     ) : (
                       <span className="text-sm text-muted-foreground">-</span>
                     )}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleSendReminder(invoice)}
-                      className="hover:shadow-sm"
-                    >
-                      <Mail className="h-4 w-4 mr-1" />
-                      Send Reminder
-                    </Button>
                   </TableCell>
                 </TableRow>
               ))}

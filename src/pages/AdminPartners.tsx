@@ -3,11 +3,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Building2, ArrowLeft, Users, ShoppingBag, DollarSign, TrendingUp, Calendar, CheckCircle, Clock, Mail, Phone, MapPin, Eye, Filter, Download, Shield, Cloud, Package, CreditCard } from "lucide-react";
+import { Search, Building2, ArrowLeft, Users, ShoppingBag, DollarSign, TrendingUp, Calendar, CheckCircle, Clock, Mail, Phone, MapPin, Eye, Filter, Download, Shield, Cloud, Package, CreditCard, UserPlus } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Globe, UserCheck } from "lucide-react";
+import { toast } from "sonner";
 
 // Mock data for partners (Admin view - business relationship data only)
 const partnersData = [
@@ -206,6 +211,20 @@ const AdminPartners = () => {
   const [customerSearchTerm, setCustomerSearchTerm] = useState("");
   const [orderSearchTerm, setOrderSearchTerm] = useState("");
   const [orderStatusFilter, setOrderStatusFilter] = useState("all");
+  const [isAddSheetOpen, setIsAddSheetOpen] = useState(false);
+  const [customerType, setCustomerType] = useState<"new" | "existing">("new");
+  const [existingDomain, setExistingDomain] = useState("");
+  const [newCustomer, setNewCustomer] = useState({
+    company: "",
+    cloud: "",
+    plan: "",
+    consumer: "",
+    name: "",
+    primaryDomain: "",
+    reference: "",
+    invoiceProfile: "",
+    endCustomer: "",
+  });
 
   // Reset search terms when partner changes
   useEffect(() => {
@@ -380,51 +399,101 @@ const AdminPartners = () => {
           </Card>
         </div>
 
-        {/* Contact Information - Business Only */}
+        {/* Contact Information - Business and Finance */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Business Contact Information</CardTitle>
-            <p className="text-sm text-muted-foreground">Primary business contact details</p>
+            <CardTitle className="text-base">Contact Information</CardTitle>
+            <p className="text-sm text-muted-foreground">Contact details for business and finance operations</p>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-start gap-3">
-                <div className="p-2 rounded bg-muted">
-                  <Users className="h-4 w-4" />
+            <Tabs defaultValue="business" className="w-full">
+              <TabsList className="grid w-full max-w-md grid-cols-2">
+                <TabsTrigger value="business">Business</TabsTrigger>
+                <TabsTrigger value="finance">Finance</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="business" className="mt-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded bg-muted">
+                      <Users className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Primary Contact</p>
+                      <p className="text-sm text-muted-foreground">{selectedPartner.contactName}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded bg-muted">
+                      <Mail className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Business Email</p>
+                      <p className="text-sm text-muted-foreground">{selectedPartner.email}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded bg-muted">
+                      <Phone className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Phone</p>
+                      <p className="text-sm text-muted-foreground">{selectedPartner.phone}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded bg-muted">
+                      <MapPin className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Business Address</p>
+                      <p className="text-sm text-muted-foreground">{selectedPartner.address}</p>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-medium">Primary Contact</p>
-                  <p className="text-sm text-muted-foreground">{selectedPartner.contactName}</p>
+              </TabsContent>
+              
+              <TabsContent value="finance" className="mt-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded bg-muted">
+                      <Users className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Finance Contact</p>
+                      <p className="text-sm text-muted-foreground">{selectedPartner.contactName || "N/A"}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded bg-muted">
+                      <Mail className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Finance Email</p>
+                      <p className="text-sm text-muted-foreground">{selectedPartner.email || "N/A"}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded bg-muted">
+                      <Phone className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Finance Phone</p>
+                      <p className="text-sm text-muted-foreground">{selectedPartner.phone || "N/A"}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded bg-muted">
+                      <CreditCard className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Payment Terms</p>
+                      <p className="text-sm text-muted-foreground">Net 30</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="p-2 rounded bg-muted">
-                  <Mail className="h-4 w-4" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Business Email</p>
-                  <p className="text-sm text-muted-foreground">{selectedPartner.email}</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="p-2 rounded bg-muted">
-                  <Phone className="h-4 w-4" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Phone</p>
-                  <p className="text-sm text-muted-foreground">{selectedPartner.phone}</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="p-2 rounded bg-muted">
-                  <MapPin className="h-4 w-4" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Business Address</p>
-                  <p className="text-sm text-muted-foreground">{selectedPartner.address}</p>
-                </div>
-              </div>
-            </div>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
 
@@ -451,10 +520,15 @@ const AdminPartners = () => {
                       Business metrics only - Customer PII managed by partner per privacy agreement
                     </p>
                   </div>
-                  <Badge variant="outline" className="flex items-center gap-1">
-                    <Shield className="h-3 w-3" />
-                    Privacy Compliant
-                  </Badge>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsAddSheetOpen(true)}
+                    className="gap-2"
+                  >
+                    <UserPlus className="h-4 w-4" />
+                    Add New Customer
+                  </Button>
                 </div>
               </CardHeader>
               <CardContent>
@@ -544,19 +618,6 @@ const AdminPartners = () => {
                         ))}
                       </TableBody>
                     </Table>
-                    
-                    {/* Privacy Notice */}
-                    <div className="mt-4 p-3 bg-blue-50/50 dark:bg-blue-950/10 border border-blue-200/50 dark:border-blue-800/30 rounded-lg">
-                      <div className="flex items-start gap-2 text-sm">
-                        <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <p className="font-medium text-blue-900 dark:text-blue-100">Privacy-Compliant Data Display</p>
-                          <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
-                            Only business metrics are shown. Personal identifiable information (PII) such as customer emails, personal addresses, and contact details are managed by the partner under their data processing agreement. This view complies with GDPR, CCPA, and SOC 2 requirements.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
                   </>
                 )}
               </CardContent>
@@ -693,25 +754,240 @@ const AdminPartners = () => {
                         ))}
                       </TableBody>
                     </Table>
-                    
-                    {/* Privacy Notice */}
-                    <div className="mt-4 p-3 bg-blue-50/50 dark:bg-blue-950/10 border border-blue-200/50 dark:border-blue-800/30 rounded-lg">
-                      <div className="flex items-start gap-2 text-sm">
-                        <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <p className="font-medium text-blue-900 dark:text-blue-100">Privacy-Compliant Data Display</p>
-                          <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
-                            Order details shown are limited to financial and business metrics only. Customer personal information, billing addresses, and payment details are managed by the partner per their privacy policy. Commission calculations are based on partner agreement terms.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
                   </>
                 )}
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Add New Customer Sheet */}
+        <Sheet open={isAddSheetOpen} onOpenChange={setIsAddSheetOpen}>
+          <SheetContent side="right" className="w-full sm:max-w-2xl p-0 flex flex-col">
+            <SheetHeader className="px-6 pt-6 pb-4 border-b">
+              <SheetTitle className="text-xl">Add New Customer</SheetTitle>
+              <SheetDescription className="text-sm mt-1">
+                Add a new customer to {selectedPartner?.companyName}
+              </SheetDescription>
+            </SheetHeader>
+            
+            <div className="flex-1 overflow-y-auto px-6 py-6">
+              <div className="space-y-6">
+                {/* Customer Type Selection */}
+                <RadioGroup value={customerType} onValueChange={(value) => setCustomerType(value as "new" | "existing")}>
+                  <div className="grid gap-4">
+                    <label
+                      htmlFor="existing"
+                      className={`flex flex-col space-y-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                        customerType === "existing"
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <RadioGroupItem value="existing" id="existing" />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <UserCheck className="h-5 w-5 text-primary" />
+                            <span className="font-semibold">Existing Customer</span>
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Add to existing customer account
+                          </p>
+                        </div>
+                      </div>
+                      {customerType === "existing" && (
+                        <div className="ml-7 space-y-2">
+                          <Label htmlFor="domain">Domain *</Label>
+                          <div className="relative">
+                            <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              id="domain"
+                              placeholder="example.com"
+                              value={existingDomain}
+                              onChange={(e) => setExistingDomain(e.target.value)}
+                              className="pl-9"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </label>
+
+                    <label
+                      htmlFor="new"
+                      className={`flex flex-col space-y-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                        customerType === "new"
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <RadioGroupItem value="new" id="new" />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <UserPlus className="h-5 w-5 text-primary" />
+                            <span className="font-semibold">New Customer</span>
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Create a new customer account
+                          </p>
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                </RadioGroup>
+
+                {customerType === "new" && (
+                  <div className="space-y-4">
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="company">Company *</Label>
+                        <Input
+                          id="company"
+                          placeholder="Company Name"
+                          value={newCustomer.company}
+                          onChange={(e) => setNewCustomer({...newCustomer, company: e.target.value})}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="primaryDomain">Primary Domain *</Label>
+                        <div className="relative">
+                          <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            id="primaryDomain"
+                            placeholder="example.com"
+                            value={newCustomer.primaryDomain}
+                            onChange={(e) => setNewCustomer({...newCustomer, primaryDomain: e.target.value})}
+                            className="pl-9"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Name *</Label>
+                        <Input
+                          id="name"
+                          placeholder="Full Name"
+                          value={newCustomer.name}
+                          onChange={(e) => setNewCustomer({...newCustomer, name: e.target.value})}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="plan">Plan</Label>
+                        <Input
+                          id="plan"
+                          placeholder="Selected plan"
+                          value={newCustomer.plan}
+                          onChange={(e) => setNewCustomer({...newCustomer, plan: e.target.value})}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="consumer">Consumer</Label>
+                        <Input
+                          id="consumer"
+                          placeholder="Consumer name"
+                          value={newCustomer.consumer}
+                          onChange={(e) => setNewCustomer({...newCustomer, consumer: e.target.value})}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="endCustomer">End Customer</Label>
+                        <Input
+                          id="endCustomer"
+                          placeholder="End customer name"
+                          value={newCustomer.endCustomer}
+                          onChange={(e) => setNewCustomer({...newCustomer, endCustomer: e.target.value})}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="reference">Reference (Optional)</Label>
+                        <Input
+                          id="reference"
+                          placeholder="Reference code or number"
+                          value={newCustomer.reference}
+                          onChange={(e) => setNewCustomer({...newCustomer, reference: e.target.value})}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="invoiceProfile">Invoice Profile</Label>
+                        <Input
+                          id="invoiceProfile"
+                          placeholder="Invoice profile name"
+                          value={newCustomer.invoiceProfile}
+                          onChange={(e) => setNewCustomer({...newCustomer, invoiceProfile: e.target.value})}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <SheetFooter className="px-6 py-4 border-t bg-muted/30">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setIsAddSheetOpen(false);
+                  setCustomerType("new");
+                  setExistingDomain("");
+                  setNewCustomer({
+                    company: "",
+                    cloud: "",
+                    plan: "",
+                    consumer: "",
+                    name: "",
+                    primaryDomain: "",
+                    reference: "",
+                    invoiceProfile: "",
+                    endCustomer: "",
+                  });
+                }}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={() => {
+                  if (customerType === "existing" && !existingDomain) {
+                    toast.error("Please enter domain");
+                    return;
+                  }
+                  if (customerType === "new" && (!newCustomer.company || !newCustomer.name || !newCustomer.primaryDomain)) {
+                    toast.error("Please fill in all required fields");
+                    return;
+                  }
+                  toast.success(
+                    customerType === "existing"
+                      ? `Customer added to ${existingDomain}`
+                      : `New customer ${newCustomer.company} added successfully`
+                  );
+                  setIsAddSheetOpen(false);
+                  setCustomerType("new");
+                  setExistingDomain("");
+                  setNewCustomer({
+                    company: "",
+                    cloud: "",
+                    plan: "",
+                    consumer: "",
+                    name: "",
+                    primaryDomain: "",
+                    reference: "",
+                    invoiceProfile: "",
+                    endCustomer: "",
+                  });
+                }}
+                className="flex-1"
+                disabled={
+                  customerType === "existing" 
+                    ? !existingDomain 
+                    : (!newCustomer.company || !newCustomer.name || !newCustomer.primaryDomain)
+                }
+              >
+                <UserPlus className="h-4 w-4 mr-2" />
+                Add Customer
+              </Button>
+            </SheetFooter>
+          </SheetContent>
+        </Sheet>
       </div>
     );
   }
