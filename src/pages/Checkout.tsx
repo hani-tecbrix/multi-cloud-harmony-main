@@ -271,25 +271,7 @@ const Checkout = () => {
                 <Button onClick={handleNextStep} variant="gradient">
                   Next Step
                 </Button>
-              ) : (
-                <Button 
-                  onClick={handleProcessPayment}
-                  disabled={isProcessing || !checkoutData.agreeToTerms}
-                  variant="gradient"
-                >
-                  {isProcessing ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Place Order
-                    </>
-                  )}
-                </Button>
-              )}
+              ) : null}
             </div>
           </div>
 

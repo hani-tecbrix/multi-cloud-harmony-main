@@ -262,49 +262,19 @@ const SubscriptionSelection = ({ onSubscriptionsSelect, selectedSubscriptions, o
                     }`}
                     onClick={() => handleSubscriptionToggle(subscription)}
                   >
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-lg ${isSelected ? 'bg-primary/10' : 'bg-muted'}`}>
-                          <IconComponent className={`h-5 w-5 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-sm">{subscription.name}</h3>
-                          <p className="text-xs text-muted-foreground">{subscription.provider}</p>
-                        </div>
+                    <div className="flex items-start gap-3">
+                      <Checkbox
+                        checked={isSelected}
+                        onChange={() => handleSubscriptionToggle(subscription)}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                      <div className={`p-2 rounded-lg flex-shrink-0 ${isSelected ? 'bg-primary/10' : 'bg-muted'}`}>
+                        <IconComponent className={`h-5 w-5 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
                       </div>
-                      <div className="flex items-center gap-2">
-                        {subscription.popular && (
-                          <Badge variant="secondary" className="text-xs">Popular</Badge>
-                        )}
-                        <Checkbox
-                          checked={isSelected}
-                          onChange={() => handleSubscriptionToggle(subscription)}
-                        />
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-sm mb-1">{subscription.name}</h3>
+                        <p className="text-sm text-muted-foreground line-clamp-2">{subscription.description}</p>
                       </div>
-                    </div>
-                    
-                    <p className="text-sm text-muted-foreground mb-3">{subscription.description}</p>
-                    
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">Pricing</span>
-                        <span className="text-sm font-semibold">{getPricingDisplay(subscription)}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">Category</span>
-                        <Badge variant="outline" className="text-xs">{subscription.category}</Badge>
-                      </div>
-                    </div>
-                    
-                    <div className="mt-3">
-                      <p className="text-xs font-medium mb-2">Key Features:</p>
-                      <ul className="space-y-1 list-disc list-inside">
-                        {subscription.features.map((feature, idx) => (
-                          <li key={idx} className="text-xs text-muted-foreground">
-                            {feature}
-                          </li>
-                        ))}
-                      </ul>
                     </div>
                   </div>
                 );
