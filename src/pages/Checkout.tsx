@@ -63,6 +63,17 @@ const Checkout = () => {
   };
 
   const handleProcessPayment = async () => {
+    // Validate required data
+    if (!selectedCustomer) {
+      toast.error("Please select a customer");
+      return;
+    }
+
+    if (selectedSubscriptions.length === 0 && cart.length === 0) {
+      toast.error("Please select at least one subscription or add items to cart");
+      return;
+    }
+
     if (!checkoutData.agreeToTerms) {
       toast.error("Please agree to the terms and conditions");
       return;
@@ -265,13 +276,38 @@ const Checkout = () => {
                 onClick={handlePreviousStep}
                 disabled={currentStep === 1}
               >
+                <ArrowLeft className="h-4 w-4 mr-2" />
                 Previous
               </Button>
               {currentStep < 3 ? (
                 <Button onClick={handleNextStep} variant="gradient">
                   Next Step
                 </Button>
-              ) : null}
+              ) : (
+                <Button 
+                  onClick={handleProcessPayment} 
+                  variant="gradient"
+                  disabled={
+                    !selectedCustomer || 
+                    (selectedSubscriptions.length === 0 && cart.length === 0) ||
+                    !checkoutData.agreeToTerms || 
+                    isProcessing
+                  }
+                  className="gap-2"
+                >
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="h-4 w-4" />
+                      Place Order
+                    </>
+                  )}
+                </Button>
+              )}
             </div>
           </div>
 

@@ -115,16 +115,12 @@ interface SubscriptionSelectionProps {
 
 const SubscriptionSelection = ({ onSubscriptionsSelect, selectedSubscriptions, onContinue }: SubscriptionSelectionProps) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState<string>("all");
-
-  const categories = ["all", ...Array.from(new Set(mockSubscriptions.map(sub => sub.category)))];
 
   const filteredSubscriptions = mockSubscriptions.filter(subscription => {
     const matchesSearch = subscription.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          subscription.provider.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          subscription.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = categoryFilter === "all" || subscription.category === categoryFilter;
-    return matchesSearch && matchesCategory;
+    return matchesSearch;
   });
 
   const handleSubscriptionToggle = (subscription: Subscription) => {
@@ -153,47 +149,7 @@ const SubscriptionSelection = ({ onSubscriptionsSelect, selectedSubscriptions, o
 
   return (
     <div className="space-y-6">
-      {/* Search and Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Package className="h-5 w-5" />
-            Select Subscriptions
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="subscriptionSearch">Search Subscriptions</Label>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="subscriptionSearch"
-                placeholder="Search by name, provider, or description..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Filter by Category</Label>
-            <div className="flex flex-wrap gap-2">
-              {categories.map((category) => (
-                <Button
-                  key={category}
-                  variant={categoryFilter === category ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setCategoryFilter(category)}
-                  className="capitalize"
-                >
-                  {category}
-                </Button>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      
 
       {/* Selected Subscriptions Summary */}
       {selectedSubscriptions.length > 0 && (
