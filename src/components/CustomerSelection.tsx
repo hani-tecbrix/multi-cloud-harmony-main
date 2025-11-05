@@ -245,17 +245,7 @@ const CustomerSelection = ({ onCustomerSelect, selectedCustomer, onContinue }: C
         />
       )}
 
-      {/* Continue Button */}
-      <div className="flex justify-end">
-        <Button
-          onClick={onContinue}
-          disabled={!selectedCustomer}
-          variant="gradient"
-          size="lg"
-        >
-          Continue to Payment
-        </Button>
-      </div>
+     
     </div>
   );
 };
