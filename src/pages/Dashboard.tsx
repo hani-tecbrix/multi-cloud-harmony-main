@@ -189,6 +189,7 @@ const Dashboard = () => {
           change="+12.5% from last month"
           changeType="positive"
           icon={DollarSign}
+          borderColor="#10B981"
         />
         <MetricCard
           title="Cloud Spending"
@@ -196,6 +197,7 @@ const Dashboard = () => {
           change="+8.2% from last month"
           changeType="positive"
           icon={TrendingUp}
+          borderColor="#3B82F6"
         />
         <MetricCard
           title="Active Clients"
@@ -203,6 +205,7 @@ const Dashboard = () => {
           change="+23 new this month"
           changeType="positive"
           icon={Users}
+          borderColor="#8B5CF6"
         />
         <MetricCard
           title="Subscriptions"
@@ -210,6 +213,7 @@ const Dashboard = () => {
           change="+156 this month"
           changeType="positive"
           icon={Package}
+          borderColor="#F59E0B"
         />
       </div>
 
