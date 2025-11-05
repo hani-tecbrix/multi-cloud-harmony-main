@@ -1,10 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileText, Download, Eye, Plus } from "lucide-react";
+import { FileText, Download, Eye, Plus, FileDown } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
+import { downloadInvoicePDF } from "@/lib/downloadUtils";
+import { toast } from "sonner";
 
 const invoicesData = [
   { id: "INV-001", client: "Acme Corp", amount: 45280, date: "2024-01-15", status: "paid", dueDate: "2024-02-15" },
@@ -32,10 +34,27 @@ const Invoices = () => {
           <h1 className="text-2xl font-semibold">Invoices</h1>
           <p className="text-sm text-muted-foreground mt-1">Manage and track all client invoices</p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Generate Invoice
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline"
+            onClick={() => {
+              filteredInvoices.forEach(invoice => {
+                setTimeout(() => {
+                  downloadInvoicePDF(invoice);
+                }, filteredInvoices.indexOf(invoice) * 200);
+              });
+              toast.success(`Downloading ${filteredInvoices.length} invoice(s)...`);
+            }}
+            className="gap-2"
+          >
+            <FileDown className="h-4 w-4" />
+            Download All
+          </Button>
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            Generate Invoice
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -114,10 +133,19 @@ const Invoices = () => {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Button variant="ghost" size="icon" className="h-8 w-8" title="View Invoice">
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8" 
+                        onClick={() => {
+                          downloadInvoicePDF(invoice);
+                          toast.success(`Invoice ${invoice.id} downloaded successfully`);
+                        }}
+                        title="Download Invoice"
+                      >
                         <Download className="h-4 w-4" />
                       </Button>
                     </div>

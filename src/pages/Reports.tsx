@@ -33,12 +33,14 @@ import {
   PlayCircle,
   Bookmark,
   Search,
-  X
+  X,
+  Filter
 } from "lucide-react";
 import { useUserRole } from "@/contexts/UserRoleContext";
 import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LineChart as RechartsLineChart, Line, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { downloadReportPDF, downloadReportCSV, downloadReportExcel, downloadConsumptionReport } from "@/lib/downloadUtils";
 
 // Report Templates Configuration
 const reportTemplates = {
@@ -96,6 +98,15 @@ const reportTemplates = {
       category: "Analysis",
       metrics: ["Tier Distribution", "Upgrade Path", "Retention"],
       defaultPeriod: "last30days"
+    },
+    {
+      id: "consumption-report",
+      title: "Consumption Report",
+      description: "Platform-wide cloud resource consumption and billing analysis",
+      icon: Activity,
+      category: "Usage",
+      metrics: ["Total Consumption", "By Partner", "By Service", "Cost Breakdown"],
+      defaultPeriod: "last30days"
     }
   ],
   partner: [
@@ -152,6 +163,15 @@ const reportTemplates = {
       category: "Performance",
       metrics: ["Top Services", "Revenue by Service", "Usage Trends"],
       defaultPeriod: "last30days"
+    },
+    {
+      id: "consumption-report",
+      title: "Consumption Report",
+      description: "Detailed customer cloud resource consumption and billing",
+      icon: Activity,
+      category: "Usage",
+      metrics: ["Total Consumption", "By Customer", "By Service", "Cost Analysis"],
+      defaultPeriod: "last30days"
     }
   ],
   customer: [
@@ -199,13 +219,115 @@ const reportTemplates = {
       category: "Usage",
       metrics: ["Usage Trends", "Peak Usage", "Forecast"],
       defaultPeriod: "last30days"
+    },
+    {
+      id: "consumption-report",
+      title: "Consumption Report",
+      description: "Detailed cloud resource consumption and billing analysis",
+      icon: Activity,
+      category: "Usage",
+      metrics: ["Total Consumption", "By Service", "By Provider", "Cost Breakdown"],
+      defaultPeriod: "last30days"
     }
   ]
 };
 
 // Mock data for reports
 const generateMockData = (reportType: string, period: string) => {
-  // Sample data generation logic
+  // Generate consumption report data
+  if (reportType === "consumption-report") {
+    return {
+      summary: {
+        total: 125000,
+        change: 8.3,
+        period: period,
+        totalConsumption: "2,450,000 GB",
+        totalCost: 125000
+      },
+      chartData: [
+        { name: "AWS", value: 45000, consumption: "850,000 GB" },
+        { name: "Azure", value: 38000, consumption: "720,000 GB" },
+        { name: "GCP", value: 25000, consumption: "580,000 GB" },
+        { name: "Other", value: 17000, consumption: "300,000 GB" },
+      ],
+      tableData: [
+        { 
+          provider: "AWS", 
+          service: "EC2", 
+          consumption: "450,000 GB", 
+          cost: 22500, 
+          unitCost: "$0.05/GB",
+          status: "active" 
+        },
+        { 
+          provider: "AWS", 
+          service: "S3", 
+          consumption: "280,000 GB", 
+          cost: 14000, 
+          unitCost: "$0.05/GB",
+          status: "active" 
+        },
+        { 
+          provider: "AWS", 
+          service: "Lambda", 
+          consumption: "120,000 GB", 
+          cost: 8500, 
+          unitCost: "$0.071/GB",
+          status: "active" 
+        },
+        { 
+          provider: "Azure", 
+          service: "Virtual Machines", 
+          consumption: "320,000 GB", 
+          cost: 19200, 
+          unitCost: "$0.06/GB",
+          status: "active" 
+        },
+        { 
+          provider: "Azure", 
+          service: "Blob Storage", 
+          consumption: "250,000 GB", 
+          cost: 12500, 
+          unitCost: "$0.05/GB",
+          status: "active" 
+        },
+        { 
+          provider: "Azure", 
+          service: "App Service", 
+          consumption: "150,000 GB", 
+          cost: 6300, 
+          unitCost: "$0.042/GB",
+          status: "active" 
+        },
+        { 
+          provider: "GCP", 
+          service: "Compute Engine", 
+          consumption: "280,000 GB", 
+          cost: 14000, 
+          unitCost: "$0.05/GB",
+          status: "active" 
+        },
+        { 
+          provider: "GCP", 
+          service: "Cloud Storage", 
+          consumption: "200,000 GB", 
+          cost: 8000, 
+          unitCost: "$0.04/GB",
+          status: "active" 
+        },
+        { 
+          provider: "GCP", 
+          service: "Cloud Functions", 
+          consumption: "100,000 GB", 
+          cost: 3000, 
+          unitCost: "$0.03/GB",
+          status: "active" 
+        },
+      ]
+    };
+  }
+  
+  // Sample data generation logic for other reports
   return {
     summary: {
       total: 145000,
@@ -249,6 +371,10 @@ const Reports = () => {
   
   // Saved Reports
   const [savedReports, setSavedReports] = useState<any[]>([]);
+  
+  // Search and filter state
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   
   // Get role-specific templates
   const templates = user 
@@ -295,11 +421,31 @@ const Reports = () => {
   };
 
   const handleExportReport = (format: "pdf" | "excel" | "csv") => {
+    if (!reportData) return;
+    
     toast.success(`Exporting report as ${format.toUpperCase()}...`);
-    // Simulate export
-    setTimeout(() => {
+    
+    try {
+      if (selectedTemplate === "consumption-report") {
+        // Export consumption report
+        const filename = `${reportName || "Consumption-Report"}-${new Date().toISOString().split('T')[0]}`;
+        downloadConsumptionReport(reportData.tableData, filename, format);
+      } else {
+        // Export regular report
+        const filename = `${reportName || "Report"}-${new Date().toISOString().split('T')[0]}`;
+        if (format === "pdf") {
+          downloadReportPDF(reportData, reportName || "Report");
+        } else if (format === "csv") {
+          downloadReportCSV(reportData.tableData, filename);
+        } else if (format === "excel") {
+          downloadReportExcel(reportData.tableData, filename);
+        }
+      }
       toast.success(`Report exported as ${format.toUpperCase()} successfully!`);
-    }, 1500);
+    } catch (error) {
+      toast.error("Failed to export report. Please try again.");
+      console.error("Export error:", error);
+    }
   };
 
   const handleScheduleReport = () => {
@@ -308,20 +454,30 @@ const Reports = () => {
   };
 
   const categories = Array.from(new Set(templates.map(t => t.category)));
+  
+  // Filter templates based on search and category
+  const filteredTemplates = templates.filter(template => {
+    const matchesSearch = searchTerm === "" || 
+      template.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      template.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      template.metrics.some(m => m.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesCategory = selectedCategory === "all" || template.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">Reports</h1>
+          <h1 className="text-2xl font-semibold">Reports & Analytics</h1>
           <p className="text-sm text-muted-foreground mt-1">
             {isAdmin && "Generate comprehensive reports for partners, revenue, and performance"}
             {isPartner && "Create detailed reports for customers, orders, and commissions"}
             {isCustomer && "View usage, billing, and subscription reports"}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Button 
             variant="outline" 
             onClick={() => setSavedReportsOpen(true)}
@@ -342,14 +498,14 @@ const Reports = () => {
           >
             <Plus className="h-4 w-4" />
             Create Custom Report
-        </Button>
+          </Button>
         </div>
       </div>
 
       {/* Report Templates */}
-      <Tabs defaultValue="all" className="w-full">
-        <div className="flex items-center justify-between mb-4">
-          <TabsList>
+      <Tabs defaultValue="all" className="w-full" onValueChange={setSelectedCategory}>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+          <TabsList className="flex-wrap">
             <TabsTrigger value="all">All Templates</TabsTrigger>
             {categories.map((category) => (
               <TabsTrigger key={category} value={category}>
@@ -357,118 +513,108 @@ const Reports = () => {
               </TabsTrigger>
             ))}
           </TabsList>
-          <div className="flex items-center gap-2">
-            <div className="relative">
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="relative flex-1 md:flex-initial">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder="Search templates..."
-                className="pl-9 w-[250px]"
+                className="pl-9 w-full md:w-[300px]"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
+            <Button variant="outline" size="sm" className="gap-2">
+              <Filter className="h-4 w-4" />
+              Filters
+            </Button>
           </div>
         </div>
 
         <TabsContent value="all" className="mt-4">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {templates.map((template) => {
+          {filteredTemplates.length === 0 ? (
+            <div className="text-center py-12">
+              <Search className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No templates found</h3>
+              <p className="text-muted-foreground">Try adjusting your search or filters</p>
+            </div>
+          ) : (
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+              {filteredTemplates.map((template) => {
               const IconComponent = template.icon;
               return (
                 <Card 
                   key={template.id}
-                  className="hover:shadow-lg transition-all duration-300 cursor-pointer group"
+                  className="border border-border/50 hover:border-border hover:shadow-sm transition-all duration-200 cursor-pointer group bg-card"
                   onClick={() => handleTemplateSelect(template.id)}
                 >
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                          <IconComponent className="h-5 w-5 text-primary" />
-                        </div>
-                        <div className="flex-1">
-                          <CardTitle className="text-base">{template.title}</CardTitle>
-                          <Badge variant="outline" className="mt-1 text-xs">
+                  <CardContent className="p-5">
+                    <div className="flex items-start gap-3">
+                      <IconComponent className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0 group-hover:text-foreground transition-colors" />
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-sm font-medium mb-1 leading-tight">
+                          {template.title}
+                        </CardTitle>
+                        <CardDescription className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                          {template.description}
+                        </CardDescription>
+                        <div className="mt-3 pt-3 border-t border-border/50">
+                          <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
                             {template.category}
-                          </Badge>
+                          </span>
                         </div>
                       </div>
-                    </div>
-                    <CardDescription className="mt-2 text-sm">
-                      {template.description}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between">
-                      <div className="flex flex-wrap gap-1">
-                        {template.metrics.slice(0, 2).map((metric, idx) => (
-                          <Badge key={idx} variant="secondary" className="text-xs">
-                            {metric}
-                          </Badge>
-                        ))}
-                        {template.metrics.length > 2 && (
-                          <Badge variant="secondary" className="text-xs">
-                            +{template.metrics.length - 2} more
-                          </Badge>
-                        )}
-                      </div>
-                      <Button variant="ghost" size="sm" className="gap-2">
-                        <PlayCircle className="h-4 w-4" />
-                        Generate
-                      </Button>
                     </div>
                   </CardContent>
                 </Card>
               );
             })}
-          </div>
+            </div>
+          )}
         </TabsContent>
 
         {categories.map((category) => (
           <TabsContent key={category} value={category} className="mt-4">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {templates
-                .filter(t => t.category === category)
-                .map((template) => {
+            {filteredTemplates.filter(t => t.category === category).length === 0 ? (
+              <div className="text-center py-12">
+                <Search className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No templates found</h3>
+                <p className="text-muted-foreground">Try adjusting your search or filters</p>
+              </div>
+            ) : (
+              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                {filteredTemplates
+                  .filter(t => t.category === category)
+                  .map((template) => {
                   const IconComponent = template.icon;
                   return (
                     <Card 
                       key={template.id}
-                      className="hover:shadow-lg transition-all duration-300 cursor-pointer group"
+                      className="border border-border/50 hover:border-border hover:shadow-sm transition-all duration-200 cursor-pointer group bg-card"
                       onClick={() => handleTemplateSelect(template.id)}
                     >
-                      <CardHeader>
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                              <IconComponent className="h-5 w-5 text-primary" />
-                            </div>
-                            <div className="flex-1">
-                              <CardTitle className="text-base">{template.title}</CardTitle>
+                      <CardContent className="p-5">
+                        <div className="flex items-start gap-3">
+                          <IconComponent className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0 group-hover:text-foreground transition-colors" />
+                          <div className="flex-1 min-w-0">
+                            <CardTitle className="text-sm font-medium mb-1 leading-tight">
+                              {template.title}
+                            </CardTitle>
+                            <CardDescription className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                              {template.description}
+                            </CardDescription>
+                            <div className="mt-3 pt-3 border-t border-border/50">
+                              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                                {template.category}
+                              </span>
                             </div>
                           </div>
-                        </div>
-                        <CardDescription className="mt-2 text-sm">
-                          {template.description}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="flex items-center justify-between">
-                          <div className="flex flex-wrap gap-1">
-                            {template.metrics.slice(0, 2).map((metric, idx) => (
-                              <Badge key={idx} variant="secondary" className="text-xs">
-                                {metric}
-                              </Badge>
-                            ))}
-                          </div>
-                          <Button variant="ghost" size="sm" className="gap-2">
-                            <PlayCircle className="h-4 w-4" />
-                            Generate
-                          </Button>
                         </div>
                       </CardContent>
                     </Card>
                   );
                 })}
-            </div>
+              </div>
+            )}
           </TabsContent>
         ))}
       </Tabs>
@@ -787,22 +933,43 @@ const Reports = () => {
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">Total</p>
-                        <p className="text-2xl font-bold">${reportData.summary.total.toLocaleString()}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {selectedTemplate === "consumption-report" ? "Total Cost" : "Total"}
+                        </p>
+                        <p className="text-2xl font-bold">
+                          {selectedTemplate === "consumption-report" && reportData.summary.totalCost
+                            ? `$${reportData.summary.totalCost.toLocaleString()}`
+                            : `$${reportData.summary.total?.toLocaleString() || '0'}`
+                          }
+                        </p>
                       </div>
                       <TrendingUp className="h-8 w-8 text-green-500" />
                     </div>
-                    <p className="text-xs text-muted-foreground mt-2">
-                      {reportData.summary.change > 0 ? "+" : ""}{reportData.summary.change}% from previous period
-                    </p>
+                    {selectedTemplate === "consumption-report" && reportData.summary.totalConsumption && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {reportData.summary.totalConsumption} total consumption
+                      </p>
+                    )}
+                    {reportData.summary.change !== undefined && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {reportData.summary.change > 0 ? "+" : ""}{reportData.summary.change}% from previous period
+                      </p>
+                    )}
                   </CardContent>
                 </Card>
                 <Card>
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">Period</p>
-                        <p className="text-lg font-semibold capitalize">{reportData.summary.period.replace(/([A-Z])/g, " $1").trim()}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {selectedTemplate === "consumption-report" ? "Total Consumption" : "Period"}
+                        </p>
+                        <p className="text-lg font-semibold">
+                          {selectedTemplate === "consumption-report" && reportData.summary.totalConsumption
+                            ? reportData.summary.totalConsumption
+                            : reportData.summary.period ? reportData.summary.period.replace(/([A-Z])/g, " $1").trim() : "N/A"
+                          }
+                        </p>
                       </div>
                       <Calendar className="h-8 w-8 text-blue-500" />
                     </div>
@@ -812,8 +979,10 @@ const Reports = () => {
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">Data Points</p>
-                        <p className="text-2xl font-bold">{reportData.tableData.length}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {selectedTemplate === "consumption-report" ? "Services" : "Data Points"}
+                        </p>
+                        <p className="text-2xl font-bold">{reportData.tableData?.length || 0}</p>
                       </div>
                       <BarChart3 className="h-8 w-8 text-purple-500" />
                     </div>
@@ -874,31 +1043,69 @@ const Reports = () => {
               {(visualizationType === "table" || visualizationType === "both") && (
                 <Card>
                   <CardHeader>
-                    <CardTitle>Data Table</CardTitle>
+                    <CardTitle>
+                      {selectedTemplate === "consumption-report" ? "Consumption Details" : "Data Table"}
+                    </CardTitle>
             </CardHeader>
             <CardContent>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>ID</TableHead>
-                          <TableHead>Name</TableHead>
-                          <TableHead className="text-right">Value</TableHead>
-                          <TableHead>Status</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {reportData.tableData.map((row: any) => (
-                          <TableRow key={row.id}>
-                            <TableCell className="font-mono text-xs">{row.id}</TableCell>
-                            <TableCell>{row.name}</TableCell>
-                            <TableCell className="text-right font-medium">${row.value.toLocaleString()}</TableCell>
-                            <TableCell>
-                              <Badge variant="outline">{row.status}</Badge>
-                            </TableCell>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            {selectedTemplate === "consumption-report" ? (
+                              <>
+                                <TableHead>Provider</TableHead>
+                                <TableHead>Service</TableHead>
+                                <TableHead className="text-right">Consumption</TableHead>
+                                <TableHead className="text-right">Cost</TableHead>
+                                <TableHead className="text-right">Unit Cost</TableHead>
+                                <TableHead>Status</TableHead>
+                              </>
+                            ) : (
+                              <>
+                                <TableHead>ID</TableHead>
+                                <TableHead>Name</TableHead>
+                                <TableHead className="text-right">Value</TableHead>
+                                <TableHead>Status</TableHead>
+                              </>
+                            )}
                           </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                        </TableHeader>
+                        <TableBody>
+                          {reportData.tableData?.map((row: any, index: number) => (
+                            <TableRow key={row.id || index}>
+                              {selectedTemplate === "consumption-report" ? (
+                                <>
+                                  <TableCell className="font-medium">{row.provider}</TableCell>
+                                  <TableCell>{row.service}</TableCell>
+                                  <TableCell className="text-right">{row.consumption}</TableCell>
+                                  <TableCell className="text-right font-medium">
+                                    ${typeof row.cost === 'number' ? row.cost.toLocaleString() : row.cost}
+                                  </TableCell>
+                                  <TableCell className="text-right text-sm text-muted-foreground">
+                                    {row.unitCost}
+                                  </TableCell>
+                                  <TableCell>
+                                    <Badge variant="outline">{row.status || "active"}</Badge>
+                                  </TableCell>
+                                </>
+                              ) : (
+                                <>
+                                  <TableCell className="font-mono text-xs">{row.id || index + 1}</TableCell>
+                                  <TableCell>{row.name || "N/A"}</TableCell>
+                                  <TableCell className="text-right font-medium">
+                                    ${row.value ? row.value.toLocaleString() : "0"}
+                                  </TableCell>
+                                  <TableCell>
+                                    <Badge variant="outline">{row.status || "active"}</Badge>
+                                  </TableCell>
+                                </>
+                              )}
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
                   </CardContent>
                 </Card>
               )}

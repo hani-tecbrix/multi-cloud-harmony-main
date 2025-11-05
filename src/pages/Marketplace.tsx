@@ -14,7 +14,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useCart } from "@/contexts/CartContext";
 import { useSearchParams, useNavigate } from "react-router-dom";
 
-// Import vendor logos from vendors-logos folder
+// Import vendor icons from vendors-icons folder (for cards)
+import awsIcon from "@/assets/vendors-icons/aws.png";
+import microsoftIcon from "@/assets/vendors-icons/microsoft.png";
+import googleCloudIcon from "@/assets/vendors-icons/google-cloud.png";
+import oracleIcon from "@/assets/vendors-icons/oracle.png";
+
+// Import vendor logos from vendors-logos folder (for detail views)
 import acronisLogo from "@/assets/vendors-logos/acronis.png";
 import archerLogo from "@/assets/vendors-logos/archer.png";
 import arcteraLogo from "@/assets/vendors-logos/arctera.png";
@@ -54,7 +60,18 @@ import trendMicroLogo from "@/assets/vendors-logos/trend-micro.png";
 import vectraLogo from "@/assets/vendors-logos/vectra.png";
 import vmwareLogo from "@/assets/vendors-logos/vmware.png";
 
-// Vendor name to local asset mapping (optimized naming)
+// Vendor name to icon mapping (for cards)
+const vendorIconMap: { [key: string]: string } = {
+  // Cloud Providers
+  "Amazon AWS": awsIcon,
+  "Microsoft Azure": microsoftIcon,
+  "Google Cloud": googleCloudIcon,
+  "Oracle Cloud": oracleIcon,
+  "Oracle Cloud SaaS": oracleIcon,
+};
+
+
+// Vendor name to logo mapping (for detail views)
 const vendorLogoMap: { [key: string]: string } = {
   // Cloud Providers
   "Amazon AWS": awsLogo,
@@ -64,6 +81,8 @@ const vendorLogoMap: { [key: string]: string } = {
   "Microsoft 365": microsoftLogo,
   "Google Cloud": googleCloudLogo,
   "Google Cloud SaaS": googleCloudLogo,
+  "Oracle Cloud": oracleLogo,
+  "Oracle Cloud SaaS": oracleLogo,
   
   // SaaS Vendors - New
   "Acronis": acronisLogo,
@@ -89,7 +108,6 @@ const vendorLogoMap: { [key: string]: string } = {
   "NetWitness": netwitnessLogo,
   "One Identity": oneIdentityLogo,
   "OneSpan": onespanLogo,
-  "Oracle Cloud SaaS": oracleLogo,
   "Outseer": outseerLogo,
   "Quest": questLogo,
   "Riverbed": riverbedLogo,
@@ -152,6 +170,23 @@ const logoUrlMap: { [key: string]: string } = {
   "bamboohr.com": "https://cdn.brandfetch.io/id0v8CvAOL/w/128/h/128/theme/dark/icon.png",
 };
 
+// Get icon URL for cards (prefers icons, falls back to logos)
+const getIconUrl = (domain: string, vendorName?: string) => {
+  // First try local asset icon if vendor name is provided
+  if (vendorName && vendorIconMap[vendorName]) {
+    return vendorIconMap[vendorName];
+  }
+  
+  // Fallback to logo if icon not available
+  if (vendorName && vendorLogoMap[vendorName]) {
+    return vendorLogoMap[vendorName];
+  }
+  
+  // Fallback to domain-based CDN
+  return logoUrlMap[domain] || `https://img.logo.dev/${domain}?token=pk_X-1ZO13CREWLfXv9Z5h6xQ`;
+};
+
+// Get logo URL for detail views (always uses logos)
 const getLogoUrl = (domain: string, vendorName?: string) => {
   // First try local asset logo if vendor name is provided
   if (vendorName && vendorLogoMap[vendorName]) {
@@ -162,7 +197,7 @@ const getLogoUrl = (domain: string, vendorName?: string) => {
   return logoUrlMap[domain] || `https://img.logo.dev/${domain}?token=pk_X-1ZO13CREWLfXv9Z5h6xQ`;
 };
 
-// Enhanced cloud providers with products (excluding Oracle and IBM)
+// Enhanced cloud providers with products
 const cloudProviders = [
   { 
     id: 1,
@@ -271,6 +306,38 @@ const cloudProviders = [
           { name: "Standard", price: 0.020, period: "per GB/month", specs: "Frequently accessed data" },
           { name: "Nearline", price: 0.010, period: "per GB/month", specs: "Accessed once per month" },
           { name: "Coldline", price: 0.004, period: "per GB/month", specs: "Accessed once per year" }
+        ]
+      }
+    ]
+  },
+  { 
+    id: 4,
+    name: "Oracle Cloud", 
+    type: "Consumption", 
+    category: "Cloud Infrastructure", 
+    domain: "oracle.com",
+    description: "Enterprise cloud infrastructure and applications",
+    products: [
+      {
+        id: "oracle-compute",
+        name: "Oracle Compute",
+        description: "High-performance compute instances",
+        features: ["Bare metal instances", "Virtual machines", "Auto scaling", "High performance"],
+        plans: [
+          { name: "VM.Standard.E2.1", price: 0.042, period: "per hour", specs: "1 OCPU, 8 GB RAM" },
+          { name: "VM.Standard.E2.2", price: 0.084, period: "per hour", specs: "2 OCPU, 16 GB RAM" },
+          { name: "VM.Standard.E2.4", price: 0.168, period: "per hour", specs: "4 OCPU, 32 GB RAM" },
+          { name: "BM.Standard.E2.64", price: 1.344, period: "per hour", specs: "64 OCPU, 512 GB RAM" }
+        ]
+      },
+      {
+        id: "oracle-storage",
+        name: "Oracle Object Storage",
+        description: "Scalable object storage service",
+        features: ["Durable storage", "Multiple storage tiers", "Data lifecycle management", "API access"],
+        plans: [
+          { name: "Standard", price: 0.0255, period: "per GB/month", specs: "Frequently accessed data" },
+          { name: "Archive", price: 0.0026, period: "per GB/month", specs: "Long-term archival" }
         ]
       }
     ]
@@ -895,7 +962,7 @@ const saasProviders = [
     type: "License", 
     category: "Customer Experience", 
     domain: "genesys.com",
-    description: "Cloud contact center SaaS (Genesys Cloud CX)",
+    description: "Cloud contact center SaaS",
     products: [
       {
         id: "genesys-cloud-cx",
@@ -916,7 +983,7 @@ const saasProviders = [
     type: "License", 
     category: "Cloud Services", 
     domain: "google.com",
-    description: "SaaS products such as Google Workspace and Contact Center AI",
+    description: "SaaS productivity and AI solutions",
     products: [
       {
         id: "google-cloud-saas",
@@ -937,7 +1004,7 @@ const saasProviders = [
     type: "License", 
     category: "Cloud Services", 
     domain: "ibm.com",
-    description: "Multiple SaaS offerings (Watson AI, analytics, security)",
+    description: "Cloud SaaS for security, analytics, AI",
     products: [
       {
         id: "ibm-cloud-saas",
@@ -979,7 +1046,7 @@ const saasProviders = [
     type: "License", 
     category: "IT Management", 
     domain: "ivanti.com",
-    description: "ITSM and endpoint management SaaS (Ivanti Neurons)",
+    description: "Endpoint and service management SaaS",
     products: [
       {
         id: "ivanti-neurons",
@@ -1063,7 +1130,7 @@ const saasProviders = [
     type: "License", 
     category: "Security", 
     domain: "everfox.com",
-    description: "Cloud security SaaS (Forcepoint Federal)",
+    description: "Cloud security SaaS",
     products: [
       {
         id: "everfox-security",
@@ -1450,7 +1517,6 @@ const Marketplace = () => {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [providerTypeFilter, setProviderTypeFilter] = useState<"all" | "cloud" | "saas">("all");
-  const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(12);
   
   // Use CartContext instead of local state
@@ -1458,14 +1524,13 @@ const Marketplace = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   
-  // Combine all providers
-  const allProviders = [
-    ...cloudProviders.map(p => ({ ...p, providerType: "cloud" as const })),
-    ...saasProviders.map(p => ({ ...p, providerType: "saas" as const }))
-  ];
+  // Separate cloud and SaaS providers
+  const cloudProvidersList = cloudProviders.map(p => ({ ...p, providerType: "cloud" as const }));
+  const saasProvidersList = saasProviders.map(p => ({ ...p, providerType: "saas" as const }));
+  const allProviders = [...cloudProvidersList, ...saasProvidersList];
   
-  // Filter providers
-  const filteredProviders = allProviders.filter(provider => {
+  // Filter function
+  const filterProvider = (provider: typeof cloudProvidersList[0] | typeof saasProvidersList[0]) => {
     const matchesSearch = 
       provider.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       provider.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -1473,24 +1538,42 @@ const Marketplace = () => {
     
     const matchesCategory = categoryFilter === "all" || provider.category === categoryFilter;
     const matchesType = typeFilter === "all" || provider.type === typeFilter;
-    const matchesProviderType = providerTypeFilter === "all" || provider.providerType === providerTypeFilter;
     
-    return matchesSearch && matchesCategory && matchesType && matchesProviderType;
-  });
+    return matchesSearch && matchesCategory && matchesType;
+  };
+  
+  // Filter cloud and SaaS providers separately
+  const filteredCloudProviders = cloudProvidersList.filter(filterProvider);
+  const filteredSaasProviders = saasProvidersList.filter(filterProvider);
+  
+  // Apply provider type filter if needed
+  const displayCloudProviders = providerTypeFilter === "all" || providerTypeFilter === "cloud" ? filteredCloudProviders : [];
+  const displaySaasProviders = providerTypeFilter === "all" || providerTypeFilter === "saas" ? filteredSaasProviders : [];
   
   // Get unique categories and types
   const uniqueCategories = Array.from(new Set(allProviders.map(p => p.category))).sort();
   const uniqueTypes = Array.from(new Set(allProviders.map(p => p.type))).sort();
   
-  // Pagination calculations
-  const totalPages = Math.ceil(filteredProviders.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedProviders = filteredProviders.slice(startIndex, endIndex);
+  // Pagination state for each section
+  const [cloudPage, setCloudPage] = useState(1);
+  const [saasPage, setSaasPage] = useState(1);
+  
+  // Pagination calculations for Cloud
+  const cloudTotalPages = Math.ceil(displayCloudProviders.length / itemsPerPage);
+  const cloudStartIndex = (cloudPage - 1) * itemsPerPage;
+  const cloudEndIndex = cloudStartIndex + itemsPerPage;
+  const paginatedCloudProviders = displayCloudProviders.slice(cloudStartIndex, cloudEndIndex);
+  
+  // Pagination calculations for SaaS
+  const saasTotalPages = Math.ceil(displaySaasProviders.length / itemsPerPage);
+  const saasStartIndex = (saasPage - 1) * itemsPerPage;
+  const saasEndIndex = saasStartIndex + itemsPerPage;
+  const paginatedSaasProviders = displaySaasProviders.slice(saasStartIndex, saasEndIndex);
   
   // Reset to page 1 when filters change
   useEffect(() => {
-    setCurrentPage(1);
+    setCloudPage(1);
+    setSaasPage(1);
   }, [searchTerm, categoryFilter, typeFilter, providerTypeFilter]);
   
   // Check if cart should be shown from URL params
@@ -2431,197 +2514,381 @@ const Marketplace = () => {
               </Select>
               
               <div className="ml-auto flex items-center gap-2 text-sm text-muted-foreground">
-                <span>Showing {filteredProviders.length} of {allProviders.length} vendors</span>
+                <span>Showing {displayCloudProviders.length + displaySaasProviders.length} of {allProviders.length} vendors</span>
               </div>
             </div>
           </div>
         </CardHeader>
       </Card>
 
-      {/* Vendors Grid */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-4">
-          <div>
-            <CardTitle className="text-base font-medium">All Vendors</CardTitle>
-            <p className="text-xs text-muted-foreground mt-1">
-              {providerTypeFilter === "cloud" && "Infrastructure and platform services"}
-              {providerTypeFilter === "saas" && "Software as a service subscriptions"}
-              {providerTypeFilter === "all" && "All cloud providers and SaaS applications"}
-            </p>
-          </div>
-          <Badge variant="secondary">{filteredProviders.length} Vendors</Badge>
-        </CardHeader>
-        <CardContent>
-          {paginatedProviders.length === 0 ? (
-            <div className="text-center py-12">
-              <Cloud className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No vendors found</h3>
-              <p className="text-muted-foreground">Try adjusting your filters to see more results</p>
+      {/* Cloud Providers Section */}
+      {displayCloudProviders.length > 0 && (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-4">
+            <div>
+              <CardTitle className="text-base font-medium flex items-center gap-2">
+                <Cloud className="h-5 w-5 text-primary" />
+                Cloud Providers
+              </CardTitle>
+              <p className="text-xs text-muted-foreground mt-1">
+                Infrastructure and platform services
+              </p>
             </div>
-          ) : (
-            <>
-              <div 
-                className="grid gap-4 justify-items-center"
-                style={{
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(256px, 360px))',
-                  justifyContent: 'center'
-                }}
-              >
-                {paginatedProviders.map((provider) => {
-                  const displayId = provider.providerType === "cloud" ? provider.id : provider.id + 100;
-                  return (
-                    <Card 
-                      key={provider.id} 
-                      className="hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden group relative border w-full"
-                      style={{ maxWidth: '360px', minWidth: '256px' }}
-                      onClick={() => handleViewDetails(provider)}
-                    >
-                      <CardContent className="p-5">
-                        {/* Provider Type Badge - Top Right (Extra Small) */}
-                        <div className="absolute top-3 right-3 z-10">
-                          <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4">
-                            {provider.providerType === "cloud" ? "Cloud" : "SaaS"}
-                          </Badge>
+            <Badge variant="secondary">{displayCloudProviders.length} Providers</Badge>
+          </CardHeader>
+          <CardContent>
+            <div 
+              className="grid gap-4 justify-items-center"
+              style={{
+                gridTemplateColumns: 'repeat(auto-fill, minmax(256px, 360px))',
+                justifyContent: 'center'
+              }}
+            >
+              {paginatedCloudProviders.map((provider) => (
+                <Card 
+                  key={provider.id} 
+                  className="hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden group relative border w-full"
+                  style={{ maxWidth: '360px', minWidth: '256px' }}
+                  onClick={() => handleViewDetails(provider)}
+                >
+                  <CardContent className="p-5">
+                    <div className="flex flex-col space-y-3 min-h-[200px]">
+                      {/* Icon - Separate Row */}
+                      <div className="flex items-center justify-start h-10 overflow-hidden">
+                        <img 
+                          src={getIconUrl(provider.domain, provider.name)} 
+                          alt={provider.name}
+                          className="h-10 w-auto max-w-full object-contain object-left"
+                          style={{ maxHeight: '40px', maxWidth: '100%' }}
+                          onError={(e) => {
+                            // Try to use logo as fallback before showing Cloud icon
+                            const logoUrl = vendorLogoMap[provider.name];
+                            if (logoUrl && e.currentTarget.src !== logoUrl) {
+                              e.currentTarget.src = logoUrl;
+                              return;
+                            }
+                            // Only show Cloud icon if both icon and logo fail
+                            e.currentTarget.style.display = 'none';
+                            const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                            if (fallback) fallback.style.display = 'flex';
+                          }}
+                          onLoad={() => {
+                            // Hide fallback if image loads successfully
+                            const fallback = document.querySelector(`[data-fallback-for="${provider.id}"]`) as HTMLElement;
+                            if (fallback) fallback.style.display = 'none';
+                          }}
+                          loading="lazy"
+                        />
+                        <div 
+                          className="hidden h-10 w-auto items-center justify-center" 
+                          data-fallback-for={provider.id}
+                        >
+                          <Cloud className="h-8 w-8 text-muted-foreground" />
                         </div>
+                      </div>
+                      
+                      {/* Heading and Type - Left Aligned */}
+                      <div>
+                        <h3 className="font-semibold text-base leading-tight mb-1 text-left line-clamp-2">{provider.name}</h3>
+                        <p className="text-xs font-medium text-muted-foreground text-left truncate">{provider.category}</p>
+                      </div>
 
-                        <div className="flex flex-col space-y-3 min-h-[200px]">
-                          {/* Logo - Separate Row */}
-                          <div className="flex items-center justify-start h-10 overflow-hidden">
-                            <img 
-                              src={getLogoUrl(provider.domain, provider.name)} 
-                              alt={provider.name}
-                              className="h-10 w-auto max-w-full object-contain object-left"
-                              style={{ maxHeight: '40px', maxWidth: '100%' }}
-                              onError={(e) => {
-                                e.currentTarget.style.display = 'none';
-                                const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                                if (fallback) fallback.style.display = 'flex';
-                              }}
-                              loading="lazy"
-                            />
-                            <div className="hidden h-10 w-auto items-center justify-center">
-                              {provider.providerType === "cloud" ? (
-                                <Cloud className="h-8 w-8 text-muted-foreground" />
-                              ) : (
-                                <Database className="h-8 w-8 text-muted-foreground" />
-                              )}
-                            </div>
-                          </div>
-                          
-                          {/* Heading and Type - Left Aligned */}
-                          <div>
-                            <h3 className="font-semibold text-base leading-tight mb-1 text-left line-clamp-2">{provider.name}</h3>
-                            <p className="text-xs font-medium text-muted-foreground text-left truncate">{provider.category}</p>
-                          </div>
+                      {/* Description */}
+                      <div className="flex-1 min-h-[60px]">
+                        <p className="text-sm text-muted-foreground line-clamp-3 text-left leading-relaxed">
+                          {provider.description}
+                        </p>
+                      </div>
 
-                          {/* Description */}
-                          <div className="flex-1 min-h-[60px]">
-                            <p className="text-sm text-muted-foreground line-clamp-3 text-left leading-relaxed">
-                              {provider.description}
-                            </p>
-                          </div>
-
-                          {/* View Details Button - Always Visible */}
-                          <div className="mt-auto pt-2">
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              className="w-full"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleViewDetails(provider);
-                              }}
-                            >
-                              <Eye className="h-3 w-3 mr-1" />
-                              View Details
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-              
-              {/* Pagination Controls */}
-              {totalPages > 1 && (
-                <div className="flex items-center justify-between border-t pt-4 mt-6">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">Show</span>
-                    <Select
-                      value={itemsPerPage.toString()}
-                      onValueChange={(value) => {
-                        setItemsPerPage(Number(value));
-                        setCurrentPage(1);
-                      }}
-                    >
-                      <SelectTrigger className="h-8 w-[70px]">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="12">12</SelectItem>
-                        <SelectItem value="24">24</SelectItem>
-                        <SelectItem value="36">36</SelectItem>
-                        <SelectItem value="48">48</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <span className="text-sm text-muted-foreground">
-                      of {filteredProviders.length} vendor{filteredProviders.length !== 1 ? 's' : ''}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                      disabled={currentPage === 1}
-                    >
-                      <ChevronLeft className="h-4 w-4 mr-1" />
-                      Previous
-                    </Button>
-                    <div className="flex items-center gap-1">
-                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                        let pageNum;
-                        if (totalPages <= 5) {
-                          pageNum = i + 1;
-                        } else if (currentPage <= 3) {
-                          pageNum = i + 1;
-                        } else if (currentPage >= totalPages - 2) {
-                          pageNum = totalPages - 4 + i;
-                        } else {
-                          pageNum = currentPage - 2 + i;
-                        }
-                        
-                        return (
-                          <Button
-                            key={pageNum}
-                            variant={currentPage === pageNum ? "default" : "outline"}
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            onClick={() => setCurrentPage(pageNum)}
-                          >
-                            {pageNum}
-                          </Button>
-                        );
-                      })}
+                      {/* View Details Button - Always Visible */}
+                      <div className="mt-auto pt-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="w-full"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewDetails(provider);
+                          }}
+                        >
+                          <Eye className="h-3 w-3 mr-1" />
+                          View Details
+                        </Button>
+                      </div>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                      disabled={currentPage === totalPages}
-                    >
-                      Next
-                      <ChevronRightIcon className="h-4 w-4 ml-1" />
-                    </Button>
-                  </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            
+            {/* Cloud Pagination Controls */}
+            {cloudTotalPages > 1 && (
+              <div className="flex items-center justify-between border-t pt-4 mt-6">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Show</span>
+                  <Select
+                    value={itemsPerPage.toString()}
+                    onValueChange={(value) => {
+                      setItemsPerPage(Number(value));
+                      setCloudPage(1);
+                    }}
+                  >
+                    <SelectTrigger className="h-8 w-[70px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="12">12</SelectItem>
+                      <SelectItem value="24">24</SelectItem>
+                      <SelectItem value="36">36</SelectItem>
+                      <SelectItem value="48">48</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <span className="text-sm text-muted-foreground">
+                    of {displayCloudProviders.length} provider{displayCloudProviders.length !== 1 ? 's' : ''}
+                  </span>
                 </div>
-              )}
-            </>
-          )}
-        </CardContent>
-      </Card>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCloudPage(prev => Math.max(1, prev - 1))}
+                    disabled={cloudPage === 1}
+                  >
+                    <ChevronLeft className="h-4 w-4 mr-1" />
+                    Previous
+                  </Button>
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: Math.min(5, cloudTotalPages) }, (_, i) => {
+                      let pageNum;
+                      if (cloudTotalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (cloudPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (cloudPage >= cloudTotalPages - 2) {
+                        pageNum = cloudTotalPages - 4 + i;
+                      } else {
+                        pageNum = cloudPage - 2 + i;
+                      }
+                      
+                      return (
+                        <Button
+                          key={pageNum}
+                          variant={cloudPage === pageNum ? "default" : "outline"}
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          onClick={() => setCloudPage(pageNum)}
+                        >
+                          {pageNum}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCloudPage(prev => Math.min(cloudTotalPages, prev + 1))}
+                    disabled={cloudPage === cloudTotalPages}
+                  >
+                    Next
+                    <ChevronRightIcon className="h-4 w-4 ml-1" />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* SaaS Providers Section */}
+      {displaySaasProviders.length > 0 && (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-4">
+            <div>
+              <CardTitle className="text-base font-medium flex items-center gap-2">
+                <Database className="h-5 w-5 text-primary" />
+                SaaS Applications
+              </CardTitle>
+              <p className="text-xs text-muted-foreground mt-1">
+                Software as a service subscriptions
+              </p>
+            </div>
+            <Badge variant="secondary">{displaySaasProviders.length} Applications</Badge>
+          </CardHeader>
+          <CardContent>
+            <div 
+              className="grid gap-4 justify-items-center"
+              style={{
+                gridTemplateColumns: 'repeat(auto-fill, minmax(256px, 360px))',
+                justifyContent: 'center'
+              }}
+            >
+              {paginatedSaasProviders.map((provider) => (
+                <Card 
+                  key={provider.id} 
+                  className="hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden group relative border w-full"
+                  style={{ maxWidth: '360px', minWidth: '256px' }}
+                  onClick={() => handleViewDetails(provider)}
+                >
+                  <CardContent className="p-5">
+                    <div className="flex flex-col space-y-3 min-h-[200px]">
+                      {/* Icon - Separate Row */}
+                      <div className="flex items-center justify-start h-10 overflow-hidden">
+                        <img 
+                          src={getIconUrl(provider.domain, provider.name)} 
+                          alt={provider.name}
+                          className="h-10 w-auto max-w-full object-contain object-left"
+                          style={{ maxHeight: '40px', maxWidth: '100%' }}
+                          onError={(e) => {
+                            // Try to use logo as fallback before showing Database icon
+                            const logoUrl = vendorLogoMap[provider.name];
+                            if (logoUrl && e.currentTarget.src !== logoUrl) {
+                              e.currentTarget.src = logoUrl;
+                              return;
+                            }
+                            // Only show Database icon if both icon and logo fail
+                            e.currentTarget.style.display = 'none';
+                            const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                            if (fallback) fallback.style.display = 'flex';
+                          }}
+                          onLoad={() => {
+                            // Hide fallback if image loads successfully
+                            const fallback = document.querySelector(`[data-fallback-for="${provider.id}"]`) as HTMLElement;
+                            if (fallback) fallback.style.display = 'none';
+                          }}
+                          loading="lazy"
+                        />
+                        <div 
+                          className="hidden h-10 w-auto items-center justify-center" 
+                          data-fallback-for={provider.id}
+                        >
+                          <Database className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                      </div>
+                      
+                      {/* Heading and Type - Left Aligned */}
+                      <div>
+                        <h3 className="font-semibold text-base leading-tight mb-1 text-left line-clamp-2">{provider.name}</h3>
+                        <p className="text-xs font-medium text-muted-foreground text-left truncate">{provider.category}</p>
+                      </div>
+
+                      {/* Description */}
+                      <div className="flex-1 min-h-[60px]">
+                        <p className="text-sm text-muted-foreground line-clamp-3 text-left leading-relaxed">
+                          {provider.description}
+                        </p>
+                      </div>
+
+                      {/* View Details Button - Always Visible */}
+                      <div className="mt-auto pt-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="w-full"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewDetails(provider);
+                          }}
+                        >
+                          <Eye className="h-3 w-3 mr-1" />
+                          View Details
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            
+            {/* SaaS Pagination Controls */}
+            {saasTotalPages > 1 && (
+              <div className="flex items-center justify-between border-t pt-4 mt-6">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Show</span>
+                  <Select
+                    value={itemsPerPage.toString()}
+                    onValueChange={(value) => {
+                      setItemsPerPage(Number(value));
+                      setSaasPage(1);
+                    }}
+                  >
+                    <SelectTrigger className="h-8 w-[70px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="12">12</SelectItem>
+                      <SelectItem value="24">24</SelectItem>
+                      <SelectItem value="36">36</SelectItem>
+                      <SelectItem value="48">48</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <span className="text-sm text-muted-foreground">
+                    of {displaySaasProviders.length} application{displaySaasProviders.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSaasPage(prev => Math.max(1, prev - 1))}
+                    disabled={saasPage === 1}
+                  >
+                    <ChevronLeft className="h-4 w-4 mr-1" />
+                    Previous
+                  </Button>
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: Math.min(5, saasTotalPages) }, (_, i) => {
+                      let pageNum;
+                      if (saasTotalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (saasPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (saasPage >= saasTotalPages - 2) {
+                        pageNum = saasTotalPages - 4 + i;
+                      } else {
+                        pageNum = saasPage - 2 + i;
+                      }
+                      
+                      return (
+                        <Button
+                          key={pageNum}
+                          variant={saasPage === pageNum ? "default" : "outline"}
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          onClick={() => setSaasPage(pageNum)}
+                        >
+                          {pageNum}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSaasPage(prev => Math.min(saasTotalPages, prev + 1))}
+                    disabled={saasPage === saasTotalPages}
+                  >
+                    Next
+                    <ChevronRightIcon className="h-4 w-4 ml-1" />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Empty State */}
+      {displayCloudProviders.length === 0 && displaySaasProviders.length === 0 && (
+        <Card>
+          <CardContent className="p-12 text-center">
+            <Cloud className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No vendors found</h3>
+            <p className="text-muted-foreground">Try adjusting your filters to see more results</p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

@@ -167,12 +167,12 @@ export const Header = () => {
                       onClick={() => handlePhoneClick(support.number)}
                     >
                       <div className="flex items-center gap-2 w-full">
-                        <Phone className="h-4 w-4 text-primary" />
+                        <Phone className="h-4 w-4 hover:text-primary" />
                         <span className="text-sm font-medium">{support.label}</span>
                       </div>
                       <a 
                         href={`tel:${support.number.replace(/\s/g, "")}`}
-                        className="text-sm text-primary hover:underline font-mono"
+                        className="text-sm hover:text-primary hover:underline font-mono"
                         onClick={(e) => e.stopPropagation()}
                       >
                         {support.number}

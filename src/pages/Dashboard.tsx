@@ -13,6 +13,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useState } from "react";
 import { toast } from "sonner";
 
+// Import vendor icons for chart legends
+import awsIcon from "@/assets/vendors-icons/aws.png";
+import azureIcon from "@/assets/vendors-icons/azure.png";
+import googleCloudIcon from "@/assets/vendors-icons/google-cloud.png";
+import oracleIcon from "@/assets/vendors-icons/oracle.png";
+
 const spendingData = [
   { name: "Jan", AWS: 13000, Azure: 7500, GCP: 3000, Budget: 26000 },
   { name: "Feb", AWS: 13500, Azure: 8000, GCP: 3200, Budget: 26000 },
@@ -31,9 +37,47 @@ const pieData = [
 
 const COLORS = {
   AWS: "#F59E0B", // Amber
-  Azure: "#14B8A6", // Teal
+  Azure: "#06b6d4", // Cyan-500
   GCP: "#3B82F6", // Blue
   SaaS: "#10B981", // Green
+};
+
+// Icon mapping for cloud providers
+const PROVIDER_ICONS: { [key: string]: string } = {
+  AWS: awsIcon,
+  Azure: azureIcon,
+  GCP: googleCloudIcon,
+  Oracle: oracleIcon,
+};
+
+// Custom Legend Component with Icons
+const CustomLegend = ({ payload }: { payload?: Array<{ value: string; color: string }> }) => {
+  if (!payload) return null;
+  
+  return (
+    <div className="flex items-center justify-center gap-4 pt-3 flex-wrap">
+      {payload.map((entry, index) => {
+        const iconSrc = PROVIDER_ICONS[entry.value];
+        return (
+          <div key={index} className="flex items-center gap-2">
+            {iconSrc ? (
+              <img 
+                src={iconSrc} 
+                alt={entry.value} 
+                className="w-4 h-4 object-contain"
+              />
+            ) : (
+              <div 
+                className="w-3 h-3 rounded-full" 
+                style={{ backgroundColor: entry.color }}
+              />
+            )}
+            <span className="text-xs text-muted-foreground">{entry.value}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
 };
 
 const unpaidInvoices = [
@@ -204,8 +248,7 @@ const Dashboard = () => {
                   }} 
                 />
                 <Legend 
-                  wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}
-                  iconType="line"
+                  content={<CustomLegend />}
                 />
                 <Line 
                   type="monotone" 
@@ -225,9 +268,9 @@ const Dashboard = () => {
                 <Line 
                   type="monotone" 
                   dataKey="Azure" 
-                  stroke="#14B8A6" 
+                  stroke="#06b6d4" 
                   strokeWidth={2}
-                  dot={{ r: 4, fill: "#14B8A6" }}
+                  dot={{ r: 4, fill: "#06b6d4" }}
                 />
                 <Line 
                   type="monotone" 
@@ -267,18 +310,29 @@ const Dashboard = () => {
               </PieChart>
             </ResponsiveContainer>
             <div className="mt-4 space-y-2">
-              {pieData.map((entry, index) => (
-                <div key={index} className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2">
-                    <div 
-                      className="w-3 h-3 rounded-full" 
-                      style={{ backgroundColor: COLORS[entry.name as keyof typeof COLORS] }}
-                    />
-                    <span className="text-muted-foreground">{entry.name}</span>
+              {pieData.map((entry, index) => {
+                const iconSrc = PROVIDER_ICONS[entry.name];
+                return (
+                  <div key={index} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      {iconSrc ? (
+                        <img 
+                          src={iconSrc} 
+                          alt={entry.name} 
+                          className="w-4 h-4 object-contain"
+                        />
+                      ) : (
+                        <div 
+                          className="w-3 h-3 rounded-full" 
+                          style={{ backgroundColor: COLORS[entry.name as keyof typeof COLORS] }}
+                        />
+                      )}
+                      <span className="text-muted-foreground">{entry.name}</span>
+                    </div>
+                    <span className="font-medium">{entry.value}%</span>
                   </div>
-                  <span className="font-medium">{entry.value}%</span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>
@@ -292,15 +346,6 @@ const Dashboard = () => {
               {unpaidInvoices.length} unpaid invoices • ${unpaidInvoices.reduce((sum, inv) => sum + inv.amount, 0).toLocaleString()} total outstanding
             </p>
           </div>
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={handleSendAllReminders}
-            className="shadow-sm"
-          >
-            <Send className="h-4 w-4 mr-2" />
-            Send All Reminders
-          </Button>
         </CardHeader>
         <CardContent>
           <Table>
