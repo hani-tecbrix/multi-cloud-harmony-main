@@ -25,7 +25,6 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { useUserRole } from "@/contexts/UserRoleContext";
-import logo from "@/assets/mw_logo_h.svg";
 import Help from "@/pages/Help";
 
 interface NavItem {
@@ -166,9 +165,15 @@ const navigationConfig: NavItem[] = [
 
 interface RoleBasedNavigationRailProps {
   onToggleExpand?: (expanded: boolean) => void;
+  isMobileOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
-export const RoleBasedNavigationRail = ({ onToggleExpand }: RoleBasedNavigationRailProps = {} as RoleBasedNavigationRailProps) => {
+export const RoleBasedNavigationRail = ({ 
+  onToggleExpand, 
+  isMobileOpen = false,
+  onMobileClose 
+}: RoleBasedNavigationRailProps = {} as RoleBasedNavigationRailProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const { user, isAdmin, isPartner, isCustomer } = useUserRole();
   
@@ -201,31 +206,45 @@ export const RoleBasedNavigationRail = ({ onToggleExpand }: RoleBasedNavigationR
   return (
     <aside 
       className={cn(
-        "fixed left-0 top-0 h-screen bg-white border-r border-border transition-all duration-300 z-50 flex flex-col shadow-sm",
-        isExpanded ? "w-64" : "w-20"
+        "fixed left-0 top-0 h-screen bg-white border-r border-border transition-all duration-300 z-30 flex flex-col shadow-sm",
+        // Mobile: hidden by default, show when isMobileOpen is true, always full width on mobile
+        "lg:translate-x-0",
+        isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
+        // Desktop: expanded/collapsed states, Mobile: always full width
+        isExpanded ? "w-64" : "w-64 lg:w-20"
       )}
     >
-      {/* Header with Logo and Role Badge */}
+      {/* Header with Toggle Button */}
       <div className="flex flex-col h-auto">
-        <div className="flex items-center justify-between px-4 py-2 bg-white">
+        <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-border lg:border-b-0">
+          {/* Mobile: Show logo when expanded */}
           {isExpanded && (
-            <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-2 duration-300">
-              <img src={logo} alt="MindVerse" className="h-10" />
+            <div className="flex items-center gap-2 lg:hidden">
+              <img src="/mw_favicon.svg" alt="MW" className="w-8 h-8" />
             </div>
           )}
-          {!isExpanded && (
-            <div className="flex items-center mx-auto">
-              <img src="/mw_favicon.svg" alt="MW" className="w-10 h-10" />
-            </div>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleToggle}
-            className={cn("h-8 w-8 hover:bg-muted", isExpanded ? "ml-auto" : "absolute bottom-4 left-1/2 -translate-x-1/2")}
-          >
-            {isExpanded ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-          </Button>
+          
+          {/* Desktop: Show toggle button */}
+          <div className="flex items-center gap-2 ml-auto w-full lg:w-auto lg:justify-end">
+            {/* Mobile Close Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onMobileClose}
+              className={cn("h-8 w-8 hover:bg-muted lg:hidden")}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            {/* Desktop Toggle Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleToggle}
+              className={cn("h-8 w-8 hover:bg-muted hidden lg:flex")}
+            >
+              {isExpanded ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            </Button>
+          </div>
         </div>
         
         {/* Role Badge */}
@@ -250,12 +269,18 @@ export const RoleBasedNavigationRail = ({ onToggleExpand }: RoleBasedNavigationR
           <NavLink
             key={item.path}
             to={item.path}
+            onClick={() => {
+              // Close mobile menu when navigation item is clicked
+              if (onMobileClose) {
+                onMobileClose();
+              }
+            }}
             className={({ isActive }) =>
               cn(
                 "relative",
                 isExpanded 
                   ? "flex items-center gap-6 px-3 py-2.5 rounded-lg transition-all duration-200" 
-                  : "flex flex-col items-center justify-center gap-1 px-2 py-3 rounded-lg transition-all duration-200",
+                  : "flex flex-col items-center justify-center gap-1 px-2 py-3 rounded-lg transition-all duration-200 lg:flex-col",
                 "hover:bg-muted/50 text-foreground",
                 isActive && "bg-primary/10"
               )
@@ -283,7 +308,7 @@ export const RoleBasedNavigationRail = ({ onToggleExpand }: RoleBasedNavigationR
                 )}
                 {!isExpanded && (
                   <span className={cn(
-                    "text-[10px] text-center leading-tight text-muted-foreground transition-all",
+                    "text-[10px] text-center leading-tight text-muted-foreground transition-all hidden lg:block",
                     isActive && "font-semibold text-primary"
                   )}>
                     {item.label.split(' ')[0]}
@@ -302,7 +327,7 @@ export const RoleBasedNavigationRail = ({ onToggleExpand }: RoleBasedNavigationR
 
       {/* User Info Footer */}
       {isExpanded && user && (
-        <div className="p-4 border-t border-border">
+        <div className="p-4 border-t border-border hidden lg:block">
           <div className="flex items-center gap-3">
             <div className={cn(
               "w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold",

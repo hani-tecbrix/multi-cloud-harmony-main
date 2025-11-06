@@ -1,6 +1,7 @@
-import { Bell, Search, User, AlertCircle, CheckCircle2, TrendingUp, CreditCard, Phone, ChevronDown } from "lucide-react";
+import { Bell, Search, User, AlertCircle, CheckCircle2, TrendingUp, CreditCard, Phone, ChevronDown, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import logo from "@/assets/mw_logo_h.svg";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -75,7 +76,11 @@ const mockNotifications = [
   },
 ];
 
-export const Header = () => {
+interface HeaderProps {
+  onMenuClick?: () => void;
+}
+
+export const Header = ({ onMenuClick }: HeaderProps = {} as HeaderProps) => {
   const navigate = useNavigate();
   const { user, isPartner, isCustomer } = useUserRole();
   const [open, setOpen] = useState(false);
@@ -126,13 +131,28 @@ export const Header = () => {
   return (
     <>
       <header className="sticky top-0 z-40 w-full border-b border-border bg-card backdrop-blur supports-[backdrop-filter]:bg-card/95">
-        <div className="flex h-14 items-center gap-4 px-4">
-          <div className="flex flex-1 items-center gap-4">
+        <div className="flex h-14 items-center gap-2 sm:gap-4 px-2 sm:px-4">
+          {/* Mobile Menu Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onMenuClick}
+            className="h-9 w-9 lg:hidden"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+
+          {/* Logo - Desktop */}
+          <div className="hidden lg:flex items-center gap-2">
+            <img src={logo} alt="MindVerse" className="h-8" />
+          </div>
+
+          <div className="flex flex-1 items-center gap-2 sm:gap-4 min-w-0">
             <div className="relative w-full max-w-md">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Search clients, invoices, providers... (⌘K)"
-                className="pl-9 h-9 bg-background cursor-text"
+                placeholder="Search... (⌘K)"
+                className="pl-9 h-9 bg-background cursor-text text-sm sm:text-base"
                 onClick={() => setOpen(true)}
                 onKeyDown={(e) => {
                   if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -144,17 +164,17 @@ export const Header = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <RoleSwitcher />
             
             {/* Portal Support Dropdown - Only for Partner and Customer */}
             {(isPartner || isCustomer) && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="gap-2 h-9">
+                  <Button variant="ghost" size="sm" className="gap-1 sm:gap-2 h-9 px-2 sm:px-3">
                     <Phone className="h-4 w-4" />
-                    <span className="hidden sm:inline">Portal Support</span>
-                    <ChevronDown className="h-3 w-3 opacity-50" />
+                    <span className="hidden md:inline">Portal Support</span>
+                    <ChevronDown className="h-3 w-3 opacity-50 hidden sm:inline" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-64">
@@ -189,14 +209,14 @@ export const Header = () => {
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative h-8 w-8">
+                <Button variant="ghost" size="icon" className="relative h-9 w-9">
                   <Bell className="h-4 w-4" />
                   {unreadCount > 0 && (
                     <span className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-destructive" />
                   )}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-80">
+              <DropdownMenuContent align="end" className="w-80 max-w-[calc(100vw-2rem)]">
                 <DropdownMenuLabel className="flex items-center justify-between">
                   Notifications
                   {unreadCount > 0 && (
@@ -251,11 +271,11 @@ export const Header = () => {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Button variant="ghost" size="icon" className="h-9 w-9">
                   <User className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-popover">
+              <DropdownMenuContent align="end" className="w-56 bg-popover max-w-[calc(100vw-2rem)]">
                 <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate("/settings")}>

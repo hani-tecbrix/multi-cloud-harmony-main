@@ -220,8 +220,9 @@ const Dashboard = () => {
       <div className="grid gap-4 md:grid-cols-2">
         {/* Spend Over Time Line Chart */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-3">
-            <div>
+          <CardHeader className="flex flex-row items-center justify-between pb-3 relative">
+            <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 rounded-l" />
+            <div className="pl-4">
               <CardTitle className="text-base font-medium">Spend Over Time</CardTitle>
               <p className="text-xs text-muted-foreground mt-1">Last 6 months by cloud provider</p>
             </div>
@@ -290,9 +291,12 @@ const Dashboard = () => {
 
         {/* Spend by Provider Pie Chart */}
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base font-medium">Spend by Provider</CardTitle>
-            <p className="text-xs text-muted-foreground mt-1">Current month breakdown</p>
+          <CardHeader className="pb-3 relative">
+            <div className="absolute left-0 top-0 bottom-0 w-1 bg-purple-500 rounded-l" />
+            <div className="pl-4">
+              <CardTitle className="text-base font-medium">Spend by Provider</CardTitle>
+              <p className="text-xs text-muted-foreground mt-1">Current month breakdown</p>
+            </div>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -343,8 +347,9 @@ const Dashboard = () => {
       </div>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-3">
-          <div>
+        <CardHeader className="flex flex-row items-center justify-between pb-3 relative">
+          <div className="absolute left-0 top-0 bottom-0 w-1 bg-orange-500 rounded-l" />
+          <div className="pl-4">
             <CardTitle className="text-base font-medium">Unpaid Invoices</CardTitle>
             <p className="text-xs text-muted-foreground mt-1">
               {unpaidInvoices.length} unpaid invoices • ${unpaidInvoices.reduce((sum, inv) => sum + inv.amount, 0).toLocaleString()} total outstanding
