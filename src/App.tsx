@@ -18,6 +18,7 @@ import Help from "./pages/Help";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import UnderConstruction from "./pages/UnderConstruction";
+import Users from "./pages/Users";
 import { AppLayout } from "./components/AppLayout";
 import { CartProvider } from "./contexts/CartContext";
 import { UserRoleProvider } from "./contexts/UserRoleContext";
@@ -48,23 +49,23 @@ const App = () => (
             <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
             
             {/* Admin Role-Specific Routes */}
-            <Route path="/admin/users" element={<AppLayout><UnderConstruction /></AppLayout>} />
+            <Route path="/admin/users" element={<AppLayout><Users /></AppLayout>} />
             <Route path="/admin/reports" element={<AppLayout><Reports /></AppLayout>} />
-            <Route path="/admin/help" element={<AppLayout><UnderConstruction /></AppLayout>} />
-            <Route path="/admin/settings" element={<AppLayout><UnderConstruction /></AppLayout>} />
+            <Route path="/admin/help" element={<AppLayout><Help /></AppLayout>} />
+            <Route path="/admin/settings" element={<AppLayout><Settings /></AppLayout>} />
             
             {/* Partner Role-Specific Routes */}
             <Route path="/partner/reports" element={<AppLayout><Reports /></AppLayout>} />
-            <Route path="/partner/help" element={<AppLayout><UnderConstruction /></AppLayout>} />
-            <Route path="/partner/settings" element={<AppLayout><UnderConstruction /></AppLayout>} />
+            <Route path="/partner/help" element={<AppLayout><Help /></AppLayout>} />
+            <Route path="/partner/settings" element={<AppLayout><Settings /></AppLayout>} />
             
             {/* Customer Role-Specific Routes */}
             <Route path="/customer/packkages" element={<AppLayout><UnderConstruction /></AppLayout>} />
             <Route path="/customer/packages" element={<AppLayout><UnderConstruction /></AppLayout>} />
             <Route path="/customer/usage" element={<AppLayout><UnderConstruction /></AppLayout>} />
             <Route path="/customer/billing" element={<AppLayout><UnderConstruction /></AppLayout>} />
-            <Route path="/customer/help" element={<AppLayout><UnderConstruction /></AppLayout>} />
-            <Route path="/customer/settings" element={<AppLayout><UnderConstruction /></AppLayout>} />
+            <Route path="/customer/help" element={<AppLayout><Help /></AppLayout>} />
+            <Route path="/customer/settings" element={<AppLayout><Settings /></AppLayout>} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>

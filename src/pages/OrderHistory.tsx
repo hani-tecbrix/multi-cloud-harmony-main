@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SectionCard } from "@/components/SectionCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -15,7 +16,8 @@ import {
   CheckCircle,
   Clock,
   XCircle,
-  ArrowLeft
+  ArrowLeft,
+  ShoppingBag
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -263,11 +265,10 @@ const OrderHistory = () => {
       </Card>
 
       {/* Orders Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Orders ({filteredOrders.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <SectionCard
+        title={`Orders (${filteredOrders.length})`}
+        icon={ShoppingBag}
+      >
           {filteredOrders.length === 0 ? (
             <div className="text-center py-8">
               <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
@@ -327,8 +328,7 @@ const OrderHistory = () => {
               </TableBody>
             </Table>
           )}
-        </CardContent>
-      </Card>
+      </SectionCard>
     </div>
   );
 };

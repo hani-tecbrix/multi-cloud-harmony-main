@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { SectionCard } from "@/components/SectionCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -992,11 +993,10 @@ const Reports = () => {
 
               {/* Chart Preview */}
               {(visualizationType === "chart" || visualizationType === "both") && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Visualization</CardTitle>
-                  </CardHeader>
-                  <CardContent>
+                <SectionCard
+                  title="Visualization"
+                  icon={BarChart3}
+                >
                     <ResponsiveContainer width="100%" height={300}>
                       {chartType === "bar" ? (
                         <BarChart data={reportData.chartData}>
@@ -1035,19 +1035,15 @@ const Reports = () => {
                         </RechartsPieChart>
                       )}
                     </ResponsiveContainer>
-                  </CardContent>
-                </Card>
+                </SectionCard>
               )}
 
               {/* Table Preview */}
               {(visualizationType === "table" || visualizationType === "both") && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>
-                      {selectedTemplate === "consumption-report" ? "Consumption Details" : "Data Table"}
-                    </CardTitle>
-            </CardHeader>
-            <CardContent>
+                <SectionCard
+                  title={selectedTemplate === "consumption-report" ? "Consumption Details" : "Data Table"}
+                  icon={FileText}
+                >
                     <div className="overflow-x-auto">
                       <Table>
                         <TableHeader>
@@ -1106,8 +1102,7 @@ const Reports = () => {
                         </TableBody>
                       </Table>
                     </div>
-                  </CardContent>
-                </Card>
+                </SectionCard>
               )}
             </div>
           )}

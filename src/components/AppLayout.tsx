@@ -1,6 +1,7 @@
 import { RoleBasedNavigationRail } from "./RoleBasedNavigationRail";
 import { Header } from "./Header";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -11,7 +12,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   return (
-    <div className="min-h-screen w-full flex bg-muted">
+    <div className="min-h-screen w-full flex flex-col bg-gray-100">
       {/* Mobile Overlay */}
       {isMobileMenuOpen && (
         <div 
@@ -20,15 +21,33 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         />
       )}
       
-      <RoleBasedNavigationRail 
-        onToggleExpand={setIsNavExpanded} 
-        isMobileOpen={isMobileMenuOpen}
-        onMobileClose={() => setIsMobileMenuOpen(false)}
+      {/* Header - Full Width at Top */}
+      <Header 
+        onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        onToggleAside={() => setIsNavExpanded(!isNavExpanded)}
+        isAsideExpanded={isNavExpanded}
       />
-      <div className={`flex-1 transition-all duration-300 w-full ${isNavExpanded ? 'lg:ml-64' : 'lg:ml-20'}`}>
-        <Header onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
-        <main className="p-4 lg:p-6 mx-auto max-w-7xl">
-          {children}
+      
+      {/* Main Layout: Aside + Main Content */}
+      <div className="flex flex-1 w-full overflow-hidden">
+        {/* Aside Navigation */}
+        <RoleBasedNavigationRail 
+          onToggleExpand={setIsNavExpanded} 
+          isMobileOpen={isMobileMenuOpen}
+          onMobileClose={() => setIsMobileMenuOpen(false)}
+          isExpanded={isNavExpanded}
+        />
+        
+        {/* Main Content Area */}
+        <main 
+          className={cn(
+            "flex-1 transition-all duration-300 overflow-y-auto",
+            isNavExpanded ? "lg:ml-64" : "lg:ml-20"
+          )}
+        >
+          <div className="p-4 lg:p-6 mx-auto max-w-8xl">
+            {children}
+          </div>
         </main>
       </div>
     </div>

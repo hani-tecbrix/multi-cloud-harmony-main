@@ -78,9 +78,15 @@ const mockNotifications = [
 
 interface HeaderProps {
   onMenuClick?: () => void;
+  onToggleAside?: () => void;
+  isAsideExpanded?: boolean;
 }
 
-export const Header = ({ onMenuClick }: HeaderProps = {} as HeaderProps) => {
+export const Header = ({ 
+  onMenuClick, 
+  onToggleAside, 
+  isAsideExpanded = true 
+}: HeaderProps = {} as HeaderProps) => {
   const navigate = useNavigate();
   const { user, isPartner, isCustomer } = useUserRole();
   const [open, setOpen] = useState(false);
@@ -132,19 +138,36 @@ export const Header = ({ onMenuClick }: HeaderProps = {} as HeaderProps) => {
     <>
       <header className="sticky top-0 z-40 w-full border-b border-border bg-card backdrop-blur supports-[backdrop-filter]:bg-card/95">
         <div className="flex h-14 items-center gap-2 sm:gap-4 px-2 sm:px-4">
+          {/* Hamburger Menu Toggle - Before Logo (Desktop & Mobile) */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onToggleAside}
+            className="h-9 w-9 hover:bg-muted/50 hidden lg:flex"
+            aria-label="Toggle sidebar"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+          
           {/* Mobile Menu Button */}
           <Button
             variant="ghost"
             size="icon"
             onClick={onMenuClick}
             className="h-9 w-9 lg:hidden"
+            aria-label="Open menu"
           >
             <Menu className="h-5 w-5" />
           </Button>
 
           {/* Logo - Desktop */}
           <div className="hidden lg:flex items-center gap-2">
-            <img src={logo} alt="MindVerse" className="h-8" />
+            <img src={logo} alt="MindVerse" className="h-9" />
+          </div>
+          
+          {/* Logo - Mobile */}
+          <div className="flex items-center gap-2 lg:hidden">
+            <img src={logo} alt="MindVerse" className="h-7" />
           </div>
 
           <div className="flex flex-1 items-center gap-2 sm:gap-4 min-w-0">

@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MetricCard } from "@/components/MetricCard";
+import { SectionCard } from "@/components/SectionCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Plus, Building2, ArrowLeft, DollarSign, Clock, CheckCircle, AlertCircle, Mail, User, Hash, Cloud, Loader2, X, Sparkles, ChevronLeft, ChevronRight, Globe, UserPlus, UserCheck } from "lucide-react";
+import { Search, Plus, Building2, ArrowLeft, DollarSign, Clock, CheckCircle, AlertCircle, Mail, User, Users, Hash, Cloud, Loader2, X, Sparkles, ChevronLeft, ChevronRight, Globe, UserPlus, UserCheck } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
@@ -562,71 +564,38 @@ const PartnerCustomers = () => {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Subscriptions</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{selectedCustomer.subscriptions}</div>
-              <p className="text-xs text-muted-foreground">
-                Across {selectedCustomer.subscriptionDetails.length} providers
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Monthly Spend</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">${(selectedCustomer.monthlySpend / 1000).toFixed(1)}K</div>
-              <p className="text-xs text-muted-foreground">
-                Current billing cycle
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Payment Status</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                {selectedCustomer.billingInfo.paymentStatus === 'paid' ? (
-                  <>
-                    <CheckCircle className="h-4 w-4 text-success" />
-                    <span className="text-sm font-semibold text-success">Paid</span>
-                  </>
-                ) : (
-                  <>
-                    <AlertCircle className="h-4 w-4 text-warning" />
-                    <span className="text-sm font-semibold text-warning">Pending</span>
-                  </>
-                )}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Last payment: {selectedCustomer.billingInfo.lastPaymentDate}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Outstanding</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className={`text-2xl font-bold ${selectedCustomer.billingInfo.outstandingBalance > 0 ? 'text-destructive' : 'text-success'}`}>
-                ${selectedCustomer.billingInfo.outstandingBalance.toLocaleString()}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {selectedCustomer.billingInfo.overdue ? 'Overdue' : 'Up to date'}
-              </p>
-            </CardContent>
-          </Card>
+          <MetricCard
+            title="Active Subscriptions"
+            value={selectedCustomer.subscriptions.toString()}
+            change={`Across ${selectedCustomer.subscriptionDetails.length} providers`}
+            changeType="neutral"
+            icon={DollarSign}
+            borderColor="#10B981"
+          />
+          <MetricCard
+            title="Monthly Spend"
+            value={`$${(selectedCustomer.monthlySpend / 1000).toFixed(1)}K`}
+            change="Current billing cycle"
+            changeType="neutral"
+            icon={DollarSign}
+            borderColor="#3B82F6"
+          />
+          <MetricCard
+            title="Payment Status"
+            value={selectedCustomer.billingInfo.paymentStatus === 'paid' ? 'Paid' : 'Pending'}
+            change={`Last payment: ${selectedCustomer.billingInfo.lastPaymentDate}`}
+            changeType={selectedCustomer.billingInfo.paymentStatus === 'paid' ? 'positive' : 'neutral'}
+            icon={Clock}
+            borderColor="#8B5CF6"
+          />
+          <MetricCard
+            title="Outstanding"
+            value={`$${selectedCustomer.billingInfo.outstandingBalance.toLocaleString()}`}
+            change={selectedCustomer.billingInfo.outstandingBalance > 0 ? 'Balance due' : 'All paid'}
+            changeType={selectedCustomer.billingInfo.outstandingBalance > 0 ? 'negative' : 'positive'}
+            icon={DollarSign}
+            borderColor="#F59E0B"
+          />
         </div>
 
         <Card>
@@ -984,8 +953,15 @@ const PartnerCustomers = () => {
         </Sheet>
       </div>
 
-      <Card>
-        <CardHeader className="pb-3">
+      <SectionCard
+        title={`Customers (${filteredCustomers.length})`}
+        icon={Users}
+        badge={
+          <Badge variant="secondary">{filteredCustomers.length} {filteredCustomers.length !== 1 ? 'customers' : 'customer'}</Badge>
+        }
+      >
+        <div className="space-y-4">
+          {/* Search Input */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -995,8 +971,8 @@ const PartnerCustomers = () => {
               className="pl-9 h-9"
             />
           </div>
-        </CardHeader>
-        <CardContent>
+
+          {/* Table */}
           <Table>
             <TableHeader>
               <TableRow>
@@ -1071,10 +1047,8 @@ const PartnerCustomers = () => {
               ))}
             </TableBody>
           </Table>
-        </CardContent>
-        
-        {/* Pagination Controls */}
-        <CardContent className="pt-0">
+
+          {/* Pagination Controls */}
           <div className="flex items-center justify-between border-t pt-4">
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">Show</span>
@@ -1146,8 +1120,8 @@ const PartnerCustomers = () => {
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </SectionCard>
     </div>
   );
 };

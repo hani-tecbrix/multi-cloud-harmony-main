@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SectionCard } from "@/components/SectionCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -446,17 +447,16 @@ const PartnerTransactions = () => {
       </Card>
 
       {/* Transactions Table */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Transactions ({filteredTransactions.length})</CardTitle>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Receipt className="h-4 w-4" />
-              <span>Total: ${filteredTransactions.reduce((sum, t) => sum + t.total, 0).toLocaleString()}</span>
-            </div>
+      <SectionCard
+        title={`Transactions (${filteredTransactions.length})`}
+        icon={Receipt}
+        badge={
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Receipt className="h-4 w-4" />
+            <span>Total: ${filteredTransactions.reduce((sum, t) => sum + t.total, 0).toLocaleString()}</span>
           </div>
-        </CardHeader>
-        <CardContent>
+        }
+      >
           {filteredTransactions.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <Receipt className="h-12 w-12 mx-auto mb-3 opacity-50" />
@@ -529,8 +529,7 @@ const PartnerTransactions = () => {
               </Table>
             </div>
           )}
-        </CardContent>
-      </Card>
+      </SectionCard>
     </div>
   );
 };

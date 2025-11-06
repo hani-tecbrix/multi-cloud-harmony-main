@@ -192,12 +192,12 @@ const Dashboard = () => {
           borderColor="#10B981"
         />
         <MetricCard
-          title="Cloud Spending"
-          value="$89,420"
-          change="+8.2% from last month"
+          title="Subscriptions"
+          value="1,429"
+          change="+156 this month"
           changeType="positive"
-          icon={TrendingUp}
-          borderColor="#3B82F6"
+          icon={Package}
+          borderColor="#F59E0B"
         />
         <MetricCard
           title="Active Clients"
@@ -208,12 +208,12 @@ const Dashboard = () => {
           borderColor="#8B5CF6"
         />
         <MetricCard
-          title="Subscriptions"
-          value="1,429"
-          change="+156 this month"
-          changeType="positive"
-          icon={Package}
-          borderColor="#F59E0B"
+          title="Outstanding Balance"
+          value="$12,345"
+          change="2 past due invoices"
+          changeType="negative"
+          icon={DollarSign}
+          borderColor="#f63b58" 
         />
       </div>
 
@@ -221,7 +221,7 @@ const Dashboard = () => {
         {/* Spend Over Time Line Chart */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-3 relative">
-            <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 rounded-l" />
+            <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-l" />
             <div className="pl-4">
               <CardTitle className="text-base font-medium">Spend Over Time</CardTitle>
               <p className="text-xs text-muted-foreground mt-1">Last 6 months by cloud provider</p>
@@ -292,7 +292,7 @@ const Dashboard = () => {
         {/* Spend by Provider Pie Chart */}
         <Card>
           <CardHeader className="pb-3 relative">
-            <div className="absolute left-0 top-0 bottom-0 w-1 bg-purple-500 rounded-l" />
+            <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-l" />
             <div className="pl-4">
               <CardTitle className="text-base font-medium">Spend by Provider</CardTitle>
               <p className="text-xs text-muted-foreground mt-1">Current month breakdown</p>
@@ -348,7 +348,7 @@ const Dashboard = () => {
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-3 relative">
-          <div className="absolute left-0 top-0 bottom-0 w-1 bg-orange-500 rounded-l" />
+          <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-l" />
           <div className="pl-4">
             <CardTitle className="text-base font-medium">Unpaid Invoices</CardTitle>
             <p className="text-xs text-muted-foreground mt-1">

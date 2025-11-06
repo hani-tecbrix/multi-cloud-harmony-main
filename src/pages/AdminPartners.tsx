@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MetricCard } from "@/components/MetricCard";
+import { SectionCard } from "@/components/SectionCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Building2, ArrowLeft, Users, ShoppingBag, DollarSign, TrendingUp, Calendar, CheckCircle, Clock, Mail, Phone, MapPin, Eye, Filter, Download, Shield, Cloud, Package, CreditCard, UserPlus, Upload, FileText, Sparkles, X, Wrench } from "lucide-react";
+import { Search, Building2, ArrowLeft, Users, ShoppingBag, DollarSign, TrendingUp, Calendar, CheckCircle, Clock, Mail, Phone, MapPin, Eye, Filter, Download, Shield, Cloud, Package, CreditCard, UserPlus, Upload, FileText, Sparkles, X, Wrench, Briefcase } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -394,18 +396,6 @@ const AdminPartners = () => {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Monthly Revenue</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">${(selectedPartner.monthlyRevenue / 1000).toFixed(1)}K</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Commission: ${(selectedPartner.monthlyRevenue * selectedPartner.commission / 100).toFixed(0)}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Total Revenue</CardTitle>
             </CardHeader>
             <CardContent>
@@ -423,15 +413,26 @@ const AdminPartners = () => {
               <p className="text-xs text-muted-foreground mt-1">Last 7 days</p>
             </CardContent>
           </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Outstanding Balance</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">${(selectedPartner.outstandingBalance / 1000).toFixed(1)}K</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Past due invoices: {selectedPartner.pastDueInvoices}
+              </p>
+            </CardContent>
+          </Card>
+
         </div>
 
         {/* Contact Information - Business and Finance */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Contact Information</CardTitle>
-            <p className="text-sm text-muted-foreground">Contact details for business, finance, and technical operations</p>
-          </CardHeader>
-          <CardContent>
+        <SectionCard
+          title="Contact Information"
+          description="Contact details for business, finance, and technical operations"
+          icon={Mail}
+        >
             <Tabs defaultValue="business" className="w-full">
               <TabsList className="grid w-full max-w-md grid-cols-3">
                 <TabsTrigger value="business">Business</TabsTrigger>
@@ -562,8 +563,7 @@ const AdminPartners = () => {
                 </div>
               </TabsContent>
             </Tabs>
-          </CardContent>
-        </Card>
+        </SectionCard>
 
         {/* Tabs for Customers and Orders */}
         <Tabs defaultValue="customers" className="w-full">
@@ -579,27 +579,22 @@ const AdminPartners = () => {
           </TabsList>
 
           <TabsContent value="customers" className="mt-4">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-base">Partner's Customers</CardTitle>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Business metrics only - Customer PII managed by partner per privacy agreement
-                    </p>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsAddSheetOpen(true)}
-                    className="gap-2"
-                  >
-                    <UserPlus className="h-4 w-4" />
-                    Add New Customer
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
+            <SectionCard
+              title="Partner's Customers"
+              description="Business metrics only - Customer PII managed by partner per privacy agreement"
+              icon={Users}
+              action={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsAddSheetOpen(true)}
+                  className="gap-2"
+                >
+                  <UserPlus className="h-4 w-4" />
+                  Add New Customer
+                </Button>
+              }
+            >
                 {/* Search and Filters */}
                 <div className="mb-4">
                   <div className="relative">
@@ -688,27 +683,21 @@ const AdminPartners = () => {
                     </Table>
                   </>
                 )}
-              </CardContent>
-            </Card>
+            </SectionCard>
           </TabsContent>
 
           <TabsContent value="orders" className="mt-4">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-base">Order History</CardTitle>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Financial and business metrics only - Customer details managed by partner
-                    </p>
-                  </div>
-                  <Badge variant="outline" className="flex items-center gap-1">
-                    <Shield className="h-3 w-3" />
-                    Privacy Compliant
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
+            <SectionCard
+              title="Orders"
+              description="Financial and business metrics only - Customer details managed by partner"
+              icon={ShoppingBag}
+              badge={
+                <Badge variant="outline" className="flex items-center gap-1">
+                  <Shield className="h-3 w-3" />
+                  Privacy Compliant
+                </Badge>
+              }
+            >
                 {/* Search and Filters */}
                 <div className="mb-4 space-y-3">
                   <div className="flex gap-3">
@@ -824,8 +813,7 @@ const AdminPartners = () => {
                     </Table>
                   </>
                 )}
-              </CardContent>
-            </Card>
+            </SectionCard>
           </TabsContent>
         </Tabs>
 
@@ -1081,59 +1069,50 @@ const AdminPartners = () => {
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Partners</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{partnersData.length}</div>
-            <p className="text-xs text-success mt-1">
-              <TrendingUp className="h-3 w-3 inline mr-1" />
-              {partnersData.filter(p => p.status === 'active').length} active
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Customers</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {partnersData.reduce((sum, p) => sum + p.customersCount, 0)}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Across all partners</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Monthly Revenue</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              ${(partnersData.reduce((sum, p) => sum + p.monthlyRevenue, 0) / 1000).toFixed(0)}K
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Combined MRR</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Revenue</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              ${(partnersData.reduce((sum, p) => sum + p.totalRevenue, 0) / 1000).toFixed(0)}K
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Lifetime value</p>
-          </CardContent>
-        </Card>
+        <MetricCard
+          title="Total Partners"
+          value={partnersData.length.toString()}
+          change={`${partnersData.filter(p => p.status === 'active').length} active`}
+          changeType="positive"
+          icon={Briefcase}
+          borderColor="#10B981"
+        />
+        <MetricCard
+          title="Total Customers"
+          value={partnersData.reduce((sum, p) => sum + p.customersCount, 0).toString()}
+          change="Across all partners"
+          changeType="neutral"
+          icon={Users}
+          borderColor="#3B82F6"
+        />
+        <MetricCard
+          title="Monthly Revenue"
+          value={`$${(partnersData.reduce((sum, p) => sum + p.monthlyRevenue, 0) / 1000).toFixed(0)}K`}
+          change="Combined MRR"
+          changeType="neutral"
+          icon={DollarSign}
+          borderColor="#8B5CF6"
+        />
+        <MetricCard
+          title="Total Revenue"
+          value={`$${(partnersData.reduce((sum, p) => sum + p.totalRevenue, 0) / 1000).toFixed(0)}K`}
+          change="Lifetime value"
+          changeType="neutral"
+          icon={TrendingUp}
+          borderColor="#F59E0B"
+        />
       </div>
 
       {/* Filters and Search */}
-      <Card>
-        <CardHeader className="pb-3">
+      <SectionCard
+        title={`Partners (${filteredPartners.length})`}
+        icon={Briefcase}
+        badge={
+          <Badge variant="secondary">{filteredPartners.length} {filteredPartners.length !== 1 ? 'partners' : 'partner'}</Badge>
+        }
+      >
+        <div className="space-y-4">
+          {/* Search and Filters */}
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -1170,8 +1149,8 @@ const AdminPartners = () => {
               </Select>
             </div>
           </div>
-        </CardHeader>
-        <CardContent>
+
+          {/* Table */}
           <Table>
             <TableHeader>
               <TableRow>
@@ -1238,24 +1217,8 @@ const AdminPartners = () => {
               ))}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
-
-      {/* Privacy Notice */}
-      <Card className="border-muted-foreground/20">
-        <CardContent className="pt-4">
-          <div className="flex items-start gap-3 text-sm text-muted-foreground">
-            <Shield className="h-4 w-4 mt-0.5 text-primary" />
-            <div>
-              <p className="font-medium text-foreground">Privacy & Compliance</p>
-              <p className="mt-1">
-                This view shows business relationship data only. Individual customer PII is managed by partners under their data processing agreements. 
-                All data displayed complies with GDPR, CCPA, and SOC 2 requirements.
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+      </SectionCard>
 
       {/* Add Partner Sheet */}
       <Sheet open={isAddPartnerSheetOpen} onOpenChange={setIsAddPartnerSheetOpen}>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SectionCard } from "@/components/SectionCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Eye, Cloud, Database, ArrowLeft, ShoppingCart, Check, Star, Shield, Zap, Users, Clock, ChevronRight, Trash2, CreditCard, MapPin, Mail, Phone, Building2, Loader2, Globe, UserPlus, UserCheck, Search, Filter, ChevronLeft, ChevronRight as ChevronRightIcon } from "lucide-react";
@@ -2523,32 +2524,19 @@ const Marketplace = () => {
 
       {/* Cloud Providers Section */}
       {displayCloudProviders.length > 0 && (
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-4">
-            <div>
-              <CardTitle className="text-base font-medium flex items-center gap-2">
-                <Cloud className="h-5 w-5 text-primary" />
-                Cloud Providers
-              </CardTitle>
-              <p className="text-xs text-muted-foreground mt-1">
-                Infrastructure and platform services
-              </p>
-            </div>
-            <Badge variant="secondary">{displayCloudProviders.length} Providers</Badge>
-          </CardHeader>
-          <CardContent>
-            <div 
-              className="grid gap-4 justify-items-center"
-              style={{
-                gridTemplateColumns: 'repeat(auto-fill, minmax(256px, 360px))',
-                justifyContent: 'center'
-              }}
+        <SectionCard
+          title="Cloud Providers"
+          description="Infrastructure and platform services"
+          icon={Cloud}
+          badge={<Badge variant="secondary">{displayCloudProviders.length} Providers</Badge>}
+        >
+          <div 
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 justify-items-center"
             >
               {paginatedCloudProviders.map((provider) => (
                 <Card 
                   key={provider.id} 
-                  className="hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden group relative border w-full"
-                  style={{ maxWidth: '360px', minWidth: '256px' }}
+                  className="hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden group relative border w-full max-w-full"
                   onClick={() => handleViewDetails(provider)}
                 >
                   <CardContent className="p-5">
@@ -2696,38 +2684,24 @@ const Marketplace = () => {
                 </div>
               </div>
             )}
-          </CardContent>
-        </Card>
+        </SectionCard>
       )}
 
       {/* SaaS Providers Section */}
       {displaySaasProviders.length > 0 && (
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-4">
-            <div>
-              <CardTitle className="text-base font-medium flex items-center gap-2">
-                <Database className="h-5 w-5 text-primary" />
-                SaaS Applications
-              </CardTitle>
-              <p className="text-xs text-muted-foreground mt-1">
-                Software as a service subscriptions
-              </p>
-            </div>
-            <Badge variant="secondary">{displaySaasProviders.length} Applications</Badge>
-          </CardHeader>
-          <CardContent>
+        <SectionCard
+          title="SaaS Applications"
+          description="Software as a service subscriptions"
+          icon={Database}
+          badge={<Badge variant="secondary">{displaySaasProviders.length} Applications</Badge>}
+        >
             <div 
-              className="grid gap-4 justify-items-center"
-              style={{
-                gridTemplateColumns: 'repeat(auto-fill, minmax(256px, 360px))',
-                justifyContent: 'center'
-              }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 justify-items-center"
             >
               {paginatedSaasProviders.map((provider) => (
                 <Card 
                   key={provider.id} 
-                  className="hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden group relative border w-full"
-                  style={{ maxWidth: '360px', minWidth: '256px' }}
+                  className="hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden group relative border w-full max-w-full"
                   onClick={() => handleViewDetails(provider)}
                 >
                   <CardContent className="p-5">
@@ -2875,8 +2849,7 @@ const Marketplace = () => {
                 </div>
               </div>
             )}
-          </CardContent>
-        </Card>
+        </SectionCard>
       )}
 
       {/* Empty State */}
