@@ -10,7 +10,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useState } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useState, useMemo } from "react";
 import { toast } from "sonner";
 
 // Import vendor icons for chart legends
@@ -20,25 +21,27 @@ import googleCloudIcon from "@/assets/vendors-icons/google-cloud.png";
 import oracleIcon from "@/assets/vendors-icons/oracle.png";
 
 const spendingData = [
-  { name: "Jan", AWS: 13000, Azure: 7500, GCP: 3000, Budget: 26000 },
-  { name: "Feb", AWS: 13500, Azure: 8000, GCP: 3200, Budget: 26000 },
-  { name: "Mar", AWS: 14100, Azure: 9200, GCP: 3800, Budget: 26000 },
-  { name: "Apr", AWS: 13800, Azure: 8800, GCP: 3500, Budget: 26000 },
-  { name: "May", AWS: 14200, Azure: 9500, GCP: 4000, Budget: 26000 },
-  { name: "Jun", AWS: 14500, Azure: 9800, GCP: 4200, Budget: 26000 },
+  { name: "Jan", AWS: 13000, Azure: 7500, GCP: 3000, Oracle: 2500, Budget: 26000 },
+  { name: "Feb", AWS: 13500, Azure: 8000, GCP: 3200, Oracle: 2800, Budget: 26000 },
+  { name: "Mar", AWS: 14100, Azure: 9200, GCP: 3800, Oracle: 3000, Budget: 26000 },
+  { name: "Apr", AWS: 13800, Azure: 8800, GCP: 3500, Oracle: 2700, Budget: 26000 },
+  { name: "May", AWS: 14200, Azure: 9500, GCP: 4000, Oracle: 3100, Budget: 26000 },
+  { name: "Jun", AWS: 14500, Azure: 9800, GCP: 4200, Oracle: 3300, Budget: 26000 },
 ];
 
 const pieData = [
-  { name: "AWS", value: 48 },
-  { name: "Azure", value: 32 },
-  { name: "GCP", value: 14 },
-  { name: "SaaS", value: 7 },
+  { name: "AWS", value: 42 },
+  { name: "Azure", value: 28 },
+  { name: "GCP", value: 12 },
+  { name: "Oracle", value: 10 },
+  { name: "SaaS", value: 8 },
 ];
 
 const COLORS = {
   AWS: "#F59E0B", // Amber
   Azure: "#06b6d4", // Cyan-500
   GCP: "#3B82F6", // Blue
+  Oracle: "#F80000", // Red
   SaaS: "#10B981", // Green
 };
 
@@ -50,26 +53,57 @@ const PROVIDER_ICONS: { [key: string]: string } = {
   Oracle: oracleIcon,
 };
 
-// Custom Legend Component with Icons
-const CustomLegend = ({ payload }: { payload?: Array<{ value: string; color: string }> }) => {
-  if (!payload) return null;
+// Custom Legend Component with Icons and Color Dots
+const CustomLegend = ({ payload }: { payload?: Array<{ value: string; color: string; dataKey?: string }> }) => {
+  // If no payload, show all providers anyway
+  const allProviders = ["AWS", "Azure", "GCP", "Oracle", "Budget"];
+  
+  if (!payload || payload.length === 0) {
+    // Fallback: show all providers
+    return (
+      <div className="flex items-center justify-center gap-4 pt-3 flex-wrap">
+        {allProviders.map((provider) => {
+          const iconSrc = PROVIDER_ICONS[provider];
+          const color = COLORS[provider as keyof typeof COLORS] || "#9CA3AF";
+          return (
+            <div key={provider} className="flex items-center gap-2">
+              <div 
+                className="w-3 h-3 rounded-full flex-shrink-0" 
+                style={{ backgroundColor: color }}
+              />
+              {iconSrc && (
+                <img 
+                  src={iconSrc} 
+                  alt={provider} 
+                  className="w-4 h-4 object-contain"
+                />
+              )}
+              <span className="text-xs text-muted-foreground">{provider}</span>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
   
   return (
     <div className="flex items-center justify-center gap-4 pt-3 flex-wrap">
       {payload.map((entry, index) => {
         const iconSrc = PROVIDER_ICONS[entry.value];
+        const color = COLORS[entry.value as keyof typeof COLORS] || entry.color;
         return (
           <div key={index} className="flex items-center gap-2">
-            {iconSrc ? (
+            {/* Always show color dot */}
+            <div 
+              className="w-3 h-3 rounded-full flex-shrink-0" 
+              style={{ backgroundColor: color }}
+            />
+            {/* Show icon if available */}
+            {iconSrc && (
               <img 
                 src={iconSrc} 
                 alt={entry.value} 
                 className="w-4 h-4 object-contain"
-              />
-            ) : (
-              <div 
-                className="w-3 h-3 rounded-full" 
-                style={{ backgroundColor: entry.color }}
               />
             )}
             <span className="text-xs text-muted-foreground">{entry.value}</span>
@@ -88,6 +122,8 @@ const unpaidInvoices = [
   { id: "INV-011", client: "Startup Labs", amount: 8900, date: "2025-01-02", status: "overdue", daysOverdue: 11 },
 ];
 
+const cloudProviders = ["AWS", "Azure", "GCP", "Oracle"] as const;
+
 const Dashboard = () => {
   const [dateRange, setDateRange] = useState("thisyear");
   const [reminderDialogOpen, setReminderDialogOpen] = useState(false);
@@ -96,11 +132,51 @@ const Dashboard = () => {
   const [reminderType, setReminderType] = useState<"now" | "schedule">("now");
   const [scheduledDate, setScheduledDate] = useState("");
   const [scheduledTime, setScheduledTime] = useState("");
+  const [lineChartFilters, setLineChartFilters] = useState<Set<string>>(new Set(cloudProviders));
+  const [pieChartFilters, setPieChartFilters] = useState<Set<string>>(new Set(["AWS", "Azure", "GCP", "Oracle", "SaaS"]));
 
   const handleDateRangeChange = (value: string) => {
     setDateRange(value);
     // Handle date range logic here
   };
+
+  const toggleLineChartFilter = (provider: string) => {
+    const newFilters = new Set(lineChartFilters);
+    if (newFilters.has(provider)) {
+      newFilters.delete(provider);
+    } else {
+      newFilters.add(provider);
+    }
+    setLineChartFilters(newFilters);
+  };
+
+  const togglePieChartFilter = (provider: string) => {
+    const newFilters = new Set(pieChartFilters);
+    if (newFilters.has(provider)) {
+      newFilters.delete(provider);
+    } else {
+      newFilters.add(provider);
+    }
+    setPieChartFilters(newFilters);
+  };
+
+  // Filter spending data for line chart
+  const filteredSpendingData = useMemo(() => {
+    return spendingData.map(month => {
+      const filtered: any = { name: month.name, Budget: month.Budget };
+      cloudProviders.forEach(provider => {
+        if (lineChartFilters.has(provider)) {
+          filtered[provider] = month[provider];
+        }
+      });
+      return filtered;
+    });
+  }, [lineChartFilters]);
+
+  // Filter pie data
+  const filteredPieData = useMemo(() => {
+    return pieData.filter(entry => pieChartFilters.has(entry.name));
+  }, [pieChartFilters]);
 
   const handleSendReminder = (invoice: typeof unpaidInvoices[0]) => {
     setSelectedInvoice(invoice);
@@ -222,25 +298,46 @@ const Dashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-3 relative">
             <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-l" />
-            <div className="pl-4">
+            <div className="pl-4 flex-1">
               <CardTitle className="text-base font-medium">Spend Over Time</CardTitle>
               <p className="text-xs text-muted-foreground mt-1">Last 6 months by cloud provider</p>
             </div>
-            <Select defaultValue="all">
-              <SelectTrigger className="w-[90px] h-8">
-                <SelectValue placeholder="All..." />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All...</SelectItem>
-                <SelectItem value="aws">AWS</SelectItem>
-                <SelectItem value="azure">Azure</SelectItem>
-                <SelectItem value="gcp">GCP</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex items-center gap-2">
+              {cloudProviders.map((provider) => {
+                const iconSrc = PROVIDER_ICONS[provider];
+                const color = COLORS[provider];
+                return (
+                  <label
+                    key={provider}
+                    className="flex items-center gap-1.5 cursor-pointer group"
+                  >
+                    <Checkbox
+                      checked={lineChartFilters.has(provider)}
+                      onCheckedChange={() => toggleLineChartFilter(provider)}
+                      className="h-3.5 w-3.5"
+                    />
+                    <div className="flex items-center gap-1">
+                      <div 
+                        className="w-2.5 h-2.5 rounded-full flex-shrink-0" 
+                        style={{ backgroundColor: color }}
+                      />
+                      {iconSrc && (
+                        <img 
+                          src={iconSrc} 
+                          alt={provider} 
+                          className="w-3 h-3 object-contain opacity-70 group-hover:opacity-100 transition-opacity"
+                        />
+                      )}
+                      <span className="text-xs text-muted-foreground">{provider}</span>
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={spendingData}>
+              <LineChart data={filteredSpendingData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} />
                 <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
@@ -254,35 +351,54 @@ const Dashboard = () => {
                 />
                 <Legend 
                   content={<CustomLegend />}
+                  wrapperStyle={{ paddingTop: '20px' }}
+                  iconType="line"
                 />
                 <Line 
                   type="monotone" 
                   dataKey="Budget" 
+                  name="Budget"
                   stroke="#9CA3AF" 
                   strokeDasharray="5 5"
                   strokeWidth={2}
                   dot={{ r: 4, fill: "#9CA3AF" }}
+                  hide={false}
                 />
                 <Line 
                   type="monotone" 
                   dataKey="AWS" 
+                  name="AWS"
                   stroke="#F59E0B" 
                   strokeWidth={2}
                   dot={{ r: 4, fill: "#F59E0B" }}
+                  hide={!lineChartFilters.has("AWS")}
                 />
                 <Line 
                   type="monotone" 
                   dataKey="Azure" 
+                  name="Azure"
                   stroke="#06b6d4" 
                   strokeWidth={2}
                   dot={{ r: 4, fill: "#06b6d4" }}
+                  hide={!lineChartFilters.has("Azure")}
                 />
                 <Line 
                   type="monotone" 
                   dataKey="GCP" 
+                  name="GCP"
                   stroke="#3B82F6" 
                   strokeWidth={2}
                   dot={{ r: 4, fill: "#3B82F6" }}
+                  hide={!lineChartFilters.has("GCP")}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="Oracle" 
+                  name="Oracle"
+                  stroke="#F80000" 
+                  strokeWidth={2}
+                  dot={{ r: 4, fill: "#F80000" }}
+                  hide={!lineChartFilters.has("Oracle")}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -291,18 +407,50 @@ const Dashboard = () => {
 
         {/* Spend by Provider Pie Chart */}
         <Card>
-          <CardHeader className="pb-3 relative">
+          <CardHeader className="flex flex-row items-center justify-between pb-3 relative">
             <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-l" />
-            <div className="pl-4">
+            <div className="pl-4 flex-1">
               <CardTitle className="text-base font-medium">Spend by Provider</CardTitle>
               <p className="text-xs text-muted-foreground mt-1">Current month breakdown</p>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              {pieData.map((entry) => {
+                const iconSrc = PROVIDER_ICONS[entry.name];
+                const color = COLORS[entry.name as keyof typeof COLORS];
+                return (
+                  <label
+                    key={entry.name}
+                    className="flex items-center gap-1.5 cursor-pointer group"
+                  >
+                    <Checkbox
+                      checked={pieChartFilters.has(entry.name)}
+                      onCheckedChange={() => togglePieChartFilter(entry.name)}
+                      className="h-3.5 w-3.5"
+                    />
+                    <div className="flex items-center gap-1">
+                      <div 
+                        className="w-2.5 h-2.5 rounded-full flex-shrink-0" 
+                        style={{ backgroundColor: color }}
+                      />
+                      {iconSrc && (
+                        <img 
+                          src={iconSrc} 
+                          alt={entry.name} 
+                          className="w-3 h-3 object-contain opacity-70 group-hover:opacity-100 transition-opacity"
+                        />
+                      )}
+                      <span className="text-xs text-muted-foreground">{entry.name}</span>
+                    </div>
+                  </label>
+                );
+              })}
             </div>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={pieData}
+                  data={filteredPieData}
                   cx="50%"
                   cy="50%"
                   innerRadius={60}
@@ -310,7 +458,7 @@ const Dashboard = () => {
                   paddingAngle={2}
                   dataKey="value"
                 >
-                  {pieData.map((entry, index) => (
+                  {filteredPieData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[entry.name as keyof typeof COLORS]} />
                   ))}
                 </Pie>
@@ -318,21 +466,21 @@ const Dashboard = () => {
               </PieChart>
             </ResponsiveContainer>
             <div className="mt-4 space-y-2">
-              {pieData.map((entry, index) => {
+              {filteredPieData.map((entry, index) => {
                 const iconSrc = PROVIDER_ICONS[entry.name];
+                const color = COLORS[entry.name as keyof typeof COLORS];
                 return (
                   <div key={index} className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
-                      {iconSrc ? (
+                      <div 
+                        className="w-3 h-3 rounded-full flex-shrink-0" 
+                        style={{ backgroundColor: color }}
+                      />
+                      {iconSrc && (
                         <img 
                           src={iconSrc} 
                           alt={entry.name} 
                           className="w-4 h-4 object-contain"
-                        />
-                      ) : (
-                        <div 
-                          className="w-3 h-3 rounded-full" 
-                          style={{ backgroundColor: COLORS[entry.name as keyof typeof COLORS] }}
                         />
                       )}
                       <span className="text-muted-foreground">{entry.name}</span>

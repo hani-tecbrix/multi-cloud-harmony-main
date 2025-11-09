@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Cloud Harmony - Unified Cloud & SaaS Management Platform</title>
+    <meta name="description" content="Simplify multi-cloud infrastructure and SaaS subscription management. Unified dashboard for AWS, Azure, GCP, and Oracle Cloud with intelligent tenant detection.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#25398E',
+                        'primary-dark': '#1e2d73',
+                        secondary: '#3AB0C8',
+                        'secondary-dark': '#2e9bb3',
+                        muted: '#f2f2f2',
+                        'muted-foreground': '#666666',
+                        border: '#e5e5e5',
+                        success: '#10B981',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.6s ease',
+                        'float': 'float 20s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(30px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translate(0, 0) rotate(0deg)' },
+                            '50%': { transform: 'translate(-30px, -30px) rotate(180deg)' },
+                        },
+                    },
+                },
+            },
+        }
+    </script>
+    
+    <style>
+        /* Minimal custom CSS for pseudo-elements and complex animations */
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(259deg, hsl(230, 60%, 35%) 0%, hsl(190, 60%, 50%) 100%);
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(58, 176, 200, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 20s ease-in-out infinite;
+        }
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, hsl(230, 60%, 35%) 0%, hsl(190, 60%, 50%) 100%);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+        .macbook-base::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 4px;
+            background: #2a2a2a;
+            border-radius: 0 0 4px 4px;
+        }
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+        .scroll-reveal.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        nav.scrolled {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        /* Marquee Animation */
+        .marquee-track {
+            animation: marquee 5s cubic-bezier(0.175, 0.885, 0.32, 1.275) infinite;
+            will-change: transform;
+        }
+        .marquee-track:hover {
+            animation-play-state: paused;
+        }
+        @keyframes marquee {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .marquee-track {
+                animation: none;
+            }
+            .marquee-item {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body class="font-sans bg-[#fafafa] text-[#262626] leading-relaxed overflow-x-hidden">
+    <!-- Navigation -->
+    <nav id="navbar" class="fixed top-0 left-0 right-0 z-[1000] bg-white/95 backdrop-blur-md border-b border-[#e5e5e5] transition-all duration-300">
+        <div class="flex items-center justify-between px-4 md:px-6 py-4 max-w-7xl mx-auto">
+            <img src="src/assets/mw_logo_h.svg" alt="Multi-Cloud Harmony" class="h-10 transition-transform duration-300 hover:scale-105" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <span style="display:none;" class="font-bold text-xl text-primary">Multi-Cloud Harmony</span>
+            
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#features" class="nav-link relative text-[#262626] no-underline font-medium text-[0.95rem] transition-colors duration-200 hover:text-primary">Features</a>
+                <a href="#providers" class="nav-link relative text-[#262626] no-underline font-medium text-[0.95rem] transition-colors duration-200 hover:text-primary">Providers</a>
+                <a href="#benefits" class="nav-link relative text-[#262626] no-underline font-medium text-[0.95rem] transition-colors duration-200 hover:text-primary">Benefits</a>
+                <a href="/" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-white font-semibold text-[0.95rem] bg-gradient-to-r from-primary to-secondary shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:from-[#1e2d73] hover:to-[#2e9bb3] no-underline">Sign In</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-16 mt-[72px] bg-gradient-to-b from-[rgba(37,57,142,0.03)] to-transparent relative overflow-hidden">
+        <div class="max-w-8xl mx-auto px-6">
+            <div class="relative z-10 text-center max-w-8xl mx-auto mb-16">
+                <div class="inline-flex items-center gap-2 px-4 py-2 bg-[rgba(58,176,200,0.1)] border border-[rgba(58,176,200,0.2)] rounded-full text-sm font-medium text-secondary mb-8 animate-fade-in-up">
+                    <i data-lucide="sparkles"></i>
+                    <span>Enterprise-Grade Multi-Cloud Management</span>
+                </div>
+                
+                <h1 class="text-4xl md:text-5xl lg:text-7xl font-extrabold leading-tight mb-6 bg-gradient-to-br from-primary to-secondary bg-clip-text text-transparent animate-fade-in-up" style="animation-delay: 0.2s;">
+                    Unify Your Cloud Infrastructure<br>
+                    <span class="bg-gradient-to-br from-secondary to-primary bg-clip-text text-transparent">
+                        One Platform, Infinite Possibilities
+                    </span>
+                </h1>
+                
+                <p class="text-lg md:text-xl text-[#666666] mb-10 leading-relaxed max-w-2xl mx-auto animate-fade-in-up" style="animation-delay: 0.4s;">
+                    Simplify multi-cloud and SaaS management with intelligent automation, 
+                    unified billing, and real-time analytics. Manage AWS, Azure, GCP, and 
+                    Oracle Cloud from a single, powerful dashboard.
+                </p>
+                
+                <div class="flex gap-4 justify-center flex-wrap mb-12 animate-fade-in-up" style="animation-delay: 0.6s;">
+                    <a href="/" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-white font-semibold text-[0.95rem] bg-gradient-to-r from-primary to-secondary shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:from-[#1e2d73] hover:to-[#2e9bb3] no-underline">
+                        Get Started Free
+                        <i data-lucide="arrow-right"></i>
+                    </a>
+                    <a href="#features" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-primary font-semibold text-[0.95rem] bg-transparent border-2 border-primary transition-all duration-300 hover:bg-primary hover:text-white hover:-translate-y-0.5 hover:shadow-lg no-underline">
+                        Explore Features
+                    </a>
+                </div>
+            </div>
+
+            <!-- MacBook Mockup with Dashboard Screenshot -->
+            <div class="relative max-w-6xl mx-auto scroll-reveal animate-fade-in-up" style="animation-delay: 0.8s;">
+                <div class="bg-[#1a1a1a] rounded-t-[20px] p-3 shadow-2xl">
+                    <div class="bg-white rounded-lg overflow-hidden aspect-[16/10] relative">
+                        <img src="public/landing-screenshots/dashboard.png" alt="Multi-Cloud Harmony Dashboard" class="w-full h-full object-cover block" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27800%27 height=%27500%27%3E%3Crect fill=%27%23f3f4f6%27 width=%27800%27 height=%27500%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 text-anchor=%27middle%27 dominant-baseline=%27middle%27 font-family=%27system-ui%27 font-size=%2724%27 fill=%27%236b7280%27%3EDashboard Screenshot%3C/text%3E%3C/svg%3E';">
+                    </div>
+                </div>
+                <div class="w-full h-5 bg-[#1a1a1a] rounded-b-lg relative macbook-base"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-16 bg-gradient-to-br from-primary to-secondary text-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-12 text-center animate-fade-in-up">
+                <div>
+                    <div class="text-5xl font-extrabold mb-2 leading-none">40+</div>
+                    <div class="text-base opacity-90 font-medium">Cloud & SaaS Providers</div>
+                </div>
+                <div>
+                    <div class="text-5xl font-extrabold mb-2 leading-none">3</div>
+                    <div class="text-base opacity-90 font-medium">Major Cloud Platforms</div>
+                </div>
+                <div>
+                    <div class="text-5xl font-extrabold mb-2 leading-none">100%</div>
+                    <div class="text-base opacity-90 font-medium">Unified Management</div>
+                </div>
+                <div>
+                    <div class="text-5xl font-extrabold mb-2 leading-none">24/7</div>
+                    <div class="text-base opacity-90 font-medium">Support Available</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-24 bg-white" id="features">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16 scroll-reveal">
+                <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-[#262626]">Powerful Features for Modern Teams</h2>
+                <p class="text-lg text-[#666666] max-w-2xl mx-auto">
+                    Everything you need to manage your cloud infrastructure efficiently 
+                    and make data-driven decisions.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
+                <div class="p-8 rounded-2xl border border-[#e5e5e5] bg-white transition-all duration-300 relative overflow-hidden hover:-translate-y-2 hover:shadow-xl hover:border-primary scroll-reveal feature-card">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-[rgba(37,57,142,0.1)] to-[rgba(58,176,200,0.1)] flex items-center justify-center mb-6 text-primary">
+                        <i data-lucide="cloud" class="w-7 h-7"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-[#262626]">Multi-Cloud Tenant Detection</h3>
+                    <p class="text-[#666666] leading-relaxed">
+                        Automatically discover and link existing cloud tenants across AWS, 
+                        Azure, and GCP. Intelligent service detection saves hours of manual setup.
+                    </p>
+                </div>
+                
+                <div class="p-8 rounded-2xl border border-[#e5e5e5] bg-white transition-all duration-300 relative overflow-hidden hover:-translate-y-2 hover:shadow-xl hover:border-primary scroll-reveal feature-card">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-[rgba(37,57,142,0.1)] to-[rgba(58,176,200,0.1)] flex items-center justify-center mb-6 text-primary">
+                        <i data-lucide="bar-chart-3" class="w-7 h-7"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-[#262626]">Unified Dashboard & Analytics</h3>
+                    <p class="text-[#666666] leading-relaxed">
+                        Real-time spending analytics, budget tracking, and comprehensive 
+                        reports. Visualize your cloud costs with interactive charts and 
+                        actionable insights.
+                    </p>
+                </div>
+                
+                <div class="p-8 rounded-2xl border border-[#e5e5e5] bg-white transition-all duration-300 relative overflow-hidden hover:-translate-y-2 hover:shadow-xl hover:border-primary scroll-reveal feature-card">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-[rgba(37,57,142,0.1)] to-[rgba(58,176,200,0.1)] flex items-center justify-center mb-6 text-primary">
+                        <i data-lucide="shopping-cart" class="w-7 h-7"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-[#262626]">SaaS Marketplace</h3>
+                    <p class="text-[#666666] leading-relaxed">
+                        Browse and subscribe to 40+ cloud providers and SaaS applications. 
+                        Streamlined procurement with integrated billing and subscription management.
+                    </p>
+                </div>
+                
+                <div class="p-8 rounded-2xl border border-[#e5e5e5] bg-white transition-all duration-300 relative overflow-hidden hover:-translate-y-2 hover:shadow-xl hover:border-primary scroll-reveal feature-card">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-[rgba(37,57,142,0.1)] to-[rgba(58,176,200,0.1)] flex items-center justify-center mb-6 text-primary">
+                        <i data-lucide="users" class="w-7 h-7"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-[#262626]">Partner Ecosystem</h3>
+                    <p class="text-[#666666] leading-relaxed">
+                        Manage partner relationships, track commissions, and onboard customers 
+                        seamlessly. Built for MSPs and cloud resellers.
+                    </p>
+                </div>
+                
+                <div class="p-8 rounded-2xl border border-[#e5e5e5] bg-white transition-all duration-300 relative overflow-hidden hover:-translate-y-2 hover:shadow-xl hover:border-primary scroll-reveal feature-card">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-[rgba(37,57,142,0.1)] to-[rgba(58,176,200,0.1)] flex items-center justify-center mb-6 text-primary">
+                        <i data-lucide="credit-card" class="w-7 h-7"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-[#262626]">Automated Billing & Invoicing</h3>
+                    <p class="text-[#666666] leading-relaxed">
+                        Centralized billing across all providers. Automated invoice generation, 
+                        payment tracking, and intelligent reminder system.
+                    </p>
+                </div>
+                
+                <div class="p-8 rounded-2xl border border-[#e5e5e5] bg-white transition-all duration-300 relative overflow-hidden hover:-translate-y-2 hover:shadow-xl hover:border-primary scroll-reveal feature-card">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-[rgba(37,57,142,0.1)] to-[rgba(58,176,200,0.1)] flex items-center justify-center mb-6 text-primary">
+                        <i data-lucide="shield" class="w-7 h-7"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-[#262626]">Role-Based Access Control</h3>
+                    <p class="text-[#666666] leading-relaxed">
+                        Secure access with Admin, Partner, and Customer roles. Granular 
+                        permissions ensure the right people see the right information.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cloud Providers Section -->
+    <section class="py-24 bg-[#f2f2f2]" id="providers">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16 scroll-reveal">
+                <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-[#262626]">Trusted by Leading Cloud Providers</h2>
+                <p class="text-lg text-[#666666] max-w-2xl mx-auto">
+                    Seamlessly integrate with the world's most popular cloud platforms and SaaS solutions
+                </p>
+            </div>
+            
+            <!-- Marquee Carousel -->
+            <div class="relative overflow-hidden mt-12">
+                <!-- Gradient Overlays for seamless loop effect -->
+                <div class="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-[#f2f2f2] to-transparent z-10 pointer-events-none"></div>
+                <div class="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[#f2f2f2] to-transparent z-10 pointer-events-none"></div>
+                
+                <!-- Marquee Container -->
+                <div class="flex gap-6 marquee-track">
+                    <!-- First Set of Logos -->
+                    <div class="flex gap-6 marquee-item shrink-0">
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/aws.png" alt="AWS" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/azure.png" alt="Microsoft Azure" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/google-cloud.png" alt="Google Cloud" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/oracle.png" alt="Oracle Cloud" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/vmware.png" alt="VMware" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/microsoft.png" alt="Microsoft" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/splunk.png" alt="Splunk" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/rubrik.png" alt="Rubrik" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/cisco.png" alt="Cisco" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/ibm.png" alt="IBM" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/citrix.png" alt="Citrix" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/cloudflare.png" alt="Cloudflare" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/trend-micro.png" alt="Trend Micro" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/trellix.png" alt="Trellix" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/barracuda.png" alt="Barracuda" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/cohesity.png" alt="Cohesity" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/rsa.png" alt="RSA" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/skyhigh-security.png" alt="Skyhigh Security" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/autodesk.png" alt="Autodesk" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                    </div>
+                    
+                    <!-- Duplicate Set for Seamless Loop -->
+                    <div class="flex gap-6 marquee-item shrink-0" aria-hidden="true">
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/aws.png" alt="AWS" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/azure.png" alt="Microsoft Azure" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/google-cloud.png" alt="Google Cloud" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/oracle.png" alt="Oracle Cloud" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/vmware.png" alt="VMware" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/microsoft.png" alt="Microsoft" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/splunk.png" alt="Splunk" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/rubrik.png" alt="Rubrik" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/cisco.png" alt="Cisco" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/ibm.png" alt="IBM" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/citrix.png" alt="Citrix" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/cloudflare.png" alt="Cloudflare" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/trend-micro.png" alt="Trend Micro" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/trellix.png" alt="Trellix" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/barracuda.png" alt="Barracuda" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/cohesity.png" alt="Cohesity" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/rsa.png" alt="RSA" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/skyhigh-security.png" alt="Skyhigh Security" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-[#e5e5e5] flex items-center justify-center transition-all duration-300 h-[100px] w-[180px] hover:-translate-y-1 hover:shadow-lg hover:border-primary">
+                            <img src="src/assets/vendors-logos/autodesk.png" alt="Autodesk" class="max-w-full max-h-[50px] object-contain grayscale opacity-70 transition-all duration-300 hover:grayscale-0 hover:opacity-100">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Marketplace Showcase -->
+    <section class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                
+                <div class="relative scroll-reveal">
+                    <div class="relative max-w-2xl mx-auto">
+                        <div class="bg-[#1a1a1a] rounded-t-[20px] p-3 shadow-2xl">
+                            <div class="bg-white rounded-lg overflow-hidden aspect-[16/10] relative">
+                                <img src="public/landing-screenshots/marketplace.png" alt="Marketplace" class="w-full h-full object-cover block" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27800%27 height=%27500%27%3E%3Crect fill=%27%23f3f4f6%27 width=%27800%27 height=%27500%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 text-anchor=%27middle%27 dominant-baseline=%27middle%27 font-family=%27system-ui%27 font-size=%2724%27 fill=%27%236b7280%27%3EMarketplace Screenshot%3C/text%3E%3C/svg%3E';">
+                            </div>
+                        </div>
+                        <div class="w-full h-5 bg-[#1a1a1a] rounded-b-lg relative macbook-base"></div>
+                    </div>
+                </div>
+                <div class="scroll-reveal">
+                    <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-[#262626]">Comprehensive SaaS Marketplace</h2>
+                    <p class="text-lg text-[#666666] mb-8 leading-relaxed">
+                        Discover and subscribe to 40+ cloud providers and SaaS applications 
+                        from a single, unified marketplace. Streamline procurement and 
+                        manage all subscriptions in one place.
+                    </p>
+                    <ul class="list-none mb-8">
+                        <li class="flex items-center gap-3 mb-4 text-[#262626]">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-success flex-shrink-0"></i>
+                            <span>Browse by category, vendor, or service type</span>
+                        </li>
+                        <li class="flex items-center gap-3 mb-4 text-[#262626]">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-success flex-shrink-0"></i>
+                            <span>Compare plans and pricing side-by-side</span>
+                        </li>
+                        <li class="flex items-center gap-3 mb-4 text-[#262626]">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-success flex-shrink-0"></i>
+                            <span>One-click subscription management</span>
+                        </li>
+                        <li class="flex items-center gap-3 mb-4 text-[#262626]">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-success flex-shrink-0"></i>
+                            <span>Integrated billing and usage tracking</span>
+                        </li>
+                    </ul>
+                    <a href="/marketplace" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-white font-semibold text-[0.95rem] bg-gradient-to-r from-primary to-secondary shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:from-[#1e2d73] hover:to-[#2e9bb3] no-underline">
+                        Explore Marketplace
+                        <i data-lucide="arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="py-24 bg-white" id="benefits">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <div class="text-left mb-12">
+                        <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-[#262626]">Why Choose Multi-Cloud Harmony?</h2>
+                        <p class="text-lg text-[#666666]">
+                            Experience the difference of unified cloud management.
+                        </p>
+                    </div>
+                    
+                    <ul class="list-none">
+                        <li class="flex gap-4 mb-8 items-start scroll-reveal">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center flex-shrink-0 text-white">
+                                <i data-lucide="check" class="w-[18px] h-[18px]"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold mb-2 text-[#262626]">Reduce Complexity</h3>
+                                <p class="text-[#666666] leading-relaxed">Eliminate the need to switch between multiple cloud consoles. 
+                                One platform for all your cloud operations.</p>
+                            </div>
+                        </li>
+                        
+                        <li class="flex gap-4 mb-8 items-start scroll-reveal">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center flex-shrink-0 text-white">
+                                <i data-lucide="check" class="w-[18px] h-[18px]"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold mb-2 text-[#262626]">Optimize Costs</h3>
+                                <p class="text-[#666666] leading-relaxed">Gain visibility into spending patterns and identify cost 
+                                optimization opportunities across all providers.</p>
+                            </div>
+                        </li>
+                        
+                        <li class="flex gap-4 mb-8 items-start scroll-reveal">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center flex-shrink-0 text-white">
+                                <i data-lucide="check" class="w-[18px] h-[18px]"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold mb-2 text-[#262626]">Save Time</h3>
+                                <p class="text-[#666666] leading-relaxed">Automated tenant detection and service linking reduce 
+                                onboarding time from days to minutes.</p>
+                            </div>
+                        </li>
+                        
+                        <li class="flex gap-4 mb-8 items-start scroll-reveal">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center flex-shrink-0 text-white">
+                                <i data-lucide="check" class="w-[18px] h-[18px]"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold mb-2 text-[#262626]">Make Better Decisions</h3>
+                                <p class="text-[#666666] leading-relaxed">Comprehensive analytics and reporting help you make 
+                                data-driven decisions about your cloud infrastructure.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="relative h-[500px] bg-gradient-to-br from-[rgba(37,57,142,0.05)] to-[rgba(58,176,200,0.05)] rounded-2xl flex items-center justify-center border border-[hsl(0,0%,90%)] overflow-hidden scroll-reveal">
+                    <img src="public/landing-screenshots/spend-over-time-chart.png" alt="Spend Over Time Chart - Real-Time Analytics" class="w-full h-full object-cover" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27800%27 height=%27500%27%3E%3Crect fill=%27%23f3f4f6%27 width=%27800%27 height=%27500%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 text-anchor=%27middle%27 dominant-baseline=%27middle%27 font-family=%27system-ui%27 font-size=%2724%27 fill=%27%236b7280%27%3ESpend Over Time Chart%3C/text%3E%3C/svg%3E';">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-24 bg-gradient-to-br from-[rgba(37,57,142,0.05)] to-[rgba(58,176,200,0.05)] text-center">
+        <div class="max-w-4xl mx-auto px-6">
+            <div class="scroll-reveal">
+                <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-[#262626]">Ready to Transform Your Cloud Management?</h2>
+                <p class="text-lg text-[#666666] mb-10">
+                    Join forward-thinking teams who are simplifying their multi-cloud operations. 
+                    Start your free trial today or become a partner to unlock additional benefits.
+                </p>
+                <div class="flex gap-4 justify-center flex-wrap md:flex-nowrap">
+                    <a href="/" class="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg text-white font-semibold text-lg bg-gradient-to-r from-primary to-secondary shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:from-[#1e2d73] hover:to-[#2e9bb3] no-underline w-full md:w-auto">
+                        Start Free Trial
+                        <i data-lucide="arrow-right"></i>
+                    </a>
+                    <a href="/" class="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg text-primary font-semibold text-lg bg-transparent border-2 border-primary transition-all duration-300 hover:bg-primary hover:text-white hover:-translate-y-0.5 hover:shadow-lg no-underline w-full md:w-auto">
+                        Schedule Demo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-[#262626] text-white py-16 pt-16 pb-8">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-12 mb-12">
+                <div>
+                    <h3 class="text-base font-semibold mb-4">Product</h3>
+                    <ul class="list-none">
+                        <li class="mb-3"><a href="#features" class="text-white/70 no-underline transition-colors duration-200 hover:text-white">Features</a></li>
+                        <li class="mb-3"><a href="#benefits" class="text-white/70 no-underline transition-colors duration-200 hover:text-white">Benefits</a></li>
+                        <li class="mb-3"><a href="#providers" class="text-white/70 no-underline transition-colors duration-200 hover:text-white">Providers</a></li>
+                        <li class="mb-3"><a href="/" class="text-white/70 no-underline transition-colors duration-200 hover:text-white">Pricing</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-base font-semibold mb-4">Resources</h3>
+                    <ul class="list-none">
+                        <li class="mb-3"><a href="/help" class="text-white/70 no-underline transition-colors duration-200 hover:text-white">Documentation</a></li>
+                        <li class="mb-3"><a href="/help" class="text-white/70 no-underline transition-colors duration-200 hover:text-white">Help Center</a></li>
+                        <li class="mb-3"><a href="/" class="text-white/70 no-underline transition-colors duration-200 hover:text-white">API Reference</a></li>
+                        <li class="mb-3"><a href="/" class="text-white/70 no-underline transition-colors duration-200 hover:text-white">Blog</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-base font-semibold mb-4">Company</h3>
+                    <ul class="list-none">
+                        <li class="mb-3"><a href="/" class="text-white/70 no-underline transition-colors duration-200 hover:text-white">About Us</a></li>
+                        <li class="mb-3"><a href="/" class="text-white/70 no-underline transition-colors duration-200 hover:text-white">Contact</a></li>
+                        <li class="mb-3"><a href="/" class="text-white/70 no-underline transition-colors duration-200 hover:text-white">Careers</a></li>
+                        <li class="mb-3"><a href="/" class="text-white/70 no-underline transition-colors duration-200 hover:text-white">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-base font-semibold mb-4">Support</h3>
+                    <ul class="list-none">
+                        <li class="mb-3"><a href="tel:+97141234567" class="text-white/70 no-underline transition-colors duration-200 hover:text-white">+971 4 123 4567</a></li>
+                        <li class="mb-3"><a href="mailto:support@mindverse.com" class="text-white/70 no-underline transition-colors duration-200 hover:text-white">support@mindverse.com</a></li>
+                        <li class="mb-3"><a href="/" class="text-white/70 no-underline transition-colors duration-200 hover:text-white">24/7 Support</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="text-center pt-8 border-t border-white/10 text-white/60">
+                <p>&copy; 2025 Mind Verse. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Navbar scroll effect
+        const navbar = document.getElementById('navbar');
+        let lastScroll = 0;
+
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            
+            if (currentScroll > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+            
+            lastScroll = currentScroll;
+        });
+
+        // Scroll reveal animation
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('revealed');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.scroll-reveal').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

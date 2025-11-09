@@ -615,17 +615,6 @@ const AdminPartners = () => {
                   </div>
                 ) : (
                   <>
-                    <div className="mb-4 p-3 bg-muted/50 rounded-lg flex items-center justify-between text-sm">
-                      <div>
-                        <span className="font-medium">Total Customers:</span> {filteredCustomers.length}
-                      </div>
-                      <div>
-                        <span className="font-medium">Total MRR:</span> ${filteredCustomers.reduce((sum, c) => sum + c.mrr, 0).toLocaleString()}
-                      </div>
-                      <div>
-                        <span className="font-medium">Active:</span> {filteredCustomers.filter(c => c.status === 'active').length}
-                      </div>
-                    </div>
 
                     <Table>
                       <TableHeader>
@@ -732,17 +721,6 @@ const AdminPartners = () => {
                   </div>
                 ) : (
                   <>
-                    <div className="mb-4 p-3 bg-muted/50 rounded-lg flex items-center justify-between text-sm">
-                      <div>
-                        <span className="font-medium">Total Orders:</span> {filteredOrders.length}
-                      </div>
-                      <div>
-                        <span className="font-medium">Total Revenue:</span> ${filteredOrders.reduce((sum, o) => sum + o.amount, 0).toLocaleString()}
-                      </div>
-                      <div>
-                        <span className="font-medium">Total Commission:</span> ${filteredOrders.reduce((sum, o) => sum + (o.commission || 0), 0).toLocaleString()}
-                      </div>
-                    </div>
 
                     <Table>
                       <TableHeader>

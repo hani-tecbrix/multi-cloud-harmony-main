@@ -252,6 +252,549 @@ const helpTopics = [
     ]
   },
   {
+    id: 11,
+    category: "User Management",
+    title: "Managing Partner Customers",
+    description: "Complete guide to managing and onboarding customers",
+    icon: Users,
+    content: `<div class="help-intro">
+<p class="text-lg leading-relaxed mb-6">The Partner Customers page is your central hub for managing all your customer accounts. Here you can view customer information, add new customers, detect existing cloud tenants, and manage customer subscriptions and billing.</p>
+
+<div class="feature-highlight bg-primary/5 border border-primary/20 rounded-lg p-4 mb-6">
+<h2 class="text-xl font-semibold mb-3 flex items-center gap-2">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+Overview
+</h2>
+<p class="mb-3">As a partner, you can manage multiple customer accounts from a single interface. The Partner Customers page provides:</p>
+<ul class="space-y-2">
+  <li class="flex items-start gap-2"><span class="text-primary mt-1">•</span> <strong>Customer List View</strong>: See all your customers in one organized table</li>
+  <li class="flex items-start gap-2"><span class="text-primary mt-1">•</span> <strong>Quick Search</strong>: Find customers by name or industry</li>
+  <li class="flex items-start gap-2"><span class="text-primary mt-1">•</span> <strong>Customer Onboarding</strong>: Add new customers or link existing ones</li>
+  <li class="flex items-start gap-2"><span class="text-primary mt-1">•</span> <strong>Cloud Tenant Detection</strong>: Automatically detect existing cloud accounts</li>
+  <li class="flex items-start gap-2"><span class="text-primary mt-1">•</span> <strong>Customer Details</strong>: View comprehensive customer information and billing</li>
+</ul>
+</div>
+</div>
+
+<div class="navigation-section">
+<h2 class="text-2xl font-bold mb-4 pb-2 border-b">Accessing the Partner Customers Page</h2>
+
+<div class="quick-access bg-muted/50 rounded-lg p-4 mb-6">
+<h3 class="font-semibold mb-2">Quick Access</h3>
+<p class="mb-2"><strong>Direct URL:</strong></p>
+<code class="block bg-background px-3 py-2 rounded border text-sm">http://localhost:5173/partner/customers</code>
+</div>
+
+<div class="step-by-step-navigation">
+<h3 class="text-xl font-semibold mb-4">Step-by-Step Navigation</h3>
+
+<div class="step-card mb-4 p-4 border rounded-lg bg-card">
+<h4 class="font-semibold mb-2 flex items-center gap-2">
+<span class="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-bold">1</span>
+Start the Application
+</h4>
+<ul class="ml-8 space-y-1 text-sm">
+  <li>Open your terminal</li>
+  <li>Navigate to: <code class="bg-muted px-1 py-0.5 rounded text-xs">cd /Users/apple/Downloads/multi-cloud-harmony-main</code></li>
+  <li>Start server: <code class="bg-muted px-1 py-0.5 rounded text-xs">npm run dev</code></li>
+  <li>Wait for server to start on <code class="bg-muted px-1 py-0.5 rounded text-xs">http://localhost:5173</code></li>
+</ul>
+</div>
+
+<div class="step-card mb-4 p-4 border rounded-lg bg-card">
+<h4 class="font-semibold mb-2 flex items-center gap-2">
+<span class="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-bold">2</span>
+Log In
+</h4>
+<ul class="ml-8 space-y-1 text-sm">
+  <li>Open browser: <code class="bg-muted px-1 py-0.5 rounded text-xs">http://localhost:5173</code></li>
+  <li>Enter credentials: <code class="bg-muted px-1 py-0.5 rounded text-xs">user@mindverse.com</code> / <code class="bg-muted px-1 py-0.5 rounded text-xs">user123</code></li>
+  <li>Click <strong>"Sign In"</strong></li>
+</ul>
+</div>
+
+<div class="step-card mb-4 p-4 border rounded-lg bg-card">
+<h4 class="font-semibold mb-2 flex items-center gap-2">
+<span class="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-bold">3</span>
+Switch to Partner Role
+</h4>
+<div class="ml-8 space-y-2">
+<p class="text-sm mb-2">After logging in, switch to Partner role:</p>
+<img src="/help-screenshots/partner-customers/navigation-sidebar.png" alt="Navigation Sidebar" class="w-full max-w-lg rounded-lg border mb-2" />
+<ul class="space-y-1 text-sm">
+  <li>Click profile/avatar in top right corner</li>
+  <li>Select <strong>"Switch Role"</strong> → Choose <strong>"Partner"</strong></li>
+  <li>You'll be redirected with partner permissions</li>
+</ul>
+</div>
+</div>
+
+<div class="step-card mb-6 p-4 border rounded-lg bg-card">
+<h4 class="font-semibold mb-2 flex items-center gap-2">
+<span class="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-bold">4</span>
+Navigate to Customers Page
+</h4>
+<div class="ml-8 space-y-2">
+<p class="text-sm mb-2">From the navigation sidebar:</p>
+<ul class="space-y-1 text-sm">
+  <li>Click <strong>"Customers"</strong> (Users icon) in left sidebar</li>
+  <li>OR directly navigate to: <code class="bg-muted px-1 py-0.5 rounded text-xs">http://localhost:5173/partner/customers</code></li>
+</ul>
+<img src="/help-screenshots/partner-customers/main-page.png" alt="Partner Customers Main Page" class="w-full rounded-lg border mt-3" />
+</div>
+</div>
+</div>
+</div>
+
+<div class="viewing-customers-section">
+<h2 class="text-2xl font-bold mb-4 pb-2 border-b">Viewing Your Customers</h2>
+
+<p class="mb-4">The main customers table displays all your customers with comprehensive information. Here's what you'll see:</p>
+
+<img src="/help-screenshots/partner-customers/customers-table.png" alt="Customers Table" class="w-full rounded-lg border mb-6 shadow-sm" />
+
+<div class="table-columns-explained grid md:grid-cols-2 gap-4 mb-6">
+<div class="column-info p-4 border rounded-lg">
+<h3 class="font-semibold mb-3 text-lg">Table Columns</h3>
+<ul class="space-y-2 text-sm">
+  <li><strong>Customer ID</strong><br/><span class="text-muted-foreground">Unique tenant identifier (e.g., <code>TNT-AWS-001234</code>)</span></li>
+  <li><strong>Customer</strong><br/><span class="text-muted-foreground">Company/individual name with email</span></li>
+  <li><strong>Cloud</strong><br/><span class="text-muted-foreground">Primary provider with color-coded badges</span></li>
+  <li><strong>Subscriptions</strong><br/><span class="text-muted-foreground">Number of active subscriptions</span></li>
+  <li><strong>Monthly Spend</strong><br/><span class="text-muted-foreground">Current monthly spending amount</span></li>
+  <li><strong>Payment Status</strong><br/><span class="text-muted-foreground">Paid or Pending badge</span></li>
+</ul>
+</div>
+
+<div class="customer-types-info p-4 border rounded-lg">
+<h3 class="font-semibold mb-3 text-lg">Customer Types & Status</h3>
+<div class="space-y-3">
+<div>
+<p class="font-medium mb-1">Customer Types:</p>
+<ul class="text-sm space-y-1">
+  <li class="flex items-center gap-2"><span class="text-lg">🏢</span> <strong>Company</strong> - Business customers</li>
+  <li class="flex items-center gap-2"><span class="text-lg">👤</span> <strong>Personal</strong> - Individual customers</li>
+</ul>
+</div>
+<div>
+<p class="font-medium mb-1">Payment Status:</p>
+<ul class="text-sm space-y-1">
+  <li class="flex items-center gap-2"><span class="text-green-600">✓</span> <strong>Paid</strong> - Green badge, up to date</li>
+  <li class="flex items-center gap-2"><span class="text-red-600">⏰</span> <strong>Pending</strong> - Red badge, payment pending</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="search-filter-section">
+<h2 class="text-2xl font-bold mb-4 pb-2 border-b">Searching and Filtering Customers</h2>
+
+<div class="search-section mb-6">
+<h3 class="text-xl font-semibold mb-3">Using the Search Bar</h3>
+<div class="flex flex-col md:flex-row gap-4">
+<div class="flex-1">
+<img src="/help-screenshots/partner-customers/search-functionality.png" alt="Search Functionality" class="w-full rounded-lg border shadow-sm mb-3" />
+<ol class="space-y-2 text-sm ml-4">
+  <li>Locate the search bar at the top of the customers table</li>
+  <li>Type any part of the customer name or industry</li>
+  <li>The table automatically filters to show matching results</li>
+  <li>Clear the search to see all customers again</li>
+</ol>
+</div>
+</div>
+</div>
+
+<div class="pagination-section">
+<h3 class="text-xl font-semibold mb-3">Pagination Controls</h3>
+<div class="flex flex-col md:flex-row gap-4">
+<div class="flex-1">
+<img src="/help-screenshots/partner-customers/pagination-controls.png" alt="Pagination Controls" class="w-full max-w-lg rounded-lg border shadow-sm mb-3" />
+<p class="mb-2 text-sm">When you have many customers, use pagination to navigate:</p>
+<ul class="space-y-2 text-sm ml-4">
+  <li><strong>Items Per Page</strong>: Select 15, 30, 50, or 100 customers per page</li>
+  <li><strong>Page Navigation</strong>: Use arrow buttons (← →) to move between pages</li>
+  <li><strong>Page Numbers</strong>: See current page and total pages displayed</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<div class="adding-customer-section">
+<h2 class="text-2xl font-bold mb-6 pb-2 border-b">Adding a New Customer</h2>
+
+<p class="mb-6 text-lg">Follow this comprehensive workflow to onboard a new customer with cloud tenant detection and service provisioning.</p>
+
+<div class="workflow-steps space-y-6">
+<div class="step-item p-5 border-2 border-primary/20 rounded-lg bg-card">
+<h3 class="text-xl font-semibold mb-3 flex items-center gap-2">
+<span class="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-bold">1</span>
+Open the Add Customer Panel
+</h3>
+<div class="ml-10 space-y-3">
+<img src="/help-screenshots/partner-customers/add-customer-button.png" alt="Add Customer Button" class="w-full max-w-md rounded-lg border shadow-sm mb-2" />
+<ol class="space-y-2 text-sm">
+  <li>Click the <strong class="text-primary">"Add Customer"</strong> button in the top right corner</li>
+  <li>A side panel will slide in from the right with the onboarding form</li>
+</ol>
+</div>
+</div>
+
+<div class="step-item p-5 border-2 border-primary/20 rounded-lg bg-card">
+<h3 class="text-xl font-semibold mb-3 flex items-center gap-2">
+<span class="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-bold">2</span>
+Select Customer Type
+</h3>
+<div class="ml-10 space-y-3">
+<img src="/help-screenshots/partner-customers/customer-type-selection.png" alt="Customer Type Selection" class="w-full rounded-lg border shadow-sm mb-2" />
+<p class="text-sm mb-2">Choose between two options:</p>
+<div class="grid md:grid-cols-2 gap-3">
+<div class="p-3 border rounded bg-muted/50">
+<p class="font-semibold mb-1">✨ New Customer</p>
+<p class="text-xs text-muted-foreground">Create a completely new customer account</p>
+</div>
+<div class="p-3 border rounded bg-muted/50">
+<p class="font-semibold mb-1">🔗 Existing Customer</p>
+<p class="text-xs text-muted-foreground">Link to an existing customer account by domain</p>
+</div>
+</div>
+</div>
+</div>
+
+<div class="step-item p-5 border-2 border-primary/20 rounded-lg bg-card">
+<h3 class="text-xl font-semibold mb-3 flex items-center gap-2">
+<span class="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-bold">3</span>
+Choose Cloud Provider
+</h3>
+<div class="ml-10 space-y-3">
+<img src="/help-screenshots/partner-customers/cloud-provider-selection.png" alt="Cloud Provider Selection" class="w-full rounded-lg border shadow-sm mb-2" />
+<p class="text-sm mb-2">Select the primary cloud provider for this customer:</p>
+<div class="grid grid-cols-3 gap-2 text-sm">
+<div class="p-2 border rounded text-center bg-orange-50 border-orange-200">
+<p class="font-semibold">AWS</p>
+<p class="text-xs text-muted-foreground">Orange badge</p>
+</div>
+<div class="p-2 border rounded text-center bg-blue-50 border-blue-200">
+<p class="font-semibold">Azure</p>
+<p class="text-xs text-muted-foreground">Blue badge</p>
+</div>
+<div class="p-2 border rounded text-center bg-green-50 border-green-200">
+<p class="font-semibold">GCP</p>
+<p class="text-xs text-muted-foreground">Green badge</p>
+</div>
+</div>
+<p class="text-xs text-muted-foreground mt-2">Click on a provider card to select it. The selected provider will show a checkmark.</p>
+</div>
+</div>
+
+<div class="step-item p-5 border-2 border-primary/20 rounded-lg bg-card">
+<h3 class="text-xl font-semibold mb-3 flex items-center gap-2">
+<span class="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-bold">4</span>
+Fill in Customer Information
+</h3>
+<div class="ml-10 space-y-3">
+<img src="/help-screenshots/partner-customers/customer-information-form.png" alt="Customer Information Form" class="w-full rounded-lg border shadow-sm mb-2" />
+<p class="text-sm mb-2">Complete all required fields:</p>
+<div class="grid md:grid-cols-2 gap-2 text-sm">
+<div><strong>Company</strong> <span class="text-red-500">*</span> - Organization name</div>
+<div><strong>Contact Name</strong> <span class="text-red-500">*</span> - Primary contact</div>
+<div><strong>Primary Domain</strong> <span class="text-red-500">*</span> - Email domain</div>
+<div><strong>Plan</strong> - Subscription plan</div>
+<div><strong>Consumer</strong> - Consumer type</div>
+<div><strong>Reference</strong> - Internal reference</div>
+<div><strong>Invoice Profile</strong> - Billing profile</div>
+<div><strong>End Customer</strong> - End customer info</div>
+</div>
+</div>
+</div>
+
+<div class="step-item p-5 border-2 border-primary/20 rounded-lg bg-card">
+<h3 class="text-xl font-semibold mb-3 flex items-center gap-2">
+<span class="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-bold">5</span>
+Cloud Tenant Detection
+</h3>
+<div class="ml-10 space-y-4">
+<p class="text-sm mb-3">This powerful feature automatically detects existing cloud accounts associated with the customer's domain.</p>
+
+<div class="detection-before mb-4">
+<img src="/help-screenshots/partner-customers/tenant-detection-before.png" alt="Tenant Detection Before" class="w-full rounded-lg border shadow-sm mb-2" />
+<p class="text-xs text-muted-foreground mb-2">Before running detection</p>
+</div>
+
+<ol class="space-y-3 text-sm">
+  <li class="flex items-start gap-2">
+    <span class="font-bold text-primary">1.</span>
+    <div><strong>Enter Email/Domain</strong>: The primary domain you entered will be used for detection</div>
+  </li>
+  <li class="flex items-start gap-2">
+    <span class="font-bold text-primary">2.</span>
+    <div><strong>Click "Check for Existing Tenants"</strong>: The system will scan for existing cloud accounts</div>
+  </li>
+  <li class="flex items-start gap-2">
+    <span class="font-bold text-primary">3.</span>
+    <div>
+      <strong>Detection in Progress</strong>: You'll see a loading indicator
+      <img src="/help-screenshots/partner-customers/tenant-detection-loading.png" alt="Tenant Detection Loading" class="w-full max-w-md rounded border mt-2" />
+    </div>
+  </li>
+  <li class="flex items-start gap-2">
+    <span class="font-bold text-primary">4.</span>
+    <div>
+      <strong>Review Detected Tenants</strong>: If tenants are found, you'll see:
+      <img src="/help-screenshots/partner-customers/tenant-detection-results.png" alt="Tenant Detection Results" class="w-full rounded-lg border shadow-sm mt-2 mb-2" />
+      <ul class="ml-4 mt-2 space-y-1 text-xs">
+        <li>• Tenant ID for each detected account</li>
+        <li>• Cloud provider (AWS, Azure, or GCP)</li>
+        <li>• Account name and creation date</li>
+        <li>• Region information</li>
+        <li>• Existing services and monthly costs</li>
+        <li>• Total monthly spend</li>
+      </ul>
+    </div>
+  </li>
+  <li class="flex items-start gap-2">
+    <span class="font-bold text-primary">5.</span>
+    <div>
+      <strong>Select Additional Services</strong> (Optional): Choose additional cloud services
+      <img src="/help-screenshots/partner-customers/service-selection.png" alt="Service Selection" class="w-full rounded-lg border shadow-sm mt-2 mb-2" />
+      <ul class="ml-4 mt-2 space-y-1 text-xs">
+        <li>• Recommended services are pre-selected</li>
+        <li>• Add or remove services as needed</li>
+        <li>• Each service shows its category (Compute, Storage, Database)</li>
+      </ul>
+    </div>
+  </li>
+  <li class="flex items-start gap-2">
+    <span class="font-bold text-primary">6.</span>
+    <div><strong>Continue</strong>: Click "Continue" to proceed with selected services</div>
+  </li>
+</ol>
+</div>
+</div>
+
+<div class="step-item p-5 border-2 border-primary/20 rounded-lg bg-card">
+<h3 class="text-xl font-semibold mb-3 flex items-center gap-2">
+<span class="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-bold">6</span>
+Review and Submit
+</h3>
+<div class="ml-10 space-y-2 text-sm">
+<ol class="space-y-2">
+  <li>Review all entered information</li>
+  <li>Verify detected tenants and selected services</li>
+  <li>Click <strong class="text-primary">"Add Customer"</strong> button at the bottom of the panel</li>
+  <li>Wait for confirmation</li>
+</ol>
+</div>
+</div>
+
+<div class="step-item p-5 border-2 border-green-500/20 rounded-lg bg-green-50/50">
+<h3 class="text-xl font-semibold mb-3 flex items-center gap-2">
+<span class="flex items-center justify-center w-8 h-8 rounded-full bg-green-500 text-white font-bold">✓</span>
+Confirmation & Success
+</h3>
+<div class="ml-10 space-y-3">
+<img src="/help-screenshots/partner-customers/add-customer-success.png" alt="Add Customer Success" class="w-full max-w-md rounded-lg border shadow-sm mb-2" />
+<p class="text-sm mb-2">After successfully adding a customer:</p>
+<ul class="space-y-1 text-sm">
+  <li>✓ Success toast notification appears</li>
+  <li>✓ Shows customer name and generated Customer ID</li>
+  <li>✓ Displays number of tenants linked (if detected)</li>
+  <li>✓ Panel closes automatically</li>
+  <li>✓ New customer appears in your customers table</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<div class="existing-customer-section">
+<h2 class="text-2xl font-bold mb-4 pb-2 border-b">Adding an Existing Customer</h2>
+
+<p class="mb-4">To link a new domain to an existing customer account, follow these simple steps:</p>
+
+<div class="existing-customer-steps p-4 border rounded-lg bg-card">
+<ol class="space-y-3 text-sm">
+  <li class="flex items-start gap-2">
+    <span class="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">1</span>
+    <div>Select <strong>"Existing Customer"</strong> option in the customer type selection</div>
+  </li>
+  <li class="flex items-start gap-2">
+    <span class="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">2</span>
+    <div>Enter the domain name (e.g., <code class="bg-muted px-1 py-0.5 rounded text-xs">example.com</code>)</div>
+  </li>
+  <li class="flex items-start gap-2">
+    <span class="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">3</span>
+    <div>Click <strong>"Add Customer"</strong> button</div>
+  </li>
+  <li class="flex items-start gap-2">
+    <span class="flex items-center justify-center w-6 h-6 rounded-full bg-green-500 text-white text-xs font-bold">✓</span>
+    <div>The domain will be automatically linked to the existing customer account</div>
+  </li>
+</ol>
+</div>
+</div>
+
+<div class="customer-details-section">
+<h2 class="text-2xl font-bold mb-6 pb-2 border-b">Viewing Customer Details</h2>
+
+<p class="mb-4">Click on any customer row to view comprehensive information including billing, subscriptions, and metrics.</p>
+
+<img src="/help-screenshots/partner-customers/customer-detail-view.png" alt="Customer Detail View" class="w-full rounded-lg border shadow-sm mb-6" />
+
+<div class="details-grid grid md:grid-cols-2 gap-4 mb-6">
+<div class="overview-card p-4 border rounded-lg">
+<h3 class="font-semibold mb-3 text-lg">Customer Overview</h3>
+<ul class="space-y-2 text-sm">
+  <li><strong>Customer Header</strong>: Name, email, tenant ID, and type</li>
+  <li><strong>Quick Actions</strong>: "Assign Services" button</li>
+  <li><strong>Key Metrics Cards</strong>:
+    <ul class="ml-4 mt-1 space-y-1 text-xs">
+      <li>• Active Subscriptions count</li>
+      <li>• Monthly Spend amount</li>
+      <li>• Payment Status</li>
+      <li>• Outstanding Balance</li>
+    </ul>
+  </li>
+</ul>
+</div>
+
+<div class="billing-card p-4 border rounded-lg">
+<h3 class="font-semibold mb-3 text-lg">Billing Information</h3>
+<img src="/help-screenshots/partner-customers/billing-information.png" alt="Billing Information" class="w-full rounded border mb-2" />
+<ul class="space-y-1 text-sm">
+  <li><strong>Current Balance</strong> - Total amount owed</li>
+  <li><strong>Last Payment</strong> - Most recent payment amount</li>
+  <li><strong>Last Payment Date</strong> - Payment timestamp</li>
+  <li><strong>Payment Status</strong> - Current status</li>
+  <li><strong>Outstanding Balance</strong> - Overdue amounts</li>
+</ul>
+</div>
+</div>
+
+<div class="subscriptions-section mb-6">
+<h3 class="text-xl font-semibold mb-3">Subscription Details</h3>
+<img src="/help-screenshots/partner-customers/subscription-details.png" alt="Subscription Details" class="w-full rounded-lg border shadow-sm mb-3" />
+<p class="text-sm mb-2">The Subscription Details table shows all active subscriptions:</p>
+<div class="grid md:grid-cols-2 gap-2 text-sm">
+<div><strong>Provider</strong> - Cloud or SaaS provider name</div>
+<div><strong>Service</strong> - Specific service (e.g., EC2, SQL Database)</div>
+<div><strong>Type</strong> - <span class="badge bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">Consumption</span> or <span class="badge bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-xs">License</span></div>
+<div><strong>Monthly Cost</strong> - Cost per month</div>
+</div>
+</div>
+
+<div class="navigation-back p-3 bg-muted/50 rounded-lg">
+<h3 class="font-semibold mb-2">Navigating Back</h3>
+<ol class="text-sm space-y-1">
+  <li>Click the <strong>← back arrow</strong> button in the top left</li>
+  <li>You'll return to the customers table view</li>
+</ol>
+</div>
+</div>
+
+<div class="tips-practices-section">
+<h2 class="text-2xl font-bold mb-6 pb-2 border-b">Tips and Best Practices</h2>
+
+<div class="tips-grid grid md:grid-cols-3 gap-4 mb-6">
+<div class="tip-card p-4 border rounded-lg bg-blue-50/50 border-blue-200">
+<h3 class="font-semibold mb-2 text-blue-900">Customer Onboarding</h3>
+<ul class="space-y-1 text-sm">
+  <li>✓ Always run tenant detection</li>
+  <li>✓ Verify domain before detection</li>
+  <li>✓ Review recommended services</li>
+  <li>✓ Complete all required fields</li>
+</ul>
+</div>
+
+<div class="tip-card p-4 border rounded-lg bg-green-50/50 border-green-200">
+<h3 class="font-semibold mb-2 text-green-900">Managing Customers</h3>
+<ul class="space-y-1 text-sm">
+  <li>✓ Regular payment reviews</li>
+  <li>✓ Use search efficiently</li>
+  <li>✓ Monitor spending trends</li>
+  <li>✓ Check details regularly</li>
+</ul>
+</div>
+
+<div class="tip-card p-4 border rounded-lg bg-purple-50/50 border-purple-200">
+<h3 class="font-semibold mb-2 text-purple-900">Tenant Detection</h3>
+<ul class="space-y-1 text-sm">
+  <li>✓ Multi-cloud support (AWS/Azure/GCP)</li>
+  <li>✓ Automatic tenant linking</li>
+  <li>✓ Smart service recommendations</li>
+  <li>✓ Cost visibility upfront</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="troubleshooting-section">
+<h2 class="text-2xl font-bold mb-4 pb-2 border-b">Troubleshooting</h2>
+
+<div class="issue-cards space-y-3">
+<div class="issue-card p-4 border border-yellow-200 rounded-lg bg-yellow-50/50">
+<h3 class="font-semibold mb-2 text-yellow-900">⚠️ Tenant Detection Not Working</h3>
+<ul class="text-sm space-y-1 ml-4">
+  <li>• Verify the domain/email is correct</li>
+  <li>• Ensure the domain has active cloud accounts</li>
+  <li>• Try again after a few moments</li>
+</ul>
+</div>
+
+<div class="issue-card p-4 border border-orange-200 rounded-lg bg-orange-50/50">
+<h3 class="font-semibold mb-2 text-orange-900">⚠️ Customer Not Appearing</h3>
+<ul class="text-sm space-y-1 ml-4">
+  <li>• Check if search filters are active</li>
+  <li>• Verify the customer was successfully added</li>
+  <li>• Refresh the page</li>
+</ul>
+</div>
+
+<div class="issue-card p-4 border border-red-200 rounded-lg bg-red-50/50">
+<h3 class="font-semibold mb-2 text-red-900">⚠️ Cannot Add Customer</h3>
+<ul class="text-sm space-y-1 ml-4">
+  <li>• Ensure all required fields are filled</li>
+  <li>• Check that tenant detection has completed</li>
+  <li>• Verify you have proper permissions</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="shortcuts-section mt-6 p-4 bg-muted/50 rounded-lg">
+<h2 class="text-xl font-semibold mb-3">Keyboard Shortcuts</h2>
+<div class="grid md:grid-cols-2 gap-2 text-sm">
+<div><kbd class="px-2 py-1 bg-background border rounded text-xs">Ctrl/Cmd + F</kbd> Focus search bar</div>
+<div><kbd class="px-2 py-1 bg-background border rounded text-xs">Esc</kbd> Close Add Customer panel</div>
+</div>
+</div>
+</div>`,
+    screenshots: [
+      { type: "image", url: "/help-screenshots/partner-customers/main-page.png", alt: "Partner Customers Main Page", description: "Full view of the Partner Customers page showing the customers table" },
+      { type: "image", url: "/help-screenshots/partner-customers/navigation-sidebar.png", alt: "Navigation Sidebar", description: "Left navigation sidebar showing Customers menu item" },
+      { type: "image", url: "/help-screenshots/partner-customers/add-customer-button.png", alt: "Add Customer Button", description: "Header section with Add Customer button highlighted" },
+      { type: "image", url: "/help-screenshots/partner-customers/customer-type-selection.png", alt: "Customer Type Selection", description: "Add Customer panel showing New Customer vs Existing Customer options" },
+      { type: "image", url: "/help-screenshots/partner-customers/cloud-provider-selection.png", alt: "Cloud Provider Selection", description: "Cloud provider selection cards for AWS, Azure, and GCP" },
+      { type: "image", url: "/help-screenshots/partner-customers/customer-information-form.png", alt: "Customer Information Form", description: "Form fields for entering customer information" },
+      { type: "image", url: "/help-screenshots/partner-customers/tenant-detection-before.png", alt: "Tenant Detection Before", description: "Cloud Tenant Detection section before running detection" },
+      { type: "image", url: "/help-screenshots/partner-customers/tenant-detection-loading.png", alt: "Tenant Detection Loading", description: "Tenant detection in progress with loading indicator" },
+      { type: "image", url: "/help-screenshots/partner-customers/tenant-detection-results.png", alt: "Tenant Detection Results", description: "Detected cloud tenants with account details and costs" },
+      { type: "image", url: "/help-screenshots/partner-customers/service-selection.png", alt: "Service Selection", description: "Additional cloud services selection interface" },
+      { type: "image", url: "/help-screenshots/partner-customers/add-customer-success.png", alt: "Add Customer Success", description: "Success notification after adding a customer" },
+      { type: "image", url: "/help-screenshots/partner-customers/customers-table.png", alt: "Customers Table", description: "Customers table showing customer data with all columns" },
+      { type: "image", url: "/help-screenshots/partner-customers/search-functionality.png", alt: "Search Functionality", description: "Search bar with search term and filtered results" },
+      { type: "image", url: "/help-screenshots/partner-customers/pagination-controls.png", alt: "Pagination Controls", description: "Pagination controls showing page numbers and navigation" },
+      { type: "image", url: "/help-screenshots/partner-customers/customer-detail-view.png", alt: "Customer Detail View", description: "Full customer detail view with overview and metrics" },
+      { type: "image", url: "/help-screenshots/partner-customers/billing-information.png", alt: "Billing Information", description: "Billing Information card with payment details" },
+      { type: "image", url: "/help-screenshots/partner-customers/subscription-details.png", alt: "Subscription Details", description: "Subscription Details table showing all active subscriptions" }
+    ],
+    videos: [
+      { type: "video", url: "https://example.com/video-partner-customers", title: "Partner Customers Guide", description: "Complete walkthrough of managing partner customers" }
+    ]
+  },
+  {
     id: 5,
     category: "Reports",
     title: "Generating and Understanding Reports",

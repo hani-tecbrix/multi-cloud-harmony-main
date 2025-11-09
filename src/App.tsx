@@ -20,6 +20,7 @@ import NotFound from "./pages/NotFound";
 import UnderConstruction from "./pages/UnderConstruction";
 import Users from "./pages/Users";
 import { AppLayout } from "./components/AppLayout";
+import { PublicLayout } from "./components/PublicLayout";
 import { CartProvider } from "./contexts/CartContext";
 import { UserRoleProvider } from "./contexts/UserRoleContext";
 
@@ -35,6 +36,8 @@ const App = () => (
           <BrowserRouter>
           <Routes>
             <Route path="/" element={<Login />} />
+            {/* Public Help Route - Accessible without authentication */}
+            <Route path="/help" element={<PublicLayout><Help /></PublicLayout>} />
             <Route path="/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
             <Route path="/customers" element={<AppLayout><Customers /></AppLayout>} />
             <Route path="/partner/customers" element={<AppLayout><PartnerCustomers /></AppLayout>} />
@@ -45,7 +48,6 @@ const App = () => (
             <Route path="/orders" element={<AppLayout><OrderHistory /></AppLayout>} />
             <Route path="/invoices" element={<AppLayout><Invoices /></AppLayout>} />
             <Route path="/reports" element={<AppLayout><Reports /></AppLayout>} />
-            <Route path="/help" element={<AppLayout><Help /></AppLayout>} />
             <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
             
             {/* Admin Role-Specific Routes */}
