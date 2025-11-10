@@ -143,7 +143,7 @@ export const Header = ({
             variant="ghost"
             size="icon"
             onClick={onToggleAside}
-            className="h-9 w-9 hover:bg-muted/50 hidden lg:flex"
+            className="h-9 w-9 hidden lg:flex"
             aria-label="Toggle sidebar"
           >
             <Menu className="h-5 w-5" />

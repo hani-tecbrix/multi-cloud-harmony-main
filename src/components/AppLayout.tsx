@@ -41,7 +41,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         {/* Main Content Area */}
         <main 
           className={cn(
-            "flex-1 transition-all duration-300 overflow-y-auto",
+            "flex-1 transition-all duration-300 overflow-y-auto max-w-8xl mx-auto",
             isNavExpanded ? "lg:ml-64" : "lg:ml-20"
           )}
         >

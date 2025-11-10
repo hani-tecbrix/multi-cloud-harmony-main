@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import logo from "@/assets/mw_logo_v.svg";
+import { Home } from "lucide-react";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -62,7 +63,16 @@ const Login = () => {
             <Button type="submit" className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity">
               Sign In
             </Button>
-            <p className="text-xs text-center text-muted-foreground mt-4">
+            <div className="flex items-center justify-center mt-4">
+              <a
+                href="/landing.html"
+                className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors no-underline"
+              >
+                <Home className="h-4 w-4" />
+                Home
+              </a>
+            </div>
+            <p className="text-xs text-center text-muted-foreground mt-2">
               Demo credentials: user@mindverse.com / user123
             </p>
           </form>
